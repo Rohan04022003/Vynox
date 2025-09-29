@@ -64,35 +64,82 @@ const getUserTweets = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   const { sortType = "desc", limit = 5, page = 1 } = req.query;
 
-  const skip = (page - 1) * limit;
+  const limitNum = Number(limit);
+  const pageNum = Number(page);
+  const skip = (pageNum - 1) * limitNum;
 
-  const tweets = await Tweet.find({ owner: userId })
-    .sort({ createdAt: sortType === "desc" ? -1 : 1 })
-    .skip(skip)
-    .limit(limit);
+  // const tweets = await Tweet.find({ owner: userId })
+  //   .sort({ createdAt: sortType === "desc" ? -1 : 1 })
+  //   .skip(skip)
+  //   .limit(limit);
 
-  const totalTweets = await Tweet.countDocuments({ owner: userId });
+  // Aggregation pipeline
+  const result = await Tweet.aggregate([
+    // 1️⃣ Filter tweets by owner
+    { $match: { owner: new mongoose.Types.ObjectId(userId) } },
 
-  if (!tweets) {
-    throw new ApiError(
-      404,
-      "Tweets not found or something went wrong while fetching tweets."
-    );
-  }
+    // 2️⃣ Sort by createdAt
+    { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        totalTweets,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(totalTweets / limit),
-        tweets,
+    // 3️⃣ Pagination
+    { $skip: skip },
+    { $limit: limitNum },
+
+    // 4️⃣ Lookup owner details
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1} }],
       },
-      "All tweets was fetched successfully."
-    )
-  );
+    },
+
+    // 5️⃣ Lookup likes
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "tweet",
+        as: "likes",
+      },
+    },
+
+    // 6️⃣ Add totalLikes and isLiked fields
+    {
+      $addFields: {
+        totalLikes: { $size: "$likes" },
+        isLiked: {
+          $in: [new mongoose.Types.ObjectId(req.user?._id), "$likes.user"],
+        },
+      },
+    },
+
+    // 7️⃣ Facet to get tweets list + total count
+    {
+      $facet: {
+        tweets: [{ $addFields: {} }], // optional, can remove
+        totalCount: [{ $count: "totalTweets" }],
+      },
+    },
+  ]);
+
+  // Extract results
+  const tweetsList = result[0]?.tweets || [];
+  const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
+
+  return res.status(200).json({
+    status: 200,
+    data: {
+      tweets: tweetsList,
+      totalTweets,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(totalTweets / limitNum),
+    },
+    message: "Tweets fetched successfully.",
+  });
 });
 
 const updateTweet = asyncHandler(async (req, res) => {
