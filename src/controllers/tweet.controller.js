@@ -75,17 +75,10 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
   // Aggregation pipeline
   const result = await Tweet.aggregate([
-    // 1️⃣ Filter tweets by owner
     { $match: { owner: new mongoose.Types.ObjectId(userId) } },
-
-    // 2️⃣ Sort by createdAt
     { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
-
-    // 3️⃣ Pagination
     { $skip: skip },
     { $limit: limitNum },
-
-    // 4️⃣ Lookup owner details
     {
       $lookup: {
         from: "users",
@@ -95,8 +88,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
         pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1} }],
       },
     },
-
-    // 5️⃣ Lookup likes
     {
       $lookup: {
         from: "likes",
@@ -106,7 +97,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
       },
     },
 
-    // 6️⃣ Add totalLikes and isLiked fields
     {
       $addFields: {
         totalLikes: { $size: "$likes" },
@@ -116,7 +106,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
       },
     },
 
-    // 7️⃣ Facet to get tweets list + total count
     {
       $facet: {
         tweets: [{ $addFields: {} }], // optional, can remove
