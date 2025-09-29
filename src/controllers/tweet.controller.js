@@ -76,40 +76,43 @@ const getUserTweets = asyncHandler(async (req, res) => {
   // Aggregation pipeline
   const result = await Tweet.aggregate([
     { $match: { owner: new mongoose.Types.ObjectId(userId) } },
-    { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
-    { $skip: skip },
-    { $limit: limitNum },
-    {
-      $lookup: {
-        from: "users",
-        localField: "owner",
-        foreignField: "_id",
-        as: "owner",
-        pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1} }],
-      },
-    },
-    {
-      $lookup: {
-        from: "likes",
-        localField: "_id",
-        foreignField: "tweet",
-        as: "likes",
-      },
-    },
-
-    {
-      $addFields: {
-        totalLikes: { $size: "$likes" },
-        isLiked: {
-          $in: [new mongoose.Types.ObjectId(req.user?._id), "$likes.user"],
-        },
-      },
-    },
-
     {
       $facet: {
-        tweets: [{ $addFields: {} }], // optional, can remove
         totalCount: [{ $count: "totalTweets" }],
+        tweets: [
+          { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+          { $skip: skip },
+          { $limit: limitNum },
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1 } }],
+            },
+          },
+          {
+            $lookup: {
+              from: "likes",
+              localField: "_id",
+              foreignField: "tweet",
+              as: "likes",
+            },
+          },
+
+          {
+            $addFields: {
+              totalLikes: { $size: "$likes" },
+              isLiked: {
+                $in: [
+                  new mongoose.Types.ObjectId(req.user?._id),
+                  "$likes.user",
+                ],
+              },
+            },
+          },
+        ], // optional, can remove
       },
     },
   ]);
