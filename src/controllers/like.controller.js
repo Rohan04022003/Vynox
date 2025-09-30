@@ -68,6 +68,9 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
   //TODO: toggle like on comment
+
+  
+
 });
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
@@ -156,7 +159,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
               from: "videos",
               localField: "video",
               foreignField: "_id",
-              as: "videoUploadedBy",
+              as: "videos",
               pipeline: [
                 {
                   $lookup: {
