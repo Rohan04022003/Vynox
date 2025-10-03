@@ -13,6 +13,10 @@ const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
 
+  if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "Invalid user ID.");
+  }
+
   try {
     const filter = {};
 
@@ -24,17 +28,57 @@ const getAllVideos = asyncHandler(async (req, res) => {
       filter.owner = userId;
     }
 
-    let skip = (page - 1) * limit;
+    let skip = (Number(page) - 1) * Number(limit);
 
     let sort = {};
-    sort[sortBy] = sortType === "desc" ? -1 : 1;
 
-    const videos = await Video.find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(Number(limit));
+    if (sortBy) {
+      sort[sortBy] = sortType === "desc" ? -1 : 1;
+    } else {
+      sort["createdAt"] = -1;
+    }
 
-    const totalVideos = await Video.countDocuments(filter);
+    const results = await Video.aggregate([
+      {
+        $match: filter,
+      },
+      {
+        $facet: {
+          totalCount: [{ $count: "totalVideos" }],
+          videos: [
+            {
+              $sort: sort,
+            },
+            {
+              $skip: skip,
+            },
+            {
+              $limit: Number(limit),
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      fullName: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const totalVideos = results[0]?.totalCount[0]?.totalVideos || 0;
+    const videos = results[0]?.videos || [];
 
     return res.status(200).json(
       new ApiResponse(200, {
