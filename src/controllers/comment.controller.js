@@ -23,7 +23,11 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const result = await Comment.aggregate([
       {
         $match: {
+<<<<<<< HEAD
           video: new mongoose.Types.ObjectId(videoId),
+=======
+          video: mongoose.Types.ObjectId(videoId),
+>>>>>>> 23090b9f3bff9158f9c37cbcd25d1084e994aa43
         },
       },
       {
@@ -78,7 +82,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
       )
     );
   } catch (error) {
+<<<<<<< HEAD
     console.error("Error in getVideoComments aggregation:", error);
+=======
+>>>>>>> 23090b9f3bff9158f9c37cbcd25d1084e994aa43
     throw new ApiError(
       500,
       "Something went wrong while fetching all comments."
