@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Video } from "../models/video.model.js";
 import { Tweet } from "../models/tweet.model.js";
+import { Comment } from "../models/comment.model.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
@@ -67,10 +68,64 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-  //TODO: toggle like on comment
 
-  
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    throw new ApiError(400, "Comment id is not valid.");
+  }
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const isAlreadyLiked = await Like.findOne({
+      comment: commentId,
+      likedBy: req.user?._id,
+    }).session(session);
+
+    if (isAlreadyLiked) {
+      // Unlike
+      await Like.deleteOne({ _id: isAlreadyLiked._id }, { session });
+      await Comment.findByIdAndUpdate(
+        commentId,
+        { $inc: { likeCount: -1 } },
+        { session }
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.status(200).json(new ApiResponse(200, "Like was removed."));
+    }
+
+    // Like
+    await Like.create(
+      [
+        {
+          comment: commentId,
+          likedBy: req.user?._id,
+        },
+      ],
+      { session }
+    );
+
+    await Comment.findByIdAndUpdate(
+      commentId,
+      { $inc: { likeCount: 1 } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Comment was liked successfully."));
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error("toggleCommentLike error:", error);
+    throw new ApiError(500, "Something went wrong while liking comments.");
+  }
 });
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
@@ -106,9 +161,12 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, "Tweet Unliked successfully."));
     }
 
-    await Like.create([{ tweet: tweetId, likedBy: req.user?._id }], {
-      session,
-    });
+    await Like.create(
+      { tweet: tweetId, likedBy: req.user?._id },
+      {
+        session,
+      }
+    );
     await Tweet.findOneAndUpdate(
       { _id: tweetId },
       { $inc: { likeCount: 1 } },
