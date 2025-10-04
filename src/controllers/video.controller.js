@@ -201,6 +201,30 @@ const getVideoById = asyncHandler(async (req, res) => {
           commentsData: 0, // response me raw data chhupa diya
         },
       },
+      {
+        $addFields: { ownerId: { $arrayElemAt: ["$owner._id", 0] } },
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "ownerId",
+          foreignField: "channel",
+          as: "subscribers",
+        },
+      },
+      {
+        $addFields: {
+          totalSubscribers: { $size: "$subscribers" },
+          isSubscribed: {
+            $in: [req.user._id, "$subscribers.subscriber"],
+          },
+        },
+      },
+      {
+        $project: {
+          subscribers: 0,
+        },
+      },
     ]);
 
     if (!video) {
