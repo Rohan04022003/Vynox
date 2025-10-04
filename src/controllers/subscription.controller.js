@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId, mongo } from "mongoose";
 import { User } from "../models/user.model.js";
 import { Subscription } from "../models/subscription.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -86,6 +86,57 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(subscriberId)) {
+    throw new ApiError(400, "SubscriberId is not valid.");
+  }
+
+  try {
+    const result = await Subscription.aggregate([
+      { $match: { subscriber: new mongoose.Types.ObjectId(subscriberId) } },
+      {
+        $facet: {
+          totalCount: [{ $count: "totalSubscribedByYou" }],
+          channels: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "channel",
+                foreignField: "_id",
+                as: "owner",
+              },
+            },
+            {
+              $project: {
+                owner: { username: 1, fullName: 1, avatar: 1 },
+                totalSubscribedByYou: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const totalSubscribedByYou =
+      result[0]?.totalCount[0]?.totalSubscribedByYou || 0;
+    const channels = result[0]?.channels || [];
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalSubscribedByYou,
+          channels,
+        },
+        "Total channels Subscribed by you fetched successfully."
+      )
+    );
+  } catch (error) {
+    throw new ApiError(
+      200,
+      "Something was wrong while fetching total channels subscribed by you lists."
+    );
+  }
 });
 
 export { toggleSubscription, getSubscribedChannels };
