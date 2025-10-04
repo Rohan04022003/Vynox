@@ -52,7 +52,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
                       avatar: 1,
                     },
                   },
-                  { $addFields: { owner: { $arrayElemAt: ["$owner", 0] } } },
                 ],
               },
             },
