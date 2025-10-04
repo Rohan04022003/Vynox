@@ -47,16 +47,19 @@ const toggleSubscription = asyncHandler(async (req, res) => {
       isSubscribed = true;
     }
 
-    const result = await Subscription.aggregate([
-      {
-        $match: {
-          channel: new mongoose.Types.ObjectId(channelId),
+    const result = await Subscription.aggregate(
+      [
+        {
+          $match: {
+            channel: new mongoose.Types.ObjectId(channelId),
+          },
         },
-      },
-      {
-        $count: "totalSubscribers",
-      },
-    ]);
+        {
+          $count: "totalSubscribers",
+        },
+      ],
+      { session }
+    );
 
     const totalSubscribers = result[0]?.totalSubscribers || 0;
 
