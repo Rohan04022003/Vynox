@@ -149,7 +149,59 @@ const getVideoById = asyncHandler(async (req, res) => {
   //TODO: get video by id
 
   try {
-    const video = await Video.findOne({ _id: videoId });
+    const video = await Video.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(videoId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                fullName: 1,
+                avatar: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "video",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          comments: {
+            $slice: [
+              {
+                $sortArray: {
+                  input: "$comments",
+                  sortBy: { createdAt: -1 },
+                },
+              },
+              3,
+            ],
+          },
+          totalComents: { $size: "$comments" },
+        },
+      },
+      {
+        $project: {
+          commentsData: 0, // response me raw data chhupa diya
+        },
+      },
+    ]);
 
     if (!video) {
       throw new ApiError(404, "Video is not found.");
