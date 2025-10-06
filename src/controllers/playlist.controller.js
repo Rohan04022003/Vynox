@@ -55,13 +55,13 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
   const videoIds = Array.isArray(videos) ? videos : [videos];
 
-  try {
-    for (let id of videoIds) {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new ApiError(400, `Invalid videoId: ${id}`);
-      }
+  for (let id of videoIds) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new ApiError(400, `Invalid videoId: ${id}`);
     }
+  }
 
+  try {
     const existingVideos = await Video.find({
       _id: { $in: videoIds },
       owner: req.user?._id,
@@ -110,8 +110,57 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
-  const { playlistId, videoId } = req.params;
+  const { playlistId } = req.params;
+  const { videos } = req.body;
   // TODO: remove video from playlist
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  if (!mongoose.Types.ObjectId.isValid(playlistId)) {
+    throw new ApiError(400, "playlist id is not valid.");
+  }
+
+  const videoIds = Array.isArray(videos) ? videos : [videos];
+
+  for (let id of videoIds) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new ApiError(400, "Some video id is not valid.");
+    }
+  }
+
+  try {
+    const playlist = await Playlist.findOneAndUpdate(
+      { _id: playlistId, owner: req.user?._id },
+      { $pull: { videos: { $in: videoIds } } },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    if (!playlist) {
+      throw new ApiError(404, "Playlist not found or not authorized.");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          playlist,
+          "Selected videos were removed from playlist."
+        )
+      );
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    throw new ApiError(
+      500,
+      "Something was wrong while removing videos from the playlist."
+    );
+  }
 });
 
 const deletePlaylist = asyncHandler(async (req, res) => {
