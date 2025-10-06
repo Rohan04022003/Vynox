@@ -31,6 +31,67 @@ const createPlaylist = asyncHandler(async (req, res) => {
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   //TODO: get user playlists
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new ApiError(400, "User Id is not valid.");
+  }
+
+  try {
+    const playlist = await Playlist.aggregate([
+      {
+        $match: { owner: new mongoose.Types.ObjectId(userId) },
+      },
+      {
+        $addFields: {
+          firstVideoId: { $arrayElemAt: ["$videos", 0] },
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "firstVideoId",
+          foreignField: "_id",
+          as: "firstVideoDetails",
+          pipeline: [
+            {
+              $project: {
+                thumbnail: 1,
+                title: 1,
+                description: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [
+            {
+              $project: {
+                avatar: 1,
+                username: 1,
+                fullName: 1,
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (!playlist) {
+      throw new ApiError(400, "Unauthorized or Playlist not found.");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, playlist, "Playlist fetched successfully."));
+  } catch (error) {
+    throw new ApiError(500, "Something was wrong while fetching playlist");
+  }
 });
 
 const getPlaylistById = asyncHandler(async (req, res) => {
