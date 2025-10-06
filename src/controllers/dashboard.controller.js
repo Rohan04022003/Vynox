@@ -103,6 +103,9 @@ const getChannelVideos = asyncHandler(async (req, res) => {
   try {
     const videos = await Video.aggregate([
       {
+        $sort: { createdAt: -1 },
+      },
+      {
         $lookup: {
           from: "users",
           localField: "owner",
