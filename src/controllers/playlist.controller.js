@@ -15,7 +15,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     name,
     description,
     owner: req.user?._id,
-    videos: []
+    videos: [],
   });
 
   if (!playlist) {
@@ -26,7 +26,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(200, playlist, "Playlist created successfully"));
 });
-
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
@@ -50,6 +49,29 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 const deletePlaylist = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
   // TODO: delete playlist
+
+  if (!mongoose.Types.ObjectId.isValid(playlistId)) {
+    throw new ApiError(400, "PlaylistId is not valid.");
+  }
+
+  try {
+    const deletedPlaylist = await Playlist.findOneAndDelete({
+      _id: playlistId,
+      owner: req.user?._id,
+    });
+
+    if (!deletedPlaylist) {
+      throw new ApiError(
+        404,
+        "Playlist not found or not authorized to delete."
+      );
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Playlist was deleted successfully."));
+  } catch (error) {
+    throw new ApiError(500, "Something was wrong while deleting playlist.");
+  }
 });
 
 const updatePlaylist = asyncHandler(async (req, res) => {
