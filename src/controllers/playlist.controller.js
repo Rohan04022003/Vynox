@@ -120,7 +120,19 @@ const getPlaylistById = asyncHandler(async (req, res) => {
           localField: "videos",
           foreignField: "_id",
           as: "videos",
-          pipeline: [{ $sort: { createdAt: -1 } }],
+          pipeline: [
+            { $sort: { createdAt: -1 } },
+            {
+              $project: {
+                thumbnail: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                likeCount: 1,
+              },
+            },
+          ],
         },
       },
     ]);
