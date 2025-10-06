@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId, mongo } from "mongoose";
+import mongoose from "mongoose";
 import { Playlist } from "../models/playlist.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -41,6 +41,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
       {
         $match: { owner: new mongoose.Types.ObjectId(userId) },
       },
+      { $sort: { createdAt: -1 } },
       {
         $addFields: {
           firstVideoId: { $arrayElemAt: ["$videos", 0] },
@@ -96,7 +97,53 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
-  //TODO: get playlist by id
+
+  if (!mongoose.Types.ObjectId.isValid(playlistId)) {
+    throw new ApiError(400, "Playlist id is not valid.");
+  }
+
+  try {
+    const playlist = await Playlist.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(playlistId) } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+          pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "videos",
+          foreignField: "_id",
+          as: "videos",
+          pipeline: [{ $sort: { createdAt: -1 } }],
+        },
+      },
+    ]);
+
+    if (!playlist || playlist.length === 0) {
+      throw new ApiError(400, "Playlist not found or unauthorized access.");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          playlist[0],
+          "All videos were fetched of playlist."
+        )
+      );
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while fetching videos of playlist"
+    );
+  }
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
