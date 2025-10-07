@@ -52,7 +52,7 @@ Note: The code expects cookies to be set with `secure: true` for tokens; in loca
 1. Install dependencies
 
 ```powershell
-cd "d:\Full Stack Web Development\Backend Development Course\Hitesh Udemy Course\chai-backend-youtube\chai-backend-main"
+cd "d:\download"
 npm install
 ```
 
