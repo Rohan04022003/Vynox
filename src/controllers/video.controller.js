@@ -8,6 +8,7 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
+import { sendMail } from "../services/mail.service.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -101,6 +102,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Title and description are required.");
   }
 
+  const user = await User.findById(req.user?._id);
+
+  if (!user) {
+    throw new ApiError(401, "Unauthorized access.");
+  }
+
   const videoLocalPath = req.files?.videoFile?.[0]?.path;
   const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path;
 
@@ -127,7 +134,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
       duration: videoURL.duration,
       title,
       description,
-      owner: req.user._id,
+      owner: user._id,
+    });
+
+    await sendMail("videoUpload", user.email, {
+      fullName: user.fullName,
+      videoTitle: video.title,
     });
 
     return res

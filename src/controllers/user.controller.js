@@ -9,6 +9,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import isURLReachable from "../utils/UrlChecker.js";
+import { sendMail } from "../services/mail.service.js";
+import { getDeviceInfo, getIp } from "../utils/device.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -108,6 +110,8 @@ const registerUser = asyncHandler(async (req, res) => {
       );
     }
 
+    await sendMail("register", user.email, user);
+
     return res
       .status(201)
       .json(new ApiResponse(200, createdUser, "User registered Successfully"));
@@ -171,6 +175,15 @@ const loginUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
+
+  const deviceInfo = getDeviceInfo(req);
+  const ip = getIp(req);
+
+  await sendMail("login", user.email, {
+    fullName: user.fullName,
+    ...deviceInfo,
+    ip,
+  });
 
   return res
     .status(200)
@@ -275,6 +288,8 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   user.password = newPassword;
   await user.save({ validateBeforeSave: false });
 
+  await sendMail("passwordReset", user.email, user);
+
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Password changed successfully"));
@@ -310,6 +325,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     },
     { new: true }
   ).select("-password");
+
+  await sendMail("profileUpdate", user.email, user);
 
   return res
     .status(200)

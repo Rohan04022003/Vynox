@@ -8,11 +8,18 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
+import { sendMail } from "../services/mail.service.js";
 
 const createTweet = asyncHandler(async (req, res) => {
   //TODO: create tweet
 
   const { content } = req.body;
+
+  const user = await User.findById(req.user?._id);
+
+  if (!user) {
+    throw new ApiError(401, "Unauthorized access.");
+  }
 
   const tweetLocalPath = req.file?.path;
 
@@ -46,6 +53,8 @@ const createTweet = asyncHandler(async (req, res) => {
         "Something went wrong while creating tweet in db"
       );
     }
+
+    await sendMail("tweetUpload", user.email, user);
 
     return res
       .status(201)
