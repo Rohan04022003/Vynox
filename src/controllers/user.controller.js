@@ -243,7 +243,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefereshTokens(user._id);
 
     return res
@@ -483,7 +483,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         coverImage: 1,
         email: 1,
         bio: 1,
-        socialLinks: 1
+        socialLinks: 1,
       },
     },
   ]);
