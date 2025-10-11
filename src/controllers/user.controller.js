@@ -8,6 +8,7 @@ import {
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import isURLReachable from "../utils/UrlChecker.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -286,10 +287,15 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { fullName, email, bio, socialLinks } = req.body;
 
-  if (!fullName || !email) {
-    throw new ApiError(400, "All fields are required");
+  for (let key in socialLinks) {
+    if (socialLinks[key]) {
+      const reachable = await isURLReachable(socialLinks[key]);
+      if (!reachable) {
+        throw new ApiError(400, `${key} url is not reachable.`);
+      }
+    }
   }
 
   const user = await User.findByIdAndUpdate(
@@ -298,6 +304,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
       $set: {
         fullName,
         email: email,
+        bio,
+        socialLinks,
       },
     },
     { new: true }

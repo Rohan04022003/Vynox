@@ -33,6 +33,16 @@ const userSchema = new Schema(
       url: { type: String },
       public_id: { type: String },
     },
+    bio: {
+      type: String,
+      default: "",
+    },
+    socialLinks: {
+      linkedin: { type: String, default: "" },
+      github: { type: String, default: "" },
+      instagram: { type: String, default: "" },
+      twitter: { type: String, default: "" },
+    },
     watchHistory: [
       {
         type: Schema.Types.ObjectId,
