@@ -1,277 +1,400 @@
 
-# YT-Clone Backend
+# Vynox - Full Stack Video Platform
 
-This repository contains the backend for a YouTube-like application built during the "chai aur code" series. It is a Node.js + Express + MongoDB application that implements user authentication (JWT + refresh tokens), video/tweet/comment/like/playlist/subscription features, and file uploads to Cloudinary.
+Vynox is a comprehensive YouTube-like video platform built with modern web technologies. This repository contains both the backend and frontend components of the application.
 
-This README documents the whole project: setup, environment variables, API routes (every endpoint), models, middleware, utilities, and example flows so nothing is missed.
+## Project Structure
 
-## Quick facts
+```
+Vynox/
+├── README.md
+├── vynox-backend/          # Node.js + Express backend
+│   ├── src/
+│   │   ├── controllers/    # Route handlers
+│   │   ├── models/         # MongoDB models
+│   │   ├── routes/         # Express routes
+│   │   ├── middlewares/    # Custom middleware
+│   │   ├── services/       # Business logic services
+│   │   ├── utils/          # Utility functions
+│   │   ├── db/             # Database connection
+│   │   ├── app.js          # Express app configuration
+│   │   ├── index.js        # Server entry point
+│   │   └── constants.js    # Application constants
+│   ├── public/             # Static file uploads
+│   ├── package.json
+│   └── SECURITY.md
+└── vynox-frontend/         # Frontend application (to be implemented)
+```
 
-- Language: JavaScript (ES modules)
-- Runtime: Node.js (project uses "type": "module")
-- Web framework: Express
-- Database: MongoDB (mongoose)
-- File uploads: multer (stored in `public/`), Cloudinary for permanent storage
-- Auth: JWT access + refresh tokens (stored as cookies)
-- Main start script (dev): `npm run dev`
-- DB name constant: `youtube-clone`
+## Backend Features
 
-## Project structure (high level)
+The Vynox backend is a Node.js + Express + MongoDB application that implements:
+- User authentication with JWT + refresh tokens
+- Video upload and streaming capabilities
+- Social features (tweets, comments, likes)
+- Playlist management
+- Subscription system
+- File uploads to Cloudinary
+- Email services
+- Device tracking and analytics
 
-- `src/`
-	- `app.js` — express app, middleware and route registration
-	- `index.js` — dotenv loading and server + DB bootstrap
-	- `constants.js` — DB name
-	- `db/index.js` — mongoose connection
-	- `controllers/` — route handlers (user, video, tweet, comment, like, playlist, subscription, dashboard, healthcheck)
-	- `models/` — mongoose models (User, Video, Comment, Like, Tweet, Playlist, Subscription)
-	- `routes/` — Express routers that map endpoints to controllers
-	- `middlewares/` — `auth.middleware.js` (JWT verification) and `multer.middleware.js` (file upload)
-	- `utils/` — `ApiError`, `ApiResponse`, `asyncHandler`, Cloudinary helpers
-- `public/` — temporary storage for multer uploads
+## Tech Stack
 
-## Environment variables
+### Backend
+- **Language**: JavaScript (ES modules)
+- **Runtime**: Node.js (project uses "type": "module")
+- **Web Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **File Storage**: Cloudinary for permanent storage, multer for temporary uploads
+- **Authentication**: JWT access + refresh tokens (stored as cookies)
+- **Email Service**: Nodemailer for email notifications
+- **Device Tracking**: User agent parsing for analytics
 
-Create a `.env` at project root with at least the following variables (names referenced directly in code):
+### Frontend
+- **Status**: To be implemented
+- **Planned**: Modern React/Vue.js application with responsive design
 
-- `PORT` — port to run the server (e.g., 8000)
-- `MONGODB_URI` — MongoDB connection string (without database name; `db/index.js` will append `/${DB_NAME}`)
-- `ACCESS_TOKEN_SECRET` — JWT secret for access tokens
-- `REFRESH_TOKEN_SECRET` — JWT secret for refresh tokens
-- `ACCESS_TOKEN_EXPIRY` — e.g. `15m` or `1h`
-- `REFRESH_TOKEN_EXPIRY` — e.g. `7d`
-- `CLOUDINARY_NAME` — Cloudinary cloud name
-- `CLOUDINARY_API_KEY` — Cloudinary API key
-- `CLOUDINARY_API_SECRET` — Cloudinary API secret
-- `CORS_ORIGIN` — allowed origin for CORS
+## Quick Start
 
-Note: The code expects cookies to be set with `secure: true` for tokens; in local development you may need to adapt cookie options if not using HTTPS.
+### Backend Setup
 
-## Install & Run
+1. Navigate to the backend directory:
+```bash
+cd vynox-backend
+```
 
-1. Install dependencies
-
-```powershell
-cd "d:\download"
+2. Install dependencies:
+```bash
 npm install
 ```
 
-2. Start in dev mode (uses nodemon and dotenv):
-
-```powershell
+3. Start development server:
+```bash
 npm run dev
 ```
 
-By default the dev script runs: `nodemon -r dotenv/config --experimental-json-modules src/index.js`.
+The backend will start on the configured port (default: 8000).
 
-## High-level behavior / routines
+## Environment Configuration
 
-- File uploads are first written to `public/` by `multer` middleware. The Cloudinary helper `uploadOnCloudinary` uploads the file to Cloudinary and removes the temporary file from `public/`.
-- Errors thrown within controllers use `ApiError` (status, message) and responses use `ApiResponse` to keep consistent JSON shapes.
-- Auth is enforced using `verifyJWT` middleware that extracts the access token from the `accessToken` cookie or the `Authorization: Bearer <token>` header.
-- Many controllers use Mongoose aggregation pipelines for efficient lookups and pagination.
-- Some operations (likes, subscriptions, playlist modifications) use Mongoose sessions/transactions where multiple documents must be consistent.
+Create a `.env` file in the `vynox-backend` directory with the following variables:
 
-## Models (brief overview)
+### Required Environment Variables
 
-- User
-	- username, email, fullName, avatar ({url, public_id}), coverImage, watchHistory, password (hashed), refreshToken
-	- helper methods: `isPasswordCorrect`, `generateAccessToken`, `generateRefreshToken`
+```env
+# Server Configuration
+PORT=8000
 
-- Video
-	- videoFile {url, public_Id}, thumbnail {url, public_Id}, title, description, duration, views, likeCount, isPublished, owner
+# Database
+MONGODB_URI=mongodb://localhost:27017/vynox
 
-- Comment
-	- content, video (ref), isEdited, likeCount, owner
+# JWT Authentication
+ACCESS_TOKEN_SECRET=your_access_token_secret
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+ACCESS_TOKEN_EXPIRY=15m
+REFRESH_TOKEN_EXPIRY=7d
 
-- Like
-	- fields to reference liked resource: video, comment, tweet and likedBy
+# Cloudinary Configuration
+CLOUDINARY_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
-- Tweet
-	- content, tweetImage {url, public_Id}, isEdited, likeCount, owner
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3000
 
-- Playlist
-	- name, description, videos [ObjectId], owner
+# Email Configuration (Optional)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_email_password
+```
 
-- Subscription
-	- subscriber (User), channel (User)
+**Note**: For local development without HTTPS, you may need to adjust cookie security settings in the authentication middleware.
 
-## Middlewares
+## Architecture Overview
 
-- `verifyJWT` — ensures the request is authenticated. It reads the access token from `req.cookies.accessToken` or `Authorization` header and attaches the `req.user` (without password and refreshToken) after verification.
-- `upload` (multer) — writes uploaded files to `public/` with `diskStorage` and unique filenames: `Date.now()-originalname`.
+### Backend Architecture
 
-## Utils
+- **File Upload Flow**: Files are temporarily stored in `public/` directory via multer middleware, then uploaded to Cloudinary with automatic cleanup of local files
+- **Error Handling**: Consistent error responses using `ApiError` and `ApiResponse` utilities
+- **Authentication**: JWT-based authentication with access and refresh tokens stored as HTTP-only cookies
+- **Database**: MongoDB with Mongoose ODM, using aggregation pipelines for complex queries and pagination
+- **Transactions**: Critical operations (likes, subscriptions, playlists) use MongoDB transactions for data consistency
+- **Email Services**: Nodemailer integration for user notifications and system emails
+- **Device Analytics**: User agent parsing for device tracking and analytics
 
-- `ApiError` — central error type. Controllers throw this for structured errors.
-- `ApiResponse` — standard response wrapper with `{ statusCode, data, message, success }` shape.
-- `asyncHandler` — small helper to wrap async controllers and forward errors to express's error handler.
-- `cloudinary.js` — `uploadOnCloudinary` uploads and removes the local file; `deleteFromCloudinary` removes resources by public id.
+## Database Models
 
-## All API routes (detailed)
+### Core Models
 
-All routes are prefixed by `/api/v1` in `src/app.js`.
+- **User Model**
+  - Fields: username, email, fullName, avatar, coverImage, watchHistory, password, refreshToken
+  - Methods: `isPasswordCorrect()`, `generateAccessToken()`, `generateRefreshToken()`
 
-- Healthcheck
-	- GET /api/v1/healthcheck/ — returns the healthcheck response (controller currently placeholder)
+- **Video Model**
+  - Fields: videoFile, thumbnail, title, description, duration, views, likeCount, isPublished, owner
+  - References: User (owner)
 
-- Users (`/api/v1/users`)
-	- POST /register — register user
-		- multipart/form-data with fields:
-			- `avatar` (file, required)
-			- `coverImage` (file, optional)
-			- body fields: `fullName`, `email`, `username`, `password`
-		- Response: created user (without password/refreshToken)
+- **Comment Model**
+  - Fields: content, video (reference), isEdited, likeCount, owner
+  - References: Video, User
 
-	- POST /login — login
-		- JSON: `{ email?, username?, password }` (either email or username required)
-		- Returns cookies `accessToken` and `refreshToken` and JSON with user and tokens
+- **Like Model**
+  - Fields: video, comment, tweet, likedBy
+  - References: Video/Comment/Tweet, User
 
-	- POST /logout — (auth) clears tokens and unsets refreshToken in DB
+- **Tweet Model**
+  - Fields: content, tweetImage, isEdited, likeCount, owner
+  - References: User
 
-	- POST /refresh-token — refresh access token
-		- Accepts cookie `refreshToken` or body `refreshToken`. Issues new access and refresh tokens and sets them as cookies.
+- **Playlist Model**
+  - Fields: name, description, videos (array), owner
+  - References: User, Video[]
 
-	- PATCH /change-password — (auth) `{ oldPassword, newPassword }`
+- **Subscription Model**
+  - Fields: subscriber, channel
+  - References: User (both fields)
 
-	- GET /current-user — (auth) returns `req.user` info
+## Middleware & Utilities
 
-	- PATCH /update-account — (auth) `{ fullName, email }` updates user fields
+### Middleware
 
-	- PATCH /avatar — (auth) upload single `avatar` file; endpoint updates avatar and removes old avatar in Cloudinary
+- **`verifyJWT`** - Authentication middleware that validates JWT tokens from cookies or Authorization headers
+- **`upload`** - Multer middleware for file uploads with unique filename generation
 
-	- PATCH /cover-image — (auth) upload single `coverImage` file; updates and removes old cover image
+### Utility Functions
 
-	- GET /c/:username — (auth) fetch user channel profile by username
+- **`ApiError`** - Standardized error handling class for consistent error responses
+- **`ApiResponse`** - Response wrapper with standardized JSON structure
+- **`asyncHandler`** - Async function wrapper for automatic error handling
+- **`cloudinary.js`** - Cloudinary integration for file upload and deletion
+- **`device.js`** - User agent parsing for device analytics
+- **`MailTemplates.js`** - Email template management
+- **`UrlChecker.js`** - URL validation utilities
 
-	- GET /history — (auth) get watch history
+## API Endpoints
 
-- Tweets (`/api/v1/tweets`) (all authenticated)
-	- POST / — upload tweet with optional image
-		- `multipart/form-data` field: `tweetImage` (file) and `content` (body)
-	- GET /user/:userId — get tweets of a user (query: `sortType`, `limit`, `page`)
-	- PATCH /:tweetId — update tweet content
-	- DELETE /:tweetId — delete tweet (removes image from Cloudinary)
+All API routes are prefixed with `/api/v1`. The backend provides comprehensive RESTful endpoints for all platform features.
 
-- Subscriptions (`/api/v1/subscriptions`) (auth)
-	- POST /c/:channelId — toggle subscription for channelId
-	- GET /c/:subscriberId — list channels a user is subscribed to
+### Authentication & User Management (`/api/v1/users`)
 
-- Videos (`/api/v1/videos`) (auth)
-	- GET / — list videos (query: `page`, `limit`, `query`, `sortBy`, `sortType`, `userId`)
-	- POST / — publish a video
-		- `multipart/form-data` with `videoFile` (file, maxCount:1) and `thumbnail` (file, maxCount:1)
-		- body: `title`, `description`
-	- GET /:videoId — get video details (includes owner, short comments, subscription status)
-	- DELETE /:videoId — delete a video (owner only; deletes cloudinary assets)
-	- PATCH /:videoId — update video (owner only) expects single `thumbnail` file and `title`, `description` fields
-	- PATCH /toggle/publish/:videoId — toggle `isPublished` (owner only)
+- **POST /register** - User registration with avatar upload
+- **POST /login** - User authentication with JWT tokens
+- **POST /logout** - User logout and token cleanup
+- **POST /refresh-token** - Refresh access token
+- **PATCH /change-password** - Password change (authenticated)
+- **GET /current-user** - Get current user profile (authenticated)
+- **PATCH /update-account** - Update user account details (authenticated)
+- **PATCH /avatar** - Update user avatar (authenticated)
+- **PATCH /cover-image** - Update cover image (authenticated)
+- **GET /c/:username** - Get user channel profile (authenticated)
+- **GET /history** - Get user watch history (authenticated)
 
-- Comments (`/api/v1/comments`) (auth)
-	- GET /:videoId — list comments for a video (query `page`, `limit`)
-	- POST /:videoId — add a comment to a video. Body: `{ content }`
-	- PATCH /c/:commentId — update comment (owner only) `{ content }`
-	- DELETE /c/:commentId — delete comment (owner only)
+### Video Management (`/api/v1/videos`)
 
-- Likes (`/api/v1/likes`) (auth)
-	- POST /toggle/v/:videoId — toggle like on video
-	- POST /toggle/c/:commentId — toggle like on comment
-	- POST /toggle/t/:tweetId — toggle like on tweet
-	- GET /videos — get videos liked by the current user (query `limit`, `page`, `sortType`)
+- **GET /** - List videos with filtering and pagination
+- **POST /** - Upload new video with thumbnail (authenticated)
+- **GET /:videoId** - Get video details and metadata
+- **DELETE /:videoId** - Delete video (owner only)
+- **PATCH /:videoId** - Update video details (owner only)
+- **PATCH /toggle/publish/:videoId** - Toggle video publication status (owner only)
 
-- Playlists (`/api/v1/playlist`) (auth)
-	- POST / — create playlist `{ name, description }`
-	- GET /user/:userId — get playlists of a user
-	- GET /:playlistId — get playlist details and videos
-	- PATCH /:playlistId — update playlist `{ name?, description? }` (owner only)
-	- PATCH /add/:playlistId — add videos to playlist body `videos` (array or single id)
-	- PATCH /remove/:playlistId — remove videos from playlist body `videos` (array or single id)
-	- DELETE /:playlistId — delete playlist (owner only)
+### Social Features
 
-- Dashboard (`/api/v1/dashboard`) (auth)
-	- GET /stats/:channelId — get channel stats (total videos, views, likes, subscribers, isSubscribed)
-	- GET /videos — get all videos with owner info (sorted by createdAt desc)
+#### Tweets (`/api/v1/tweets`)
+- **POST /** - Create tweet with optional image (authenticated)
+- **GET /user/:userId** - Get user tweets with pagination
+- **PATCH /:tweetId** - Update tweet content (authenticated)
+- **DELETE /:tweetId** - Delete tweet (authenticated)
 
-## Error handling
+#### Comments (`/api/v1/comments`)
+- **GET /:videoId** - Get video comments with pagination
+- **POST /:videoId** - Add comment to video (authenticated)
+- **PATCH /c/:commentId** - Update comment (owner only)
+- **DELETE /c/:commentId** - Delete comment (owner only)
 
-Controllers throw `ApiError(statusCode, message)` for expected errors and let the global express error handler (not included explicitly in the repository snapshot) format responses consistently. Successful responses use `ApiResponse(statusCode, data, message)`.
+#### Likes (`/api/v1/likes`)
+- **POST /toggle/v/:videoId** - Toggle video like (authenticated)
+- **POST /toggle/c/:commentId** - Toggle comment like (authenticated)
+- **POST /toggle/t/:tweetId** - Toggle tweet like (authenticated)
+- **GET /videos** - Get liked videos (authenticated)
 
-Common error cases seen in the code:
-- Invalid ObjectId checks -> 400
-- Not found -> 404
-- Unauthorized access or invalid tokens -> 401
-- Server errors / DB issues -> 500
+### Subscription System (`/api/v1/subscriptions`)
+- **POST /c/:channelId** - Toggle channel subscription (authenticated)
+- **GET /c/:subscriberId** - Get user subscriptions (authenticated)
 
-## Important implementation details & notes
+### Playlist Management (`/api/v1/playlist`)
+- **POST /** - Create new playlist (authenticated)
+- **GET /user/:userId** - Get user playlists
+- **GET /:playlistId** - Get playlist details and videos
+- **PATCH /:playlistId** - Update playlist details (owner only)
+- **PATCH /add/:playlistId** - Add videos to playlist (authenticated)
+- **PATCH /remove/:playlistId** - Remove videos from playlist (authenticated)
+- **DELETE /:playlistId** - Delete playlist (owner only)
 
-- Tokens: When a user logs in, access and refresh tokens are generated. The refresh token is saved in the User document and returned as an HTTP-only cookie. `refreshAccessToken` validates the refresh token and issues new tokens.
-- Uploads: multer writes to `public/` and Cloudinary helpers move these to Cloudinary and delete local temp files.
-- Transactions: `toggleVideoLike`, comment likes, subscription toggles and some playlist operations use mongoose sessions to ensure consistency when updating multiple documents.
-- Aggregations: Several endpoints use aggregation pipelines for lookups, pagination, and computed fields (e.g., totalLikes, isSubscribed, totalSubscribers, slicing comments).
+### Dashboard & Analytics (`/api/v1/dashboard`)
+- **GET /stats/:channelId** - Get channel statistics
+- **GET /videos** - Get all videos with analytics
 
-## Example flows (Postman / curl style)
+### System (`/api/v1/healthcheck`)
+- **GET /** - System health check endpoint
 
-- Register (multipart/form-data):
+## Error Handling & Response Format
 
-	- POST /api/v1/users/register
-	- Form fields: `fullName`, `email`, `username`, `password`, and file fields `avatar` (required), `coverImage` (optional)
+### Standardized Error Handling
 
-- Login:
+- **`ApiError`** - Custom error class for consistent error responses
+- **`ApiResponse`** - Standardized success response wrapper
+- **Global Error Handler** - Centralized error processing and formatting
 
-	- POST /api/v1/users/login
-	- JSON: `{ "email": "you@example.com", "password": "pass" }`
+### Common HTTP Status Codes
 
-	Response sets cookies `accessToken` and `refreshToken`.
+- **400** - Bad Request (invalid ObjectId, validation errors)
+- **401** - Unauthorized (invalid/expired tokens, authentication required)
+- **404** - Not Found (resource doesn't exist)
+- **500** - Internal Server Error (database issues, server errors)
 
-- Publish a video (authenticated):
+### Response Format
 
-	- POST /api/v1/videos/
-	- multipart/form-data: files `videoFile` and `thumbnail`, fields `title` and `description`
+```json
+{
+  "statusCode": 200,
+  "data": {},
+  "message": "Success message",
+  "success": true
+}
+```
 
-Notes: When testing locally and not using HTTPS, you may need to adjust cookie `secure` setting in `user.controller` to `false` so the browser/Postman accepts cookies over HTTP.
+## Implementation Details
 
-## Development notes & TODOs observed in code
+### Authentication Flow
+- JWT access tokens (short-lived) + refresh tokens (long-lived)
+- Refresh tokens stored in database and HTTP-only cookies
+- Automatic token refresh mechanism for seamless user experience
 
-- `healthcheck.controller.js` has a TODO placeholder — implement a response body indicating service health.
-- Some controllers log and swallow certain errors; when adding a global error handler ensure `ApiError` is respected and returned consistently.
+### File Upload Process
+1. Files temporarily stored in `public/` directory via multer
+2. Upload to Cloudinary for permanent storage
+3. Automatic cleanup of temporary local files
+4. Support for images (avatars, thumbnails, tweet images) and videos
 
-## Tests
+### Data Consistency
+- MongoDB transactions for critical operations (likes, subscriptions, playlists)
+- Aggregation pipelines for complex queries and pagination
+- Referential integrity with proper model relationships
 
-There are no automated tests included in the repo snapshot. Recommended next steps:
+### Performance Optimizations
+- Mongoose aggregation for efficient data retrieval
+- Pagination support across all list endpoints
+- Optimized queries with proper indexing
+- Cloudinary integration for optimized media delivery
 
-- Add unit tests for helper utils (`cloudinary`, `ApiError`) and controllers using a test DB (Jest + supertest).
-- Add integration tests for core flows: register -> login -> publish video -> comment -> like -> delete.
+## API Usage Examples
+
+### User Registration
+```bash
+curl -X POST http://localhost:8000/api/v1/users/register \
+  -F "fullName=John Doe" \
+  -F "email=john@example.com" \
+  -F "username=johndoe" \
+  -F "password=password123" \
+  -F "avatar=@/path/to/avatar.jpg"
+```
+
+### User Login
+```bash
+curl -X POST http://localhost:8000/api/v1/users/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "john@example.com", "password": "password123"}'
+```
+
+### Upload Video (Authenticated)
+```bash
+curl -X POST http://localhost:8000/api/v1/videos/ \
+  -H "Cookie: accessToken=your_jwt_token" \
+  -F "title=My Video" \
+  -F "description=Video description" \
+  -F "videoFile=@/path/to/video.mp4" \
+  -F "thumbnail=@/path/to/thumbnail.jpg"
+```
+
+## Development Roadmap
+
+### Completed Features ✅
+- User authentication and authorization
+- Video upload and management
+- Social features (tweets, comments, likes)
+- Playlist management
+- Subscription system
+- Email notifications
+- Device analytics
+- File upload with Cloudinary integration
+
+### Planned Features 🚧
+- Frontend React/Vue.js application
+- Real-time notifications
+- Advanced video analytics
+- Content moderation
+- API rate limiting
+- Comprehensive test suite
+- Docker containerization
+
+## Testing
+
+### Current Status
+- No automated tests currently implemented
+- Manual testing via Postman/curl recommended
+
+### Recommended Testing Strategy
+- **Unit Tests**: Test utility functions, models, and controllers
+- **Integration Tests**: Test complete user flows (register → login → upload → interact)
+- **API Tests**: Test all endpoints with various scenarios
+- **Database Tests**: Test with test database for data consistency
 
 ## Contributing
 
-Feel free to open issues or create PRs. Follow existing code style (ES modules, asyncHandler wrapper, ApiError/ApiResponse) and keep destructuring and aggregation pipelines consistent.
+We welcome contributions to Vynox! Please follow these guidelines:
+
+1. **Code Style**: Follow ES modules, use `asyncHandler` wrapper, maintain `ApiError`/`ApiResponse` consistency
+2. **Branching**: Create feature branches for new functionality
+3. **Testing**: Add tests for new features and bug fixes
+4. **Documentation**: Update README and API documentation as needed
+
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
-The project uses ISC in `package.json`.
+This project is licensed under the ISC License - see the `package.json` file for details.
 
-## Credits & Author
+## Credits & Acknowledgments
 
-This project was built by Rohan Kumar Mahto. Important notes on contribution and credit:
+### Project Author
+- **Rohan Kumar Mahto** - Full-stack developer and project architect
+  - GitHub: [@Rohan04022003](https://github.com/Rohan04022003)
+  - Portfolio: [rohan-portfolio-eta.vercel.app](https://rohan-portfolio-eta.vercel.app/)
+  - LinkedIn: [rohan-mahto-5521aa253](https://www.linkedin.com/in/rohan-mahto-5521aa253/)
 
-- Instructor credit: Hitesh Choudhary (the course author) taught and demonstrated the user authentication portion only. The rest of the logic, endpoints, controllers, aggregation pipelines, and integrations (videos, tweets, comments, likes, playlists, subscriptions, Cloudinary wiring, transactions, etc.) were implemented by Rohan Kumar Mahto.
+### Course Instructor
+- **Hitesh Choudhary** - Provided foundational authentication concepts and guidance
 
-- Author / Contact:
-	- Name: Rohan Kumar Mahto
-	- GitHub: https://github.com/Rohan04022003
-	- This repository: https://github.com/Rohan04022003/yt-clone-backend
-	- Portfolio: https://rohan-portfolio-eta.vercel.app/
-	- LinkedIn: https://www.linkedin.com/in/rohan-mahto-5521aa253/
-	- Instagram: https://www.instagram.com/rohankumarmahto01/
+### Special Thanks
+- The open-source community for the amazing tools and libraries
+- All contributors and users who help improve Vynox
 
-If you use this project or base your work on it, a star on the repository or a mention is appreciated.
 ---
 
-If you want, I can now:
+## Support
 
-- generate a Postman collection (JSON) for all endpoints,
-- add a minimal `.env.example` file that lists required env variables, or
-- implement the missing healthcheck response and a simple global error handler.
+If you find Vynox helpful, please consider:
+- ⭐ Starring the repository
+- 🐛 Reporting bugs
+- 💡 Suggesting new features
+- 🤝 Contributing to the codebase
 
-Tell me which of the above you'd like next.
+For questions or support, please open an issue on GitHub or contact the project maintainer.
 
