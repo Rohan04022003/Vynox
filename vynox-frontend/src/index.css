@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+@import "@fontsource-variable/roboto";
+
+/* Tailwind v4 new font system */
+@theme {
+  --font-sans: "Roboto", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Noto Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+}
+
+/* Global styling */
+:root {
+  font-family: var(--font-sans);
+}
+
+/* it is loader css */
+
+.loader {
+  width: 25px;
+  height: 25px;
+  border: 4px solid #afd3ff;
+  border-bottom-color: #3391e7;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
