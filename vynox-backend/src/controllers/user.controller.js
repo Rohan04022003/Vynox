@@ -42,13 +42,11 @@ const registerUser = asyncHandler(async (req, res) => {
   // return res
 
   const { fullName, email, username, password } = req.body;
-  //console.log("email: ", email);
-
-  console.log(req.files);
 
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
+    res.status(400, "All fields are required.");
     throw new ApiError(400, "All fields are required");
   }
 
@@ -57,6 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
+    res.status(400).json(400, "User with username or email already exists.");
     throw new ApiError(409, "User with email or username already exists");
   }
   //console.log(req.files);
@@ -64,16 +63,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.files?.avatar[0]?.path;
   //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-  let coverImageLocalPath;
-  if (
-    req.files &&
-    Array.isArray(req.files.coverImage) &&
-    req.files.coverImage.length > 0
-  ) {
-    coverImageLocalPath = req.files.coverImage[0].path;
-  }
-
   if (!avatarLocalPath) {
+    res.status(400).json(400, "Avatar is requried.");
     throw new ApiError(400, "Avatar file is required");
   }
 
@@ -82,13 +73,22 @@ const registerUser = asyncHandler(async (req, res) => {
 
   try {
     avatar = await uploadOnCloudinary(avatarLocalPath, "image");
-    coverImage = await uploadOnCloudinary(coverImageLocalPath, "image");
 
-    if (!avatar) {
-      throw new ApiError(400, "Avatar file is required");
+    if (
+      req.files &&
+      Array.isArray(req.files.coverImage) &&
+      req.files.coverImage.length > 0
+    ) {
+      const coverImageLocalPath = req.files.coverImage[0].path;
+      coverImage = await uploadOnCloudinary(coverImageLocalPath, "image");
     }
 
-    const user = await User.create({
+    if (!avatar) {
+      res.status(400).res(500, "Avatar uploading failure, please try after some time.")
+      throw new ApiError(500, "Avatar uploading failure, please try after some time.");
+    }
+
+    let user = await User.create({
       fullName,
       avatar: { url: avatar.url, public_id: avatar.public_id },
       coverImage: coverImage
@@ -99,11 +99,13 @@ const registerUser = asyncHandler(async (req, res) => {
       username: username.toLowerCase(),
     });
 
-    const createdUser = await User.findById(user._id).select(
+    const registeredUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
 
-    if (!createdUser) {
+    user = registeredUser;
+
+    if (!user) {
       throw new ApiError(
         500,
         "Something went wrong while registering the user"
@@ -114,13 +116,13 @@ const registerUser = asyncHandler(async (req, res) => {
 
     return res
       .status(201)
-      .json(new ApiResponse(200, createdUser, "User registered Successfully"));
+      .json(new ApiResponse(200, user, "User registered Successfully"));
   } catch (error) {
-    if (avatar.public_id) {
+    if (avatar?.public_id) {
       await deleteFromCloudinary(avatar.public_id, "image");
     }
 
-    if (coverImage.public_id) {
+    if (coverImage?.public_id) {
       await deleteFromCloudinary(coverImage.public_id, "image");
     }
 
