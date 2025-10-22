@@ -46,7 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (
     [fullName, email, username, password].some((field) => field?.trim() === "")
   ) {
-    res.status(400, "All fields are required.");
+    res.status(400).json(new ApiResponse(400, {}, "All fields are required."));
     throw new ApiError(400, "All fields are required");
   }
 
@@ -55,16 +55,19 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (existedUser) {
-    res.status(400).json(400, "User with username or email already exists.");
+    res
+      .status(400)
+      .json(
+        new ApiResponse(400, "User with username or email already exists.")
+      );
     throw new ApiError(409, "User with email or username already exists");
   }
-  //console.log(req.files);
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
   //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
   if (!avatarLocalPath) {
-    res.status(400).json(400, "Avatar is requried.");
+    res.status(400).json(new ApiResponse(400, {}, "Avatar is requried."));
     throw new ApiError(400, "Avatar file is required");
   }
 
@@ -84,8 +87,18 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     if (!avatar) {
-      res.status(400).res(500, "Avatar uploading failure, please try after some time.")
-      throw new ApiError(500, "Avatar uploading failure, please try after some time.");
+      res
+        .status(400)
+        .json(
+          new ApiResponse(
+            500,
+            "Avatar uploading failure, please try after some time."
+          )
+        );
+      throw new ApiError(
+        500,
+        "Avatar uploading failure, please try after some time."
+      );
     }
 
     let user = await User.create({
@@ -106,13 +119,21 @@ const registerUser = asyncHandler(async (req, res) => {
     user = registeredUser;
 
     if (!user) {
+      res
+        .status(500)
+        .json(
+          new ApiResponse(
+            500, {},
+            "Something went wrong while registering the user"
+          )
+        );
       throw new ApiError(
         500,
         "Something went wrong while registering the user"
       );
     }
 
-    await sendMail("register", user.email, user);
+    // await sendMail("register", user.email, user);
 
     return res
       .status(201)
@@ -139,9 +160,11 @@ const loginUser = asyncHandler(async (req, res) => {
   //send cookie
 
   const { email, username, password } = req.body;
-  console.log(email);
 
   if (!username && !email) {
+    res
+      .status(400)
+      .json(new ApiResponse(400, {}, "username or email is required"));
     throw new ApiError(400, "username or email is required");
   }
 
@@ -156,12 +179,18 @@ const loginUser = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
+    res
+      .status(404)
+      .json(new ApiResponse(404, {}, "User does not exist"));
     throw new ApiError(404, "User does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
+    res
+      .status(404)
+      .json(new ApiResponse(401, {}, "Invalid user credentials"));
     throw new ApiError(401, "Invalid user credentials");
   }
 
@@ -181,11 +210,11 @@ const loginUser = asyncHandler(async (req, res) => {
   const deviceInfo = getDeviceInfo(req);
   const ip = getIp(req);
 
-  await sendMail("login", user.email, {
-    fullName: user.fullName,
-    ...deviceInfo,
-    ip,
-  });
+  // await sendMail("login", user.email, {
+  //   fullName: user.fullName,
+  //   ...deviceInfo,
+  //   ip,
+  // });
 
   return res
     .status(200)
@@ -232,7 +261,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
-
   if (!incomingRefreshToken) {
     throw new ApiError(401, "unauthorized request");
   }

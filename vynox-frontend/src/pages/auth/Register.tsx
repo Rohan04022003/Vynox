@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import vynox from "../../assets/vynox.png";
 import google_logo from "../../assets/google.webp";
@@ -19,6 +19,9 @@ const Register = () => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // it is for page navigation
+  const navigate = useNavigate();
 
   // Handle input change
   const handleChange = (e: any) => {
@@ -77,15 +80,13 @@ const Register = () => {
         data,
         {
           withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       console.log("User Registered:", response.data?.data);
-      alert("Registration Successful");
+      navigate("/")
     } catch (error: any) {
       console.error("Error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Something went wrong!");
     } finally {
       setLoading(false);
     }
