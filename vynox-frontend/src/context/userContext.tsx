@@ -30,56 +30,49 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
 
-        const navigationEntries = performance.getEntriesByType("navigation");
-        const isReload =
-            navigationEntries[0]?.entryType === "reload" ||
-            performance?.navigation?.type === 1;
+        const fetchUser = async () => {
 
-        if (isReload) {
-            const fetchUser = async () => {
+            try {
+                const response: any = await axios.get(
+                    `${import.meta.env.VITE_BASE_URL}/users/current-user`,
+                    { withCredentials: true }
+                );
 
-                try {
-                    const response: any = await axios.get(
-                        `${import.meta.env.VITE_BASE_URL}/users/current-user`,
-                        { withCredentials: true }
-                    );
-
-                    if (response.status === 200) {
-                        setUser(response.data?.data);
-                        localStorage.setItem("user", JSON.stringify(response.data?.data));
-                        navigate("/");
-                        return;
-                    }
-
-                } catch (error: any) {
-                    // 401 ko handle kiya hai
-                    if (error.response && error.response.status === 401) {
-                        try {
-                            const refreshRes: any = await axios.post(
-                                `${import.meta.env.VITE_BASE_URL}/users/refresh-token`,
-                                {},
-                                { withCredentials: true }
-                            );
-
-                            if (refreshRes.status === 200) {
-                                localStorage.setItem("token", refreshRes.data?.data?.accessToken);
-                                return fetchUser(); // retry
-                            }
-                        } catch (refreshError) {
-                            // refresh token fail hoga tab
-                            console.error("Refresh failed:", refreshError);
-                            setUser({});
-                            localStorage.removeItem("user");
-                            navigate("user/login");
-                        }
-                    } else {
-                        console.error("Error fetching user:", error);
-                    }
+                if (response.status === 200) {
+                    setUser(response.data?.data);
+                    localStorage.setItem("user", JSON.stringify(response.data?.data));
+                    navigate("/");
+                    return;
                 }
-            };
 
-            fetchUser();
-        }
+            } catch (error: any) {
+                // 401 ko handle kiya hai
+                if (error.response && error.response.status === 401) {
+                    try {
+                        const refreshRes: any = await axios.post(
+                            `${import.meta.env.VITE_BASE_URL}/users/refresh-token`,
+                            {},
+                            { withCredentials: true }
+                        );
+
+                        if (refreshRes.status === 200) {
+                            localStorage.setItem("token", refreshRes.data?.data?.accessToken);
+                            return fetchUser(); // retry
+                        }
+                    } catch (refreshError) {
+                        // refresh token fail hoga tab
+                        console.error("Refresh failed:", refreshError);
+                        setUser({});
+                        localStorage.removeItem("user");
+                        navigate("user/login");
+                    }
+                } else {
+                    console.error("Error fetching user:", error);
+                }
+            }
+        };
+
+        fetchUser();
 
     }, []);
 
