@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Create Context
 const UserContext = createContext<any>(null);
@@ -10,7 +9,6 @@ const UserContext = createContext<any>(null);
 // Provider Component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<any>({});
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
@@ -41,7 +39,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 if (response.status === 200) {
                     setUser(response.data?.data);
                     localStorage.setItem("user", JSON.stringify(response.data?.data));
-                    navigate("/");
                     return;
                 }
 
@@ -56,15 +53,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                         );
 
                         if (refreshRes.status === 200) {
-                            localStorage.setItem("token", refreshRes.data?.data?.accessToken);
                             return fetchUser(); // retry
                         }
                     } catch (refreshError) {
                         // refresh token fail hoga tab
                         console.error("Refresh failed:", refreshError);
-                        setUser({});
+                        setUser(null);
                         localStorage.removeItem("user");
-                        navigate("user/login");
                     }
                 } else {
                     console.error("Error fetching user:", error);
@@ -73,6 +68,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         };
 
         fetchUser();
+
 
     }, []);
 
