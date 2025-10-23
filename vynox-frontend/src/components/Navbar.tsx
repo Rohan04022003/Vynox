@@ -1,0 +1,36 @@
+import { Menu, Mic, Plus, Search } from "lucide-react"
+import vynox from "../assets/vynox.png"
+
+const Navbar = () => {
+    return (
+        <div className="flex items-center justify-between px-6 h-16 w-full bg-neutral-50 text-neutral-600">
+            <div className="flex items-center justify-center gap-3">
+                <Menu />
+                <div className="flex items-center">
+                    <img src={vynox} alt="vynox-logo" className="w-9" />
+                    <h2 className="text-xl font-semibold">Vynox</h2>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center bg-neutral-100 w-96 h-9 rounded-full overflow-hidden border border-neutral-200">
+                    <input type="text" name="search" id="search" placeholder="Search" className="w-full h-full outline-none border-none px-5 text-neutral-600" />
+                    <div className="w-14 h-full flex items-center justify-center border-l-2 border-neutral-200">
+                        <Search size={18} color="gray" />
+                    </div>
+                </div>
+                <div className="p-2 bg-neutral-200 rounded-full cursor-pointer"><Mic size={18} color="gray" /></div>
+            </div>
+            <div className="flex items-center gap-3">
+                <button className="flex items-center gap-[2px] px-2 py-1 bg-neutral-200 rounded-full cursor-pointer">
+                    <Plus size={16} />
+                    <span className="text-sm mb-[2px]">Create</span>
+                </button>
+                <div className="avatar w-8 h-8 rounded-full bg-neutral-200 overflow-hidden">
+                    <img src="http://res.cloudinary.com/dlstbc1xh/image/upload/v1758785675/qdenmjk4mrtcoj5vdfwe.png" alt="avatar" className="w-full h-full bg-cover bg-center" />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Navbar

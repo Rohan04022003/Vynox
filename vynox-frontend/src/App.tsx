@@ -1,30 +1,64 @@
-import { Route, Routes } from "react-router-dom"
-import Login from "./pages/auth/Login.tsx"
-import Welcome from "./pages/Welcome.tsx"
-import Register from "./pages/auth/Register.tsx"
-import Home from "./pages/Home.tsx"
-import { Toaster } from "react-hot-toast"
-import ProtectedRoute from "./components/ProtectedRoute.tsx"
-import PublicRoute from "./components/PublicRoute.tsx"
+import { Route, Routes } from "react-router-dom";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import Welcome from "./pages/Welcome";
+import Home from "./pages/Home";
+import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/sidebar";
 
 const App = () => {
   return (
-    <div>
-      {/* Global toaster */}
-      <Toaster
-        position="bottom-center" // notification position
-        reverseOrder={false} // latest on top or bottom
-      />
-      <Routes>
-        {/* auth routes */}
-        <Route path="/user/login" element={<PublicRoute><Login /></PublicRoute>} />
-        <Route path="/user/register" element={<PublicRoute><Register /></PublicRoute>} />
-        {/* pages */}
-        <Route path="/welcome" element={<Welcome />} />
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      </Routes>
-    </div>
-  )
-}
+    <>
+      {/* Global Toast Notification */}
+      <Toaster position="bottom-center" reverseOrder={false} />
 
-export default App
+      {/* App Routing */}
+      <Routes>
+        {/* ---- public routes ---- */}
+        <Route
+          path="/user/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/user/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/welcome"
+          element={
+            <PublicRoute>
+              <Welcome />
+            </PublicRoute>
+          }
+        />
+
+        {/* ---- protected routes ---- */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <div className="flex">
+                <Sidebar />
+                <Home />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
+  );
+};
+
+export default App;
