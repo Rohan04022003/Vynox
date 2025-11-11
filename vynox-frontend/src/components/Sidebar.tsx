@@ -29,7 +29,7 @@ const Sidebar = () => {
     );
 
     return (
-        <div className="w-60 min-h-[91vh] bg-neutral-50 border-r border-neutral-200 flex flex-col justify-between py-4">
+        <div className="w-60 fixed lg:sticky top-16 z-10 h-[91vh] bg-neutral-100 border-neutral-200 flex flex-col justify-between py-4">
             <div className="flex flex-col gap-2">
                 <MenuItem to="/" icon={Home} label="Home" />
                 <MenuItem to="/tweets" icon={Image} label="Tweets" />

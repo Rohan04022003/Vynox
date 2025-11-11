@@ -67,6 +67,89 @@ const createTweet = asyncHandler(async (req, res) => {
   }
 });
 
+const getAllTweets = asyncHandler(async (req, res) => {
+  const { sortType = "desc", limit = 5, page = 1, content = "" } = req.query;
+
+  const limitNum = Number(limit);
+  const pageNum = Number(page);
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+
+  // ✅ Search by content (if provided)
+  if (content) {
+    filter.content = { $regex: content, $options: "i" };
+  }
+
+  // ✅ Safely get logged-in user ID
+  const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
+
+  const result = await Tweet.aggregate([
+    { $match: filter },
+    {
+      $facet: {
+        totalCount: [{ $count: "totalTweets" }],
+        tweets: [
+          { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+          { $skip: skip },
+          { $limit: limitNum },
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                { $project: { username: 1, avatar: 1, fullName: 1 } },
+              ],
+            },
+          },
+          {
+            $lookup: {
+              from: "likes",
+              localField: "_id",
+              foreignField: "tweet",
+              as: "likes",
+            },
+          },
+          {
+            $addFields: {
+              totalLikes: { $size: "$likes" },
+              isLiked: {
+                $cond: {
+                  if: { $and: [userId, { $in: [userId, "$likes.user"] }] },
+                  then: true,
+                  else: false,
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  // ✅ Extract data safely
+  const tweetsList = result[0]?.tweets || [];
+  const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
+
+  // ✅ Send response
+  return res.status(200).json({
+    status: 200,
+    data: {
+      tweets: tweetsList,
+      totalTweets,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(totalTweets / limitNum),
+    },
+    message: "Tweets fetched successfully.",
+  });
+});
+
+export default getAllTweets;
+
+
 const getUserTweets = asyncHandler(async (req, res) => {
   // TODO: get user tweets
 
@@ -109,7 +192,6 @@ const getUserTweets = asyncHandler(async (req, res) => {
               as: "likes",
             },
           },
-
           {
             $addFields: {
               totalLikes: { $size: "$likes" },
@@ -200,4 +282,4 @@ const deleteTweet = asyncHandler(async (req, res) => {
   }
 });
 
-export { createTweet, getUserTweets, updateTweet, deleteTweet };
+export { createTweet, getUserTweets, getAllTweets, updateTweet, deleteTweet };

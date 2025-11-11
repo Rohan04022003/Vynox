@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Create Context
 const UserContext = createContext<any>(null);
@@ -9,6 +10,7 @@ const UserContext = createContext<any>(null);
 // Provider Component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<any>({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
@@ -60,6 +62,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                         console.error("Refresh failed:", refreshError);
                         setUser(null);
                         localStorage.removeItem("user");
+                        navigate("/user/login")
                     }
                 } else {
                     console.error("Error fetching user:", error);

@@ -7,7 +7,8 @@ import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/sidebar";
+import Sidebar from "./components/Sidebar";
+import Tweets from "./pages/Tweets";
 
 const App = () => {
   return (
@@ -52,6 +53,18 @@ const App = () => {
               <div className="flex">
                 <Sidebar />
                 <Home />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tweets"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <div className="flex">
+                <Sidebar />
+                <Tweets />
               </div>
             </ProtectedRoute>
           }
