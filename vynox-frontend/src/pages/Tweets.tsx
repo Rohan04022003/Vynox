@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react'
 import TweetCard from '../components/TweetCard'
 import axios from 'axios';
@@ -6,18 +7,19 @@ const Tweets = () => {
 
     const [tweets, setTweets] = useState([]);
     const [loading, setLoading] = useState(false);
+    console.log(tweets)
 
     useEffect(() => {
         async function fetchtweets() {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `${import.meta.env.VITE_BASE_URL}/dashboard/tweets`,
+                    `${import.meta.env.VITE_BASE_URL}/tweets`,
                     { withCredentials: true }
                 );
 
                 if (response.status === 200) {
-                    settweets(response.data?.data);
+                    setTweets(response.data?.data?.tweets);
                 } else {
                     console.log("Failed fetching tweets");
                 }
@@ -33,11 +35,11 @@ const Tweets = () => {
 
     return (
         <div className="w-full h-[200vh] bg-gray-50 p-4">
-            {/* {loading ? (
-        <div className="text-center text-gray-600 mt-10">Loading Tweets...</div>
-      ) : ( */}
-            <div
-                className="
+            {loading ? (
+                <div className="text-center text-gray-600 mt-10">Loading Tweets...</div>
+            ) : (
+                <div
+                    className="
             grid 
             gap-2 
             xl:grid-cols-5 
@@ -47,15 +49,13 @@ const Tweets = () => {
             grid-cols-1 
             justify-items-center
           "
-            >
-                {/* {tweets.map((tweet: any) => (
-            <TweetCard key={tweet._id} tweet={tweet} />
-          ))} */}
+                >
+                    {tweets.map((tweet: any) => (
+                        <TweetCard key={tweet._id} tweet={tweet} />
+                    ))}
 
-                <TweetCard />
-
-            </div>
-            {/* )} */}
+                </div>
+            )}
         </div>
     )
 }

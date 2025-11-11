@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { Tweet } from "../models/tweet.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -76,13 +76,13 @@ const getAllTweets = asyncHandler(async (req, res) => {
 
   const filter = {};
 
-  // ✅ Search by content (if provided)
   if (content) {
     filter.content = { $regex: content, $options: "i" };
   }
 
-  // ✅ Safely get logged-in user ID
-  const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
+  const userId = req.user?._id
+    ? new mongoose.Types.ObjectId(req.user._id)
+    : null;
 
   const result = await Tweet.aggregate([
     { $match: filter },
@@ -99,9 +99,7 @@ const getAllTweets = asyncHandler(async (req, res) => {
               localField: "owner",
               foreignField: "_id",
               as: "owner",
-              pipeline: [
-                { $project: { username: 1, avatar: 1, fullName: 1 } },
-              ],
+              pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1 } }],
             },
           },
           {
@@ -129,11 +127,9 @@ const getAllTweets = asyncHandler(async (req, res) => {
     },
   ]);
 
-  // ✅ Extract data safely
   const tweetsList = result[0]?.tweets || [];
   const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
 
-  // ✅ Send response
   return res.status(200).json({
     status: 200,
     data: {
@@ -148,7 +144,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
 });
 
 export default getAllTweets;
-
 
 const getUserTweets = asyncHandler(async (req, res) => {
   // TODO: get user tweets

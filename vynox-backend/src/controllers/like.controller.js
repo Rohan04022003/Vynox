@@ -144,7 +144,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
     if (existingLike) {
       await existingLike.deleteOne({ session });
       await Tweet.findOneAndUpdate(
-        tweetId,
+        { _id: tweetId },
         {
           $inc: {
             likeCount: -1,
