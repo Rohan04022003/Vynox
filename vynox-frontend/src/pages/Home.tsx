@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import VideoCard from "../components/VideoCard";
 import axios from "axios";
+import VideoCardSkeleton from "../components/skeleton/VideoCardSkeleton";
 
 const Home = () => {
   const [videos, setVideos] = useState([]);
@@ -32,9 +33,24 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="w-full h-[200vh] bg-gray-50 p-4">
+    <div className="w-full bg-gray-50 p-4">
       {loading ? (
-        <div className="text-center text-gray-600 mt-10">Loading videos...</div>
+        <div
+          className="
+            grid 
+            gap-2 
+            xl:grid-cols-5 
+            lg:grid-cols-4 
+            md:grid-cols-3 
+            sm:grid-cols-2 
+            grid-cols-1 
+            justify-items-center
+          "
+        >
+          {Array.from({ length: 20 }).map((_, index) => (
+            <VideoCardSkeleton key={index} />
+          ))}
+        </div>
       ) : (
         <div
           className="

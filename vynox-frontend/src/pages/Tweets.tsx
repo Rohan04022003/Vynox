@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import TweetCard from '../components/TweetCard'
 import axios from 'axios';
+import TweetCardSkeleton from '../components/skeleton/TweetCardSkeleton';
 
 const Tweets = () => {
 
@@ -36,7 +37,22 @@ const Tweets = () => {
     return (
         <div className="w-full h-[200vh] bg-gray-50 p-4">
             {loading ? (
-                <div className="text-center text-gray-600 mt-10">Loading Tweets...</div>
+                <div
+                    className="
+            grid 
+            gap-2 
+            xl:grid-cols-5 
+            lg:grid-cols-4 
+            md:grid-cols-3 
+            sm:grid-cols-2 
+            grid-cols-1 
+            justify-items-center
+          "
+                >
+                    {Array.from({ length: 20 }).map((_, index) => (
+                        <TweetCardSkeleton key={index} />
+                    ))}
+                </div>
             ) : (
                 <div
                     className="
