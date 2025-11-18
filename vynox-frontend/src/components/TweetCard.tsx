@@ -1,22 +1,38 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { ThumbsUp } from "lucide-react"
+import { Edit2, ThumbsUp } from "lucide-react";
 
-type TweetCardProps = {
-    tweet: any
+interface Owner {
+    avatar?: { url?: string };
+    username?: string;
 }
 
-const TweetCard = ({ tweet }: TweetCardProps) => {
+interface Tweet {
+    owner?: Owner[];
+    content: string;
+    tweetImage?: { url?: string };
+    isEdited?: boolean;
+    isLiked?: boolean;
+    totalLikes?: number;
+}
+
+interface TweetCardProps {
+    tweet: Tweet;
+    onOpen: (tweet: Tweet) => void;
+}
+
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen }) => {
     const owner = tweet.owner?.[0];
     return (
         <div className='border border-neutral-300 shadow-lg w-full p-2 rounded-lg'>
             <div className='flex items-center gap-2 mb-2'>
                 <img src={owner?.avatar?.url} alt="user-avatar" className='w-9 rounded-full' />
-                <div><span className='text-sm font-semibold text-neutral-700'>{owner?.username}</span>
-                    {tweet?.isEdited ? "Edited" : ""}
+                <div className=""><p className='text-neutral-700 font-medium'>{owner?.username}</p>
+                    <p className="text-[11px] text-neutral-600 -mt-1">{tweet?.isEdited ? <p className="flex items-center gap-[2px]"><Edit2 size={10} /> Edited</p> : ""}</p>
                 </div>
             </div>
             <p className="text-sm mb-3 text-neutral-600">{tweet?.content.length > 30 ? tweet?.content.slice(0, 30) + "..." : tweet?.content}</p>
-            <div className="w-full h-32">
+            <div
+                onClick={() => onOpen(tweet)}
+                className="w-full h-32">
                 <img src={tweet?.tweetImage?.url} alt="tweet-images" className="rounded-sm h-full w-full bg-center object-cover cursor-pointer" />
             </div>
 
@@ -25,7 +41,7 @@ const TweetCard = ({ tweet }: TweetCardProps) => {
                 <button className='px-3 py-1 rounded-full text-xs font-semibold text-pink-700 bg-pink-50 cursor-pointer'>Subscribe</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default TweetCard
+export default TweetCard;

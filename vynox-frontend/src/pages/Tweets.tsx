@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react'
 import TweetCard from '../components/TweetCard'
 import axios from 'axios';
 import TweetCardSkeleton from '../components/skeleton/TweetCardSkeleton';
+import TweetDetail from '../components/TweetDetails';
 
 const Tweets = () => {
 
     const [tweets, setTweets] = useState([]);
     const [loading, setLoading] = useState(false);
-    console.log(tweets)
+    const [selectedTweet, setSelectedTweet] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         async function fetchtweets() {
@@ -33,6 +35,11 @@ const Tweets = () => {
 
         fetchtweets();
     }, []);
+
+    const openTweet = (tweet: any) => {
+        setSelectedTweet(tweet);
+        setIsOpen(true);
+    };
 
     return (
         <div className="w-full h-[200vh] bg-gray-50 p-4">
@@ -67,10 +74,16 @@ const Tweets = () => {
           "
                 >
                     {tweets.map((tweet: any) => (
-                        <TweetCard key={tweet._id} tweet={tweet} />
+                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} />
                     ))}
 
                 </div>
+            )}
+
+
+            {/* Half Screen Drawer */}
+            {isOpen && (
+                <TweetDetail tweet={selectedTweet} onClose={() => setIsOpen(false)} />
             )}
         </div>
     )
