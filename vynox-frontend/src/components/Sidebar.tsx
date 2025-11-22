@@ -2,16 +2,34 @@
 import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
+import axios from "axios";
+import { useState } from "react";
 
 const Sidebar = () => {
     const navigate = useNavigate();
     const { setUser } = useUser();
 
+    const [loading, setLoading] = useState(false);
+
     // logout handler
-    const handleLogout = () => {
-        localStorage.removeItem("user");
-        setUser({});
-        navigate("/user/login");
+    const handleLogout = async () => {
+
+        try {
+            setLoading(true)
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/logout`, {}, { withCredentials: true })
+
+            if (response.status === 200) {
+                localStorage.removeItem("user");
+                setUser(null);
+                navigate("/user/login");
+                setLoading(false)
+            }
+
+        } catch (error: any) {
+            setLoading(false)
+            console.log(error.response?.data?.message)
+        }
+
     };
 
     // reusable sidebar item component
@@ -44,8 +62,12 @@ const Sidebar = () => {
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-5 py-2 rounded-lg cursor-pointer text-sm font-medium text-neutral-600 hover:bg-neutral-100"
                 >
-                    <LogOut size={18} />
-                    <span>Logout</span>
+                    {
+                        loading ?
+                            <span className="loader"></span> :
+                            <><LogOut size={18} />
+                                <span>Logout</span></>
+                    }
                 </button>
             </div>
         </div>

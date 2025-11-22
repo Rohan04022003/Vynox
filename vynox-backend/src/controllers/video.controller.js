@@ -19,7 +19,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
   }
 
   try {
-    const filter = {};
+    const filter = { isPublished: true }; // only published videos will shown.
 
     if (query) {
       filter.title = { $regex: query, $options: "i" };
@@ -96,7 +96,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description, isPublished } = req.body;
 
   if (!title?.trim() || !description?.trim()) {
     throw new ApiError(400, "Title and description are required.");
@@ -134,6 +134,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
       duration: videoURL.duration,
       title,
       description,
+      isPublished,
       owner: user._id,
     });
 

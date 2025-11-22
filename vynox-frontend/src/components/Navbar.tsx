@@ -1,7 +1,11 @@
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
+import { useNavigate } from "react-router-dom"
 
 const Navbar = () => {
+
+    const navigate = useNavigate();
+
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">
             <div className="flex items-center justify-center gap-3">
@@ -21,7 +25,7 @@ const Navbar = () => {
                 <div className="p-2 bg-[#c1c1c14f] rounded-full cursor-pointer"><Mic size={18} color="gray" /></div>
             </div>
             <div className="flex items-center gap-3">
-                <button className="flex items-center gap-[2px] px-3 py-1 bg-neutral-200 rounded-full cursor-pointer">
+                <button onClick={() => navigate("/upload-video")} className="flex items-center gap-[2px] px-3 py-1 bg-neutral-200 rounded-full cursor-pointer">
                     <Plus size={16} />
                     <span className="text-sm mb-[2px]">Create</span>
                 </button>

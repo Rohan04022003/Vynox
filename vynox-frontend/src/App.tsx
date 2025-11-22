@@ -9,6 +9,7 @@ import PublicRoute from "./components/PublicRoute";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Tweets from "./pages/Tweets";
+import VideoUploadForm from "./pages/VideoUploadForm";
 
 const App = () => {
   return (
@@ -65,6 +66,18 @@ const App = () => {
               <div className="flex">
                 <Sidebar />
                 <Tweets />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload-video"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <div className="flex">
+                <Sidebar />
+                <VideoUploadForm />
               </div>
             </ProtectedRoute>
           }
