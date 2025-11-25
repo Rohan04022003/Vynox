@@ -10,6 +10,7 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Tweets from "./pages/Tweets";
 import VideoUploadForm from "./pages/VideoUploadForm";
+import TweetUploadForm from "./pages/TweetUploadForm";
 
 const App = () => {
   return (
@@ -78,6 +79,18 @@ const App = () => {
               <div className="flex">
                 <Sidebar />
                 <VideoUploadForm />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload-tweet"
+          element={
+            <ProtectedRoute>
+              <Navbar />
+              <div className="flex">
+                <Sidebar />
+                <TweetUploadForm />
               </div>
             </ProtectedRoute>
           }
