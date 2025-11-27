@@ -12,27 +12,27 @@ const Tweets = () => {
     const [selectedTweet, setSelectedTweet] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        async function fetchtweets() {
-            try {
-                setLoading(true);
-                const response = await axios.get(
-                    `${import.meta.env.VITE_BASE_URL}/tweets`,
-                    { withCredentials: true }
-                );
+    async function fetchtweets() {
+        try {
+            setLoading(true);
+            const response = await axios.get(
+                `${import.meta.env.VITE_BASE_URL}/tweets`,
+                { withCredentials: true }
+            );
 
-                if (response.status === 200) {
-                    setTweets(response.data?.data?.tweets);
-                } else {
-                    console.log("Failed fetching tweets");
-                }
-            } catch (error) {
-                console.error("Error fetching tweets:", error);
-            } finally {
-                setLoading(false);
+            if (response.status === 200) {
+                setTweets(response.data?.data?.tweets);
+            } else {
+                console.log("Failed fetching tweets");
             }
+        } catch (error) {
+            console.error("Error fetching tweets:", error);
+        } finally {
+            setLoading(false);
         }
+    }
 
+    useEffect(() => {
         fetchtweets();
     }, []);
 
@@ -74,7 +74,7 @@ const Tweets = () => {
           "
                 >
                     {tweets.map((tweet: any) => (
-                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} setTweets={setTweets} />
+                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} fetchtweets={fetchtweets} />
                     ))}
 
                 </div>

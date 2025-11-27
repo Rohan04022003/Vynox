@@ -2,10 +2,12 @@
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { Edit2, MoreVertical, ThumbsUp } from "lucide-react";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { useUser } from "../context/userContext";
 
 interface Owner {
+    _id: string;
     avatar?: { url?: string };
     username?: string;
 }
@@ -24,12 +26,13 @@ interface Tweet {
 interface TweetCardProps {
     tweet: Tweet;
     onOpen: (tweet: Tweet) => void;
-    setTweets: Dispatch<SetStateAction<never[]>>
+    fetchtweets: () => void
 }
 
-const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, setTweets }) => {
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, fetchtweets }) => {
     const owner = tweet.owner?.[0];
     const [loading, setLoading] = useState<boolean>(false)
+    const { user } = useUser();
 
 
     async function handleLike(id: string) {
@@ -37,12 +40,12 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, setTweets }) => {
         try {
             setLoading(true);
             const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/likes/toggle/t/${id}`,
+                `${import.meta.env.VITE_BASE_URL}/likes/toggle/t/${id}`, {},
                 { withCredentials: true }
             );
 
             if (response.status === 200) {
-                setTweets(response.data?.data?.tweets);
+                fetchtweets();
             } else {
                 toast.error("please try to like after sometime.");
             }
@@ -60,11 +63,11 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, setTweets }) => {
                 <div className="flex items-center gap-2">
                     <img src={owner?.avatar?.url} alt="user-avatar" className='w-9 rounded-full' />
                     <div className=""><p className='text-neutral-700 font-medium'>{owner?.username?.slice(0, 20)}{owner?.username && owner.username.length > 20 ? "..." : ""}</p>
-                        <p className="text-[11px] text-neutral-600 -mt-1">{tweet?.isEdited ? <p className="flex items-center gap-[2px]"><Edit2 size={10} /> Edited</p> : ""}</p>
+                        <p className="text-[11px] text-neutral-600 -mt-1">{tweet?.isEdited ? <span className="flex items-center gap-[2px]"><Edit2 size={10} /> Edited</span> : ""}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
-                    <button className='px-3 py-1 rounded-full text-xs font-semibold text-pink-700 bg-pink-50 cursor-pointer'>Subscribe</button>
+                    <button className={`px-3 py-1 rounded-full text-xs font-semibold text-pink-700 bg-pink-50 cursor-pointer ${user?._id === owner?._id ? "hidden" : "flex"}`}>Subscribe</button>
                     <MoreVertical size={18} className="text-neutral-600" />
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
 import { useNavigate } from "react-router-dom"
+import { useUser } from "../context/userContext"
 
 
 interface isOpenSideNavProps {
@@ -11,6 +12,7 @@ interface isOpenSideNavProps {
 const Navbar = ({ setIsOpenNav, isOpen }: isOpenSideNavProps) => {
 
     const navigate = useNavigate();
+    const {user} = useUser();
 
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">
@@ -36,7 +38,7 @@ const Navbar = ({ setIsOpenNav, isOpen }: isOpenSideNavProps) => {
                     <span className="text-sm mb-[2px]">Create</span>
                 </button>
                 <div className="avatar w-8 h-8 rounded-full bg-neutral-200 overflow-hidden">
-                    <img src="http://res.cloudinary.com/dlstbc1xh/image/upload/v1758785675/qdenmjk4mrtcoj5vdfwe.png" alt="avatar" className="w-full h-full bg-cover bg-center" />
+                    <img src={user?.avatar?.url} alt="avatar" className="w-full h-full bg-cover bg-center" />
                 </div>
             </div>
         </div>

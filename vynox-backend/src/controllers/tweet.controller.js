@@ -96,7 +96,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
           { $skip: skip },
           { $limit: limitNum },
 
-          // 🔥 Fetch Owner Details
           {
             $lookup: {
               from: "users",
@@ -107,7 +106,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
             },
           },
 
-          // 🔥 Fetch Likes Details
           {
             $lookup: {
               from: "likes",
@@ -117,7 +115,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
             },
           },
 
-          // 🔥 Add totalLikes & isLiked fields
           {
             $addFields: {
               totalLikes: { $size: "$likes" },
@@ -130,10 +127,7 @@ const getAllTweets = asyncHandler(async (req, res) => {
                         input: "$likes",
                         as: "l",
                         cond: {
-                          $eq: [
-                            "$$l.user",
-                            { $toObjectId: userId }, // convert string → ObjectId
-                          ],
+                          $eq: ["$$l.likedBy", { $toObjectId: userId }],
                         },
                       },
                     },
