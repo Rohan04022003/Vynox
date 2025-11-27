@@ -11,8 +11,12 @@ import Sidebar from "./components/Sidebar";
 import Tweets from "./pages/Tweets";
 import VideoUploadForm from "./pages/VideoUploadForm";
 import TweetUploadForm from "./pages/TweetUploadForm";
+import { useState } from "react";
 
 const App = () => {
+
+  const [isOpenSideNav, setIsOpenSideNav] = useState<boolean>(false)
+
   return (
     <>
       {/* Global Toast Notification */}
@@ -51,9 +55,9 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Navbar />
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
               <div className="flex">
-                <Sidebar />
+                <Sidebar isOpen={isOpenSideNav} />
                 <Home />
               </div>
             </ProtectedRoute>
@@ -63,9 +67,9 @@ const App = () => {
           path="/tweets"
           element={
             <ProtectedRoute>
-              <Navbar />
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
               <div className="flex">
-                <Sidebar />
+                <Sidebar isOpen={isOpenSideNav} />
                 <Tweets />
               </div>
             </ProtectedRoute>
@@ -75,9 +79,9 @@ const App = () => {
           path="/upload-video"
           element={
             <ProtectedRoute>
-              <Navbar />
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
               <div className="flex">
-                <Sidebar />
+                <Sidebar isOpen={isOpenSideNav} />
                 <VideoUploadForm />
               </div>
             </ProtectedRoute>
@@ -87,9 +91,9 @@ const App = () => {
           path="/upload-tweet"
           element={
             <ProtectedRoute>
-              <Navbar />
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
               <div className="flex">
-                <Sidebar />
+                <Sidebar isOpen={isOpenSideNav} />
                 <TweetUploadForm />
               </div>
             </ProtectedRoute>

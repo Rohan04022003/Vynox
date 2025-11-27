@@ -68,7 +68,7 @@ const createTweet = asyncHandler(async (req, res) => {
 });
 
 const getAllTweets = asyncHandler(async (req, res) => {
-  const { sortType = "desc", limit = 5, page = 1, content = "" } = req.query;
+  const { sortType = "desc", limit = 20, page = 1, content = "" } = req.query;
 
   const limitNum = Number(limit);
   const pageNum = Number(page);
@@ -142,8 +142,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
     message: "Tweets fetched successfully.",
   });
 });
-
-export default getAllTweets;
 
 const getUserTweets = asyncHandler(async (req, res) => {
   // TODO: get user tweets

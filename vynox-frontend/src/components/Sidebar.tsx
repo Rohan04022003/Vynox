@@ -5,10 +5,10 @@ import { useUser } from "../context/userContext";
 import axios from "axios";
 import { useState } from "react";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
     const navigate = useNavigate();
     const { setUser } = useUser();
-
+    console.log(isOpen)
     const [loading, setLoading] = useState(false);
 
     // logout handler
@@ -47,17 +47,17 @@ const Sidebar = () => {
     );
 
     return (
-        <div className="w-60 fixed lg:sticky top-16 z-10 h-[91vh] bg-neutral-100 border-neutral-200 flex flex-col justify-between py-4">
+        <div className={`fixed ${isOpen ? "lg:left-0" : "w-auto"} ${isOpen ? "left-0" : "-left-60"}  lg:sticky top-16 z-10 h-[91vh] bg-neutral-100 border-neutral-200 flex flex-col justify-between py-4 duration-300 text-nowrap`}>
             <div className="flex flex-col gap-2">
-                <MenuItem to="/" icon={Home} label="Home" />
-                <MenuItem to="/tweets" icon={Image} label="Tweets" />
-                <MenuItem to="/history" icon={Clock} label="History" />
-                <MenuItem to="/liked" icon={ThumbsUp} label="Liked Videos" />
-                <MenuItem to="/library" icon={MessageSquareIcon} label="Commented Vidoes" />
+                <MenuItem to="/" icon={Home} label={`${isOpen ? "Home" : ""}`} />
+                <MenuItem to="/tweets" icon={Image} label={`${isOpen ? "Tweets" : ""}`} />
+                <MenuItem to="/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
+                <MenuItem to="/liked" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
+                <MenuItem to="/library" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />
             </div>
 
             <div className="flex flex-col border-t border-neutral-200 pt-3">
-                <MenuItem to="/settings" icon={Settings} label="Settings" />
+                <MenuItem to="/settings" icon={Settings} label={`${isOpen ? "Settings" : ""}`} />
                 <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-5 py-2 rounded-lg cursor-pointer text-sm font-medium text-neutral-600 hover:bg-neutral-100"
@@ -66,7 +66,7 @@ const Sidebar = () => {
                         loading ?
                             <span className="loader"></span> :
                             <><LogOut size={18} />
-                                <span>Logout</span></>
+                                {isOpen ? <span>Logout</span> : ""}</>
                     }
                 </button>
             </div>
