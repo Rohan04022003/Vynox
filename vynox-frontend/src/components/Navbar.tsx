@@ -8,14 +8,14 @@ interface isOpenSideNavProps {
     isOpen: boolean
 }
 
-const Navbar = ( {setIsOpenNav, isOpen}: isOpenSideNavProps) => {
+const Navbar = ({ setIsOpenNav, isOpen }: isOpenSideNavProps) => {
 
     const navigate = useNavigate();
 
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">
             <div className="flex items-center justify-center gap-3">
-                <Menu onClick={ () => setIsOpenNav(!isOpen) } className="cursor-pointer" />
+                <Menu onClick={() => setIsOpenNav(!isOpen)} className="cursor-pointer" />
                 <div className="flex items-center">
                     <img src={vynox} alt="vynox-logo" className="w-9" />
                     <h2 className="text-xl font-semibold">Vynox</h2>

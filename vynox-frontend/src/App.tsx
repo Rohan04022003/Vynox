@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -38,14 +37,6 @@ const App = () => {
           element={
             <PublicRoute>
               <Register />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/welcome"
-          element={
-            <PublicRoute>
-              <Welcome />
             </PublicRoute>
           }
         />
