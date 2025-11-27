@@ -86,13 +86,17 @@ const getAllTweets = asyncHandler(async (req, res) => {
 
   const result = await Tweet.aggregate([
     { $match: filter },
+
     {
       $facet: {
         totalCount: [{ $count: "totalTweets" }],
+
         tweets: [
           { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
           { $skip: skip },
           { $limit: limitNum },
+
+          // 🔥 Fetch Owner Details
           {
             $lookup: {
               from: "users",
@@ -102,6 +106,8 @@ const getAllTweets = asyncHandler(async (req, res) => {
               pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1 } }],
             },
           },
+
+          // 🔥 Fetch Likes Details
           {
             $lookup: {
               from: "likes",
@@ -110,15 +116,30 @@ const getAllTweets = asyncHandler(async (req, res) => {
               as: "likes",
             },
           },
+
+          // 🔥 Add totalLikes & isLiked fields
           {
             $addFields: {
               totalLikes: { $size: "$likes" },
+
               isLiked: {
-                $cond: {
-                  if: { $and: [userId, { $in: [userId, "$likes.user"] }] },
-                  then: true,
-                  else: false,
-                },
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: "$likes",
+                        as: "l",
+                        cond: {
+                          $eq: [
+                            "$$l.user",
+                            { $toObjectId: userId }, // convert string → ObjectId
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  0,
+                ],
               },
             },
           },

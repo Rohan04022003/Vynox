@@ -74,7 +74,7 @@ const Tweets = () => {
           "
                 >
                     {tweets.map((tweet: any) => (
-                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} />
+                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} setTweets={setTweets} />
                     ))}
 
                 </div>

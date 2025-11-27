@@ -161,12 +161,9 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, "Tweet Unliked successfully."));
     }
 
-    await Like.create(
-      { tweet: tweetId, likedBy: req.user?._id },
-      {
-        session,
-      }
-    );
+    await Like.create([{ tweet: tweetId, likedBy: req.user?._id }], {
+      session,
+    });
     await Tweet.findOneAndUpdate(
       { _id: tweetId },
       { $inc: { likeCount: 1 } },

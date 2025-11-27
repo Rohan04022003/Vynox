@@ -71,12 +71,12 @@ const Login = () => {
         <div className="flex flex-col gap-4">
           <div className="w-full flex flex-col">
             <label htmlFor="email">Email</label>
-            <input onChange={onChangeFormData} value={formData.email} type="text" name="email" id="email" className="border-b border-neutral-500 focus:border-blue-500 outline-none" />
+            <input required onChange={onChangeFormData} value={formData.email} type="text" name="email" id="email" className="border-b border-neutral-500 focus:border-blue-500 outline-none" />
           </div>
 
           <div className="w-full flex flex-col relative">
             <label htmlFor="password">Password</label>
-            <input onChange={onChangeFormData} value={formData.password} type={showPassword ? "text" : "password"} name="password" id="password" className="border-b border-neutral-500 focus:border-blue-500 outline-none" />
+            <input required onChange={onChangeFormData} value={formData.password} type={showPassword ? "text" : "password"} name="password" id="password" className="border-b border-neutral-500 focus:border-blue-500 outline-none" />
             <button type="button" onClick={() => { setShowPassword(prev => (!prev)) }} className="absolute right-1 top-5 cursor-pointer text-neutral-500">
               {showPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
             </button>
