@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 // tweetTypes.ts
 export interface Owner {
   _id: string;
@@ -26,3 +28,17 @@ export interface TweetDetailProps {
   tweet: Partial<Tweet> | null;
   onClose: () => void;
 }
+
+export interface isOpenSideNavProps {
+    setIsOpenNav: Dispatch<SetStateAction<boolean>>;
+    isOpen: boolean;
+    fetchTweets?: (value: string) => Promise<void> | void;
+    setTweets?: Dispatch<SetStateAction<Tweet[]>>;
+}
+
+export interface tweetsProps {
+  tweets: Tweet[];
+  setTweets: Dispatch<SetStateAction<Tweet[]>>;
+  fetchTweets: (str?: string, sortType?: string, limit?: number, page?: number) => Promise<void> | void;
+  loading: boolean;
+};

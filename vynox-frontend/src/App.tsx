@@ -11,10 +11,12 @@ import Tweets from "./pages/Tweets";
 import VideoUploadForm from "./pages/VideoUploadForm";
 import TweetUploadForm from "./pages/TweetUploadForm";
 import { useState } from "react";
+import { useTweets } from "./hooks/useTweets";
 
 const App = () => {
 
   const [isOpenSideNav, setIsOpenSideNav] = useState<boolean>(false)
+  const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweets();
 
   return (
     <>
@@ -58,10 +60,13 @@ const App = () => {
           path="/tweets"
           element={
             <ProtectedRoute>
-              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
+              <Navbar setIsOpenNav={setIsOpenSideNav}
+                isOpen={isOpenSideNav}
+                fetchTweets={fetchTweets}
+                setTweets={setTweets} />
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
-                <Tweets />
+                <Tweets tweets={tweets} setTweets={setTweets} loading={loading} fetchTweets={fetchTweets} hasMore={hasMore} />
               </div>
             </ProtectedRoute>
           }

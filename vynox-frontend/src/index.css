@@ -49,3 +49,14 @@
 .animate-slideLeft {
   animation: slideLeft 0.5s ease-out;
 }
+
+
+.hide-scrollbar {
+  overflow-x: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer & Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}

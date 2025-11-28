@@ -1,18 +1,26 @@
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useUser } from "../context/userContext"
+import type { isOpenSideNavProps } from "../types"
+import { useState } from "react"
 
 
-interface isOpenSideNavProps {
-    setIsOpenNav: (value: boolean) => void,
-    isOpen: boolean
-}
 
-const Navbar = ({ setIsOpenNav, isOpen }: isOpenSideNavProps) => {
+
+const Navbar = ({ setIsOpenNav, isOpen, fetchTweets, setTweets }: isOpenSideNavProps) => {
 
     const navigate = useNavigate();
-    const {user} = useUser();
+    const location = useLocation();
+    const { user } = useUser();
+    const [search, setSearch] = useState<string>("")
+
+    const handleSearch = () => {
+        if (location.pathname === "/tweets" && search.length > 1) {
+            setTweets?.([]);
+            fetchTweets?.(search);
+        }
+    }
 
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">
@@ -25,12 +33,12 @@ const Navbar = ({ setIsOpenNav, isOpen }: isOpenSideNavProps) => {
             </div>
             <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center bg-[#ffffff15] backdrop-blur-3xl w-96 h-9 rounded-full overflow-hidden border border-neutral-200">
-                    <input type="text" name="search" id="search" placeholder="Search" className="w-full h-full outline-none border-none px-5 text-neutral-600" />
-                    <div className="w-14 h-full flex items-center justify-center border-l-2 border-neutral-200">
+                    <input onChange={(e) => setSearch(e.target.value)} value={search} type="text" name="search" id="search" placeholder="Search" className="w-full h-full outline-none border-none px-5 text-neutral-600" />
+                    <button onClick={handleSearch} className="w-14 h-full flex items-center justify-center border-l-2 border-neutral-200 cursor-pointer">
                         <Search size={18} color="gray" />
-                    </div>
+                    </button>
                 </div>
-                <div className="p-2 bg-[#c1c1c14f] rounded-full cursor-pointer"><Mic size={18} color="gray" /></div>
+                <button className="p-2 bg-[#c1c1c14f] rounded-full cursor-pointer"><Mic size={18} color="gray" /></button>
             </div>
             <div className="flex items-center gap-3">
                 <button onClick={() => navigate("/upload-video")} className="flex items-center gap-[2px] px-3 py-1 bg-neutral-200 rounded-full cursor-pointer">

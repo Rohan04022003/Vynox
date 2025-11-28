@@ -145,6 +145,9 @@ const getAllTweets = asyncHandler(async (req, res) => {
   const tweetsList = result[0]?.tweets || [];
   const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
 
+  console.log(tweetsList)
+  console.log(totalTweets)
+
   return res.status(200).json({
     status: 200,
     data: {
