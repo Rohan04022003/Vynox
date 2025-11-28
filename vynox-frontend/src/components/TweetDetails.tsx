@@ -1,20 +1,5 @@
 import { ArrowRight } from "lucide-react";
-
-interface Owner {
-    avatar?: { url?: string };
-    username?: string;
-}
-
-interface Tweet {
-    owner?: Owner[];
-    content?: string;
-    tweetImage?: { url?: string };
-}
-
-interface TweetDetailProps {
-    tweet: Tweet | null;
-    onClose: () => void;
-}
+import type { TweetDetailProps } from "../types";
 
 const TweetDetail: React.FC<TweetDetailProps> = ({ tweet, onClose }) => {
     const owner = tweet?.owner?.[0];

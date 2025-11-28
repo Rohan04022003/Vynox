@@ -1,15 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react'
-import TweetCard from '../components/TweetCard'
+
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import TweetCardSkeleton from '../components/skeleton/TweetCardSkeleton';
 import TweetDetail from '../components/TweetDetails';
+import type { Tweet } from '../types';
+import TweetCard from '../components/TweetCard';
+
+
 
 const Tweets = () => {
 
-    const [tweets, setTweets] = useState([]);
+    const [tweets, setTweets] = useState<Tweet[]>([]);
     const [loading, setLoading] = useState(false);
-    const [selectedTweet, setSelectedTweet] = useState(null);
+    const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState(false);
 
     async function fetchtweets() {
@@ -32,11 +35,25 @@ const Tweets = () => {
         }
     }
 
+    function handleLikeUpdate(id: string) {
+  setTweets(prev =>
+    prev.map(t =>
+      t._id === id
+        ? {
+            ...t,
+            isLiked: !t.isLiked,
+            totalLikes: t.isLiked ? t.totalLikes! - 1 : t.totalLikes! + 1,
+          }
+        : t
+    )
+  );
+}
+
     useEffect(() => {
         fetchtweets();
     }, []);
 
-    const openTweet = (tweet: any) => {
+    const openTweet = (tweet: Tweet) => {
         setSelectedTweet(tweet);
         setIsOpen(true);
     };
@@ -73,8 +90,8 @@ const Tweets = () => {
             justify-items-center
           "
                 >
-                    {tweets.map((tweet: any) => (
-                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} fetchtweets={fetchtweets} />
+                    {tweets.map((tweet: Tweet) => (
+                        <TweetCard key={tweet._id} tweet={tweet} onOpen={openTweet} handleLikeUpdate={handleLikeUpdate} />
                     ))}
 
                 </div>

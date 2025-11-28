@@ -5,32 +5,10 @@ import { Edit2, MoreVertical, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "../context/userContext";
+import type { TweetCardProps } from "../types";
 
-interface Owner {
-    _id: string;
-    avatar?: { url?: string };
-    username?: string;
-}
-
-interface Tweet {
-    createdAt: string | number | Date;
-    _id?: string;
-    owner?: Owner[];
-    content: string;
-    tweetImage?: { url?: string };
-    isEdited?: boolean;
-    isLiked?: boolean;
-    totalLikes?: number;
-}
-
-interface TweetCardProps {
-    tweet: Tweet;
-    onOpen: (tweet: Tweet) => void;
-    fetchtweets: () => void
-}
-
-const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, fetchtweets }) => {
-    const owner = tweet.owner?.[0];
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }) => {
+    const owner = tweet?.owner?.[0];
     const [loading, setLoading] = useState<boolean>(false)
     const { user } = useUser();
 
@@ -45,7 +23,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, fetchtweets }) => 
             );
 
             if (response.status === 200) {
-                fetchtweets();
+                handleLikeUpdate(id)
             } else {
                 toast.error("please try to like after sometime.");
             }
@@ -71,16 +49,16 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, fetchtweets }) => 
                     <MoreVertical size={18} className="text-neutral-600" />
                 </div>
             </div>
-            <p className="text-sm mb-3 text-neutral-600">{tweet?.content.length > 30 ? tweet?.content.slice(0, 30) + "..." : tweet?.content}</p>
+            <p className="text-sm mb-3 text-neutral-600">{tweet?.content && tweet.content.length > 30 ? tweet.content.slice(0, 30) + "..." : tweet?.content}</p>
             <div
-                onClick={() => onOpen(tweet)}
+                onClick={() => tweet && onOpen(tweet)}
                 className="w-full h-32">
                 <img src={tweet?.tweetImage?.url} alt="tweet-images" className="rounded-sm h-full w-full bg-center object-cover cursor-pointer" />
             </div>
 
             <div className="flex items-center justify-between mt-3 w-full">
                 <button onClick={() => { if (tweet?._id) handleLike(tweet?._id) }} className={`px-3 py-1 rounded-full cursor-pointer flex items-center  ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}><ThumbsUp size={14} /><span className="ml-1 font-medium text-xs flex items-center justify-center">{loading ? <span className="loader"></span> : tweet?.totalLikes}</span></button>
-                <span className="text-xs text-neutral-700">{formatDistanceToNow(new Date(tweet?.createdAt))} ago</span>
+                <span className="text-xs text-neutral-700">{tweet ? formatDistanceToNow(new Date(tweet?.createdAt)) : ""} ago</span>
             </div>
         </div>
     );
