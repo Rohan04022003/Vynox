@@ -3,22 +3,22 @@ import vynox from "../assets/vynox.png"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useUser } from "../context/userContext"
 import type { isOpenSideNavProps } from "../types"
-import { useState } from "react"
+import { useTweets } from "../hooks/useTweets"
 
-
-
-
-const Navbar = ({ setIsOpenNav, isOpen, fetchTweets, setTweets }: isOpenSideNavProps) => {
+const Navbar = ({ setIsOpenNav, isOpen, search, setSearch, setTagSearch }: isOpenSideNavProps) => {
 
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useUser();
-    const [search, setSearch] = useState<string>("")
+        const { setTweets, fetchTweets, } = useTweets();
+    
 
     const handleSearch = () => {
-        if (location.pathname === "/tweets" && search.length > 1) {
+        if (location.pathname === "/tweets" && search && search.length > 1) {
+            console.log("clicked")
+            setTagSearch?.("")
             setTweets?.([]);
-            fetchTweets?.(search);
+            fetchTweets?.(search, "desc", 20, 1);
         }
     }
 
@@ -33,7 +33,7 @@ const Navbar = ({ setIsOpenNav, isOpen, fetchTweets, setTweets }: isOpenSideNavP
             </div>
             <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center bg-[#ffffff15] backdrop-blur-3xl w-96 h-9 rounded-full overflow-hidden border border-neutral-200">
-                    <input onChange={(e) => setSearch(e.target.value)} value={search} type="text" name="search" id="search" placeholder="Search" className="w-full h-full outline-none border-none px-5 text-neutral-600" />
+                    <input onChange={(e) => setSearch?.(e.target.value)} value={search} type="text" name="search" id="search" placeholder="Search" className="w-full h-full outline-none border-none px-5 text-neutral-600" />
                     <button onClick={handleSearch} className="w-14 h-full flex items-center justify-center border-l-2 border-neutral-200 cursor-pointer">
                         <Search size={18} color="gray" />
                     </button>

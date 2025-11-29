@@ -11,12 +11,12 @@ import Tweets from "./pages/Tweets";
 import VideoUploadForm from "./pages/VideoUploadForm";
 import TweetUploadForm from "./pages/TweetUploadForm";
 import { useState } from "react";
-import { useTweets } from "./hooks/useTweets";
 
 const App = () => {
 
   const [isOpenSideNav, setIsOpenSideNav] = useState<boolean>(false)
-  const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweets();
+  const [search, setSearch] = useState<string>("")
+  const [tagSearch, setTagSearch] = useState<string>("")
 
   return (
     <>
@@ -48,7 +48,11 @@ const App = () => {
           path="/"
           element={
             <ProtectedRoute>
-              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
+              <Navbar setIsOpenNav={setIsOpenSideNav}
+                isOpen={isOpenSideNav}
+                setSearch={setSearch}
+                search={search}
+                setTagSearch={setTagSearch} />
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <Home />
@@ -62,11 +66,18 @@ const App = () => {
             <ProtectedRoute>
               <Navbar setIsOpenNav={setIsOpenSideNav}
                 isOpen={isOpenSideNav}
-                fetchTweets={fetchTweets}
-                setTweets={setTweets} />
+                search={search}
+                setSearch={setSearch}
+                setTagSearch={setTagSearch}
+              />
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
-                <Tweets tweets={tweets} setTweets={setTweets} loading={loading} fetchTweets={fetchTweets} hasMore={hasMore} />
+                <Tweets
+                  setSearch={setSearch}
+                  search={search}
+                  tagSearch={tagSearch}
+                  setTagSearch={setTagSearch}
+                />
               </div>
             </ProtectedRoute>
           }

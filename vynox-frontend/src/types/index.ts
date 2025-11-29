@@ -30,15 +30,18 @@ export interface TweetDetailProps {
 }
 
 export interface isOpenSideNavProps {
-    setIsOpenNav: Dispatch<SetStateAction<boolean>>;
-    isOpen: boolean;
-    fetchTweets?: (value: string) => Promise<void> | void;
-    setTweets?: Dispatch<SetStateAction<Tweet[]>>;
+  setIsOpenNav: Dispatch<SetStateAction<boolean>>;
+  isOpen: boolean;
+  fetchTweets?: (value: string) => Promise<void> | void;
+  setTweets?: Dispatch<SetStateAction<Tweet[]>>;
+  setSearch?: Dispatch<SetStateAction<string>>;
+  search?: string;
+  setTagSearch?: Dispatch<SetStateAction<string>>;
 }
 
 export interface tweetsProps {
-  tweets: Tweet[];
-  setTweets: Dispatch<SetStateAction<Tweet[]>>;
-  fetchTweets: (str?: string, sortType?: string, limit?: number, page?: number) => Promise<void> | void;
-  loading: boolean;
+  setSearch: Dispatch<SetStateAction<string>>;
+  search: string;
+  setTagSearch: Dispatch<SetStateAction<string>>;
+  tagSearch: string;
 };

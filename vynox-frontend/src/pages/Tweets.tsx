@@ -4,41 +4,52 @@ import TweetDetail from "../components/TweetDetails";
 import type { Tweet, tweetsProps } from "../types";
 import TweetCard from "../components/TweetCard";
 import { FilterIcon } from "lucide-react";
+import { useTweets } from "../hooks/useTweets";
 
-const Tweets = ({ tweets, setTweets, fetchTweets, loading, hasMore }: tweetsProps & { hasMore: boolean }) => {
+const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [sortType, setSortType] = useState("desc");
-    const [limit, setLimit] = useState(20);
-    const [ tagSearch, setTagSearch ] = useState<string>("")
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [sortType, setSortType] = useState<string>("desc");
+    const [limit, setLimit] = useState<number>(20);
+    const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweets();
 
-const popularTags: string[] = [
-  "HTML",
-  "CSS",
-  "JavaScript",
-  "React",
-  "NodeJS",
-  "ExpressJS",
-  "MongoDB",
-  "TypeScript",
-  "NextJS",
-  "Frontend",
-  "Backend",
-  "FullStack",
-  "API",
-  "WebDevelopment",
-  "Programming",
-  "Redux",
-  "TailwindCSS",
-  "GitHub",
-  "MERNStack",
-  "CodeNewbie"
-];
+    const popularTags: string[] = [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React",
+        "NodeJS",
+        "ExpressJS",
+        "MongoDB",
+        "TypeScript",
+        "NextJS",
+        "Frontend",
+        "Backend",
+        "FullStack",
+        "API",
+        "WebDevelopment",
+        "Programming",
+        "Redux",
+        "TailwindCSS",
+        "GitHub",
+        "MERNStack",
+        "CodeNewbie"
+    ];
 
-    const handleTagSearch = (tag: string) =>{
+    const handleTagSearch = async (tag: string) => {
+
+        if (tag === tagSearch) {
+            setTagSearch("");
+            setSearch("")
+            setTweets([])
+            await fetchTweets("", sortType, limit, 1);
+            return
+        }
+
         setTagSearch(tag);
+        setSearch("")
         setTweets([])
-        fetchTweets(tag.toLocaleLowerCase(), sortType, limit);
+        await fetchTweets(tag.toLocaleLowerCase(), sortType, limit, 1);
     }
 
     const openTweet = (tweet: Tweet) => {
@@ -69,8 +80,8 @@ const popularTags: string[] = [
         <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
 
             {/* Filter Bar */}
-            <div className="w-full flex items-center justify-between p-3 pr-18 bg-white shadow rounded-xl mb-4 relative overflow-hidden">
-                <div className="flex items-center gap-3 hide-scrollbar">
+            <div className="w-full flex items-center justify-between p-3 bg-white shadow rounded-xl mb-4 relative overflow-hidden">
+                <div className="flex items-center gap-3 hide-scrollbar mr-5">
                     {
                         popularTags.map((tag, index) => {
                             return (
@@ -79,7 +90,7 @@ const popularTags: string[] = [
                         })
                     }
                 </div>
-                <button className="fixed right-7 w-10 h-9 rounded-md flex items-center justify-center bg-neutral-200">
+                <button className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200">
                     <FilterIcon className="text-neutral-700" />
                 </button>
                 <div className={`flex flex-col hidden`}>
@@ -144,7 +155,7 @@ const popularTags: string[] = [
 
             {/* for No tweets found */}
             {!loading && tweets.length === 0 && (
-                <div className="h-[60vh] flex flex-col items-center justify-center text-gray-500">
+                <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
                     <span>No tweets found.</span> <span>Try changing the filter or search keyword.</span>
                 </div>
             )}
@@ -154,7 +165,7 @@ const popularTags: string[] = [
                 <div className="flex justify-center mt-10">
                     <button
                         className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
-                        onClick={() => fetchTweets("", sortType, limit)}
+                        onClick={() => fetchTweets(search || tagSearch || "", sortType, limit)}
                     >
                         Click Here to Load More Tweets
                     </button>
