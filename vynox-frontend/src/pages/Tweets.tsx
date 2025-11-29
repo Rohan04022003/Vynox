@@ -1,56 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TweetCardSkeleton from "../components/skeleton/TweetCardSkeleton";
 import TweetDetail from "../components/TweetDetails";
 import type { Tweet, tweetsProps } from "../types";
 import TweetCard from "../components/TweetCard";
-import { FilterIcon } from "lucide-react";
-import { useTweets } from "../hooks/useTweets";
+import FilterBar from "../components/FilterBar";
+import { useTweetsContext } from "../context/TweetsContext";
 
 const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(20);
-    const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweets();
-
-    const popularTags: string[] = [
-        "HTML",
-        "CSS",
-        "JavaScript",
-        "React",
-        "NodeJS",
-        "ExpressJS",
-        "MongoDB",
-        "TypeScript",
-        "NextJS",
-        "Frontend",
-        "Backend",
-        "FullStack",
-        "API",
-        "WebDevelopment",
-        "Programming",
-        "Redux",
-        "TailwindCSS",
-        "GitHub",
-        "MERNStack",
-        "CodeNewbie"
-    ];
-
-    const handleTagSearch = async (tag: string) => {
-
-        if (tag === tagSearch) {
-            setTagSearch("");
-            setSearch("")
-            setTweets([])
-            await fetchTweets("", sortType, limit, 1);
-            return
-        }
-
-        setTagSearch(tag);
-        setSearch("")
-        setTweets([])
-        await fetchTweets(tag.toLocaleLowerCase(), sortType, limit, 1);
-    }
 
     const openTweet = (tweet: Tweet) => {
         setSelectedTweet(tweet);
@@ -71,58 +32,22 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
         );
     }
 
-    // Fetch tweets on sort/limit change
-    useEffect(() => {
-        fetchTweets("", sortType, limit, 1); // replace tweets
-    }, [sortType, limit]);
-
     return (
         <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
 
-            {/* Filter Bar */}
-            <div className="w-full flex items-center justify-between p-3 bg-white shadow rounded-xl mb-4 relative overflow-hidden">
-                <div className="flex items-center gap-3 hide-scrollbar mr-5">
-                    {
-                        popularTags.map((tag, index) => {
-                            return (
-                                <button onClick={() => handleTagSearch(tag)} key={index} className={`px-3 py-1 rounded-md text-xs cursor-pointer ${tag === tagSearch ? "bg-neutral-700 text-neutral-100" : "bg-neutral-200 text-neutral-700"}`}>{tag}</button>
-                            )
-                        })
-                    }
-                </div>
-                <button className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200">
-                    <FilterIcon className="text-neutral-700" />
-                </button>
-                <div className={`flex flex-col hidden`}>
-                    {/* Sort */}
-                    <div className="flex flex-col">
-                        <label className="text-sm text-neutral-600 font-medium mb-1">Sort By</label>
-                        <select
-                            className="px-3 py-2 border border-neutral-300 rounded-md"
-                            value={sortType}
-                            onChange={(e) => setSortType(e.target.value)}
-                        >
-                            <option value="desc">Latest (DESC)</option>
-                            <option value="asc">Oldest (ASC)</option>
-                        </select>
-                    </div>
+            {/* FilterBar */}
+            <FilterBar
+                setSearch={setSearch}
+                tagSearch={tagSearch}
+                setTagSearch={setTagSearch}
+                sortType={sortType}
+                setSortType={setSortType}
+                limit={limit}
+                setLimit={setLimit}
+                fetchTweets={fetchTweets}
+                setTweets={setTweets}
+            />
 
-                    {/* Limit */}
-                    <div className="flex flex-col">
-                        <label className="text-sm text-neutral-600 font-medium mb-1">Page Limit</label>
-                        <select
-                            className="px-3 py-2 border border-neutral-300 rounded-md"
-                            value={limit}
-                            onChange={(e) => setLimit(Number(e.target.value))}
-                        >
-                            <option value={10}>10 per page</option>
-                            <option value={20}>20 per page</option>
-                            <option value={50}>50 per page</option>
-                            <option value={100}>100 per page</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
             {/* Tweets Grid */}
             <div

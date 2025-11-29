@@ -3,15 +3,21 @@ import vynox from "../assets/vynox.png"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useUser } from "../context/userContext"
 import type { isOpenSideNavProps } from "../types"
-import { useTweets } from "../hooks/useTweets"
+import { useTweetsContext } from "../context/TweetsContext"
 
-const Navbar = ({ setIsOpenNav, isOpen, search, setSearch, setTagSearch }: isOpenSideNavProps) => {
+const Navbar: React.FC<isOpenSideNavProps> = ({
+    setIsOpenNav,
+    isOpen,
+    search = "",
+    setSearch,
+    setTagSearch
+}) => {
 
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useUser();
-        const { setTweets, fetchTweets, } = useTweets();
-    
+    const { setTweets, fetchTweets, } = useTweetsContext();
+
 
     const handleSearch = () => {
         if (location.pathname === "/tweets" && search && search.length > 1) {

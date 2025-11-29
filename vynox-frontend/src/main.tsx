@@ -3,11 +3,14 @@ import './index.css'
 import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom'
 import { UserProvider } from './context/userContext.tsx'
+import { TweetsProvider } from './context/TweetsContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <UserProvider>
-      <App />
+      <TweetsProvider>
+        <App />
+      </TweetsProvider>
     </UserProvider>
   </BrowserRouter>,
 )
