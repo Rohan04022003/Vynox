@@ -1,14 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FilterIcon } from "lucide-react";
 import type { FilterBarProps } from "../types";
+import { useEffect, useRef, useState } from "react";
 
-const FilterBar = ({ setSearch, 
-    tagSearch, 
-    setTagSearch, 
-    sortType, 
-    setSortType, 
-    limit, 
-    setLimit, 
-    setTweets, 
+const FilterBar = ({ search,
+    setSearch,
+    tagSearch,
+    setTagSearch,
+    sortType,
+    setSortType,
+    limit,
+    setLimit,
+    setTweets,
     fetchTweets }: FilterBarProps) => {
 
     const popularTags: string[] = [
@@ -17,6 +20,21 @@ const FilterBar = ({ setSearch,
         "WebDevelopment", "Programming", "Redux", "TailwindCSS", "GitHub",
         "MERNStack", "CodeNewbie"
     ];
+
+    const isFirstRender = useRef(true);
+    const [isOpen, setIsOpen] = useState<boolean>(false)
+
+    useEffect(() => {
+
+        if (isFirstRender.current) {
+            // skip initial render
+            isFirstRender.current = false;
+            return;
+        }
+
+        fetchTweets(search || tagSearch || "", sortType, limit, 1)
+
+    }, [sortType, limit])
 
     const handleTagSearch = async (tag: string) => {
         if (tag === tagSearch) {
@@ -47,28 +65,28 @@ const FilterBar = ({ setSearch,
                     </button>
                 ))}
             </div>
-            <button className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200">
+            <button onClick={() => setIsOpen(prev => !prev)} className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200 cursor-pointer">
                 <FilterIcon className="text-neutral-700" />
             </button>
-            <div className={`flex flex-col hidden`}>
+            <div className={`w-60 flex-col fixed bg-neutral-200 p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"}`}>
                 {/* Sort */}
-                <div className="flex flex-col">
-                    <label className="text-sm text-neutral-600 font-medium mb-1">Sort By</label>
+                <div className="flex flex-col pb-3">
+                    <label className="text-xs text-neutral-600 font-medium mb-1">Sort By</label>
                     <select
-                        className="px-3 py-2 border border-neutral-300 rounded-md"
+                        className="px-3 py-1 border rounded-md text-xs outline-none border-neutral-300 cursor-pointer text-neutral-700"
                         value={sortType}
                         onChange={(e) => setSortType(e.target.value)}
                     >
-                        <option value="desc">Latest (DESC)</option>
-                        <option value="asc">Oldest (ASC)</option>
+                        <option value="desc">Latest First</option>
+                        <option value="asc">Oldest First</option>
                     </select>
                 </div>
 
                 {/* Limit */}
                 <div className="flex flex-col">
-                    <label className="text-sm text-neutral-600 font-medium mb-1">Page Limit</label>
+                    <label className="text-xs text-neutral-600 font-medium mb-1">Page Limit</label>
                     <select
-                        className="px-3 py-2 border border-neutral-300 rounded-md"
+                        className="px-3 py-1 border border-neutral-300 rounded-md outline-none text-xs cursor-pointer text-neutral-700"
                         value={limit}
                         onChange={(e) => setLimit(Number(e.target.value))}
                     >

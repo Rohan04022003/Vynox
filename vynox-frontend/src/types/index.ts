@@ -60,13 +60,14 @@ export interface tweetsProps {
 };
 
 export interface FilterBarProps {
-    setSearch: (v: string) => void;
-    tagSearch: string;
-    setTagSearch: (v: string) => void;
-    sortType: string;
-    setSortType: (v: string) => void;
-    limit: number;
-    setLimit: (v: number) => void;
-    fetchTweets: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
-    setTweets: React.Dispatch<React.SetStateAction<Tweet[]>>;
+  search: string;
+  setSearch: (v: string) => void;
+  tagSearch: string;
+  setTagSearch: (v: string) => void;
+  sortType: string;
+  setSortType: (v: string) => void;
+  limit: number;
+  setLimit: (v: number) => void;
+  fetchTweets: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
+  setTweets: React.Dispatch<React.SetStateAction<Tweet[]>>;
 };

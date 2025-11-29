@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import axios from "axios";
 import type { Tweet, TweetsContextType } from "../types";
 
@@ -45,11 +44,6 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
-
-  // initial load
-  useEffect(() => {
-    fetchTweets("", "desc", 20, 1);
-  }, []);
 
   return (
     <TweetsContext.Provider

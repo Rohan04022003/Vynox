@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
 import TweetCardSkeleton from "../components/skeleton/TweetCardSkeleton";
 import TweetDetail from "../components/TweetDetails";
 import type { Tweet, tweetsProps } from "../types";
@@ -34,11 +35,17 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
         );
     }
 
+    // initial load
+    useEffect(() => {
+        fetchTweets("", "desc", 20, 1);
+    }, []);
+
     return (
         <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
 
             {/* FilterBar */}
             <FilterBar
+                search={search}
                 setSearch={setSearch}
                 tagSearch={tagSearch}
                 setTagSearch={setTagSearch}
