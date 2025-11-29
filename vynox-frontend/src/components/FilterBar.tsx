@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { FilterIcon } from "lucide-react";
 import type { FilterBarProps } from "../types";
 

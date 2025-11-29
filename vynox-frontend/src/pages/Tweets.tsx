@@ -18,6 +18,8 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
         setIsOpen(true);
     };
 
+
+    // it is for frequently like update on frontent only.
     function handleLikeUpdate(id: string) {
         setTweets(prev =>
             prev.map(t =>

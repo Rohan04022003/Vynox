@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useUser } from "../context/userContext"
 import type { isOpenSideNavProps } from "../types"
 import { useTweetsContext } from "../context/TweetsContext"
+import { useEffect, useRef } from "react"
 
 const Navbar: React.FC<isOpenSideNavProps> = ({
     setIsOpenNav,
@@ -17,6 +19,7 @@ const Navbar: React.FC<isOpenSideNavProps> = ({
     const location = useLocation();
     const { user } = useUser();
     const { setTweets, fetchTweets, } = useTweetsContext();
+    const isFirstRender = useRef(true);
 
 
     const handleSearch = () => {
@@ -27,6 +30,17 @@ const Navbar: React.FC<isOpenSideNavProps> = ({
             fetchTweets?.(search, "desc", 20, 1);
         }
     }
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            // skip initial render
+            isFirstRender.current = false;
+            return;
+        }
+        if (!search) {
+            fetchTweets("", "desc", 20, 1);
+        }
+    }, [search]);
 
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">
