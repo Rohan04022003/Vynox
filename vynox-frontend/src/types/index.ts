@@ -1,7 +1,43 @@
 import type { Dispatch, SetStateAction } from "react";
 
-// tweetTypes.ts
+// videosTypes
+
 export interface Owner {
+  _id: string;
+  username?: string;
+  fullName: string;
+  avatar?: { url: string; public_id: string };
+}
+
+export interface Video {
+  _id: string;
+  title: string;
+  description: string;
+  duration: number;
+  views: number;
+  likeCount: number;
+  isPublished: boolean;
+  videoFile: { url: string; public_Id: string };
+  thumbnail: { url: string; public_Id: string };
+  owner: Owner[];
+  createdAt: string;
+}
+
+export interface VideosContextType {
+  videos: Video[];
+  loading: boolean;
+  hasMore: boolean;
+  fetchVideos: (
+    str?: string,
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
+  setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
+}
+
+// tweetTypes
+export interface TweetOwner {
   _id: string;
   avatar?: { url?: string };
   username?: string;
@@ -10,7 +46,7 @@ export interface Owner {
 export interface Tweet {
   createdAt: string | number | Date;
   _id: string;
-  owner?: Owner[];
+  owner?: TweetOwner[];
   content: string;
   tweetImage?: { url?: string };
   isEdited?: boolean;
@@ -68,6 +104,8 @@ export interface FilterBarProps {
   setSortType: (v: string) => void;
   limit: number;
   setLimit: (v: number) => void;
-  fetchTweets: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
-  setTweets: React.Dispatch<React.SetStateAction<Tweet[]>>;
+  fetchTweets?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
+  setTweets?: React.Dispatch<React.SetStateAction<Tweet[]>>;
+  fetchVideos?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
+  setVideos?: React.Dispatch<React.SetStateAction<Video[]>>;
 };

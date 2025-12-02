@@ -6,6 +6,7 @@ import { useUser } from "../context/userContext"
 import type { isOpenSideNavProps } from "../types"
 import { useTweetsContext } from "../context/TweetsContext"
 import { useEffect, useRef } from "react"
+import { useVideosContext } from "../context/VideosContext"
 
 const Navbar: React.FC<isOpenSideNavProps> = ({
     setIsOpenNav,
@@ -15,19 +16,23 @@ const Navbar: React.FC<isOpenSideNavProps> = ({
     setTagSearch
 }) => {
 
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { user } = useUser();
-    const { setTweets, fetchTweets, } = useTweetsContext();
-    const isFirstRender = useRef(true);
+    const navigate = useNavigate(); // yeh navigation ke liye use kiya hai.
+    const location = useLocation(); // location match krne ke liye.
+    const { user } = useUser(); // yaha pe user ka data liye hai.
+    const { setTweets, fetchTweets, } = useTweetsContext(); // tweet context se tweet data ke liye.
+    const { setVideos, fetchVideos, } = useVideosContext(); // video context se video data ke liye.
+    const isFirstRender = useRef(true); // iska use first render ko prevent krne ke liye kiya hai.
 
 
-    const handleSearch = () => {
+    const handleSearch = () => { // yeh function search bar ko trigger kr raha hai.
         if (location.pathname === "/tweets" && search && search.length > 1) {
-            console.log("clicked")
             setTagSearch?.("")
             setTweets?.([]);
             fetchTweets?.(search, "desc", 20, 1);
+        } else if (location.pathname === "/" && search && search.length > 1) {
+            setTagSearch?.("")
+            setVideos?.([]);
+            fetchVideos?.(search, "desc", 20, 1);
         }
     }
 
@@ -37,10 +42,16 @@ const Navbar: React.FC<isOpenSideNavProps> = ({
             isFirstRender.current = false;
             return;
         }
-        if (!search) {
-            fetchTweets("", "desc", 20, 1);
+        if (location.pathname === "/") {
+            if (!search) {
+                fetchVideos("", "desc", 20, 1);
+            }
+        } else if (location.pathname === "/tweets") {
+            if (!search) {
+                fetchTweets("", "desc", 20, 1);
+            }
         }
-    }, [search]);
+    }, [search]); //iska use hamne search bar ke liye kiya hai jb search bar impty hoga yeh automatic call hoga.
 
     return (
         <div className="flex items-center justify-between px-6 h-16 w-full bg-[#ffffff5b] text-neutral-600 sticky top-0 z-10 backdrop-blur-2xl">

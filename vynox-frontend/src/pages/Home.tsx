@@ -1,39 +1,37 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import VideoCard from "../components/VideoCard";
-import axios from "axios";
 import VideoCardSkeleton from "../components/skeleton/VideoCardSkeleton";
+import FilterBar from "../components/FilterBar";
+import type { tweetsProps as videosProps } from "../types";
+import { useVideosContext } from "../context/VideosContext";
 
-const Home = () => {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(false);
+const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
+  const [sortType, setSortType] = useState<string>("desc");
+  const [limit, setLimit] = useState<number>(20);
+  const { videos, setVideos, loading, fetchVideos, hasMore } = useVideosContext();
 
+  // initial load
   useEffect(() => {
-    async function fetchVideos() {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/dashboard/videos`,
-          { withCredentials: true }
-        );
-
-        if (response.status === 200) {
-          setVideos(response.data?.data);
-        } else {
-          console.log("Failed fetching videos");
-        }
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchVideos();
+    fetchVideos("", "desc", 20, 1);
   }, []);
 
   return (
-    <div className="w-full bg-gray-50 p-4">
+    <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
+      {/* FilterBar */}
+      <FilterBar
+        search={search}
+        setSearch={setSearch}
+        tagSearch={tagSearch}
+        setTagSearch={setTagSearch}
+        sortType={sortType}
+        setSortType={setSortType}
+        limit={limit}
+        setLimit={setLimit}
+        fetchVideos={fetchVideos}
+        setVideos={setVideos}
+      />
       {loading ? (
         <div
           className="
@@ -64,9 +62,22 @@ const Home = () => {
             justify-items-center
           "
         >
+
           {videos.map((vid: any) => (
             <VideoCard key={vid._id} video={vid} />
           ))}
+
+          {/* Load More Button */}
+          {hasMore && !loading && (
+            <div className="flex justify-center mt-10">
+              <button
+                className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
+                onClick={() => fetchVideos(search || tagSearch || "", sortType, limit)}
+              >
+                Click Here to Load More Tweets
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@
 import { FilterIcon } from "lucide-react";
 import type { FilterBarProps } from "../types";
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const FilterBar = ({ search,
     setSearch,
@@ -12,19 +13,23 @@ const FilterBar = ({ search,
     limit,
     setLimit,
     setTweets,
-    fetchTweets }: FilterBarProps) => {
+    fetchTweets,
+    setVideos,
+    fetchVideos
+}: FilterBarProps) => {
 
     const popularTags: string[] = [
         "HTML", "CSS", "JavaScript", "React", "NodeJS", "ExpressJS", "MongoDB",
         "TypeScript", "NextJS", "Frontend", "Backend", "FullStack", "API",
         "WebDevelopment", "Programming", "Redux", "TailwindCSS", "GitHub",
         "MERNStack", "CodeNewbie"
-    ];
+    ]; // yeh kuch frequent search tabs or tags hai.
 
-    const isFirstRender = useRef(true);
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const isFirstRender = useRef(true); // first render ko prevent krne ke liye
+    const [isOpen, setIsOpen] = useState<boolean>(false) // filter div ko show hide ke liye.
+    const location = useLocation(); // iska use path match ke liye kiya hai.
 
-    useEffect(() => {
+    useEffect(() => { // yeh tab chalega jb filter me koi changes aayega aur ha path ke according function call hoga.
 
         if (isFirstRender.current) {
             // skip initial render
@@ -32,23 +37,46 @@ const FilterBar = ({ search,
             return;
         }
 
-        fetchTweets(search || tagSearch || "", sortType, limit, 1)
+        if (location.pathname === "/tweets") {
+            fetchTweets?.(search || tagSearch || "", sortType, limit, 1)
+            setIsOpen(false)
+        } else {
+            fetchVideos?.(search || tagSearch || "", sortType, limit, 1)
+            setIsOpen(false)
+        }
 
     }, [sortType, limit])
 
-    const handleTagSearch = async (tag: string) => {
-        if (tag === tagSearch) {
-            setTagSearch("");
-            setSearch("");
-            setTweets([]);
-            await fetchTweets("", sortType, limit, 1);
-            return;
-        }
+    const handleTagSearch = async (tag: string) => { //tags or tab search ke liye aur woh bhi location ke base pe.
+        if (location.pathname === "/tweets") {
 
-        setTagSearch(tag);
-        setSearch("");
-        setTweets([]);
-        await fetchTweets(tag.toLowerCase(), sortType, limit, 1);
+            if (tag === tagSearch) {
+                setTagSearch("");
+                setSearch("");
+                setTweets?.([]);
+                await fetchTweets?.("", sortType, limit, 1);
+                return;
+            }
+
+            setTagSearch(tag);
+            setSearch("");
+            setTweets?.([]);
+            await fetchTweets?.(tag.toLowerCase(), sortType, limit, 1);
+        } else {
+            if (tag === tagSearch) {
+                setTagSearch("");
+                setSearch("");
+                setVideos?.([]);
+                await fetchVideos?.("", sortType, limit, 1);
+                return;
+            }
+
+            setTagSearch(tag);
+            setSearch("");
+            setVideos?.([]);
+            await fetchVideos?.(tag.toLowerCase(), sortType, limit, 1);
+
+        }
     };
 
     return (

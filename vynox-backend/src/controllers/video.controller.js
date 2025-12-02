@@ -1,4 +1,4 @@
-import mongoose, { isValidObjectId } from "mongoose";
+import mongoose from "mongoose";
 import { Video } from "../models/video.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -11,7 +11,7 @@ import {
 import { sendMail } from "../services/mail.service.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+  const { page = 1, limit = 10, query, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
 
   if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
@@ -31,14 +31,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     let skip = (Number(page) - 1) * Number(limit);
 
-    let sort = {};
-
-    if (sortBy) {
-      sort[sortBy] = sortType === "desc" ? -1 : 1;
-    } else {
-      sort["createdAt"] = -1;
-    }
-
     const results = await Video.aggregate([
       {
         $match: filter,
@@ -47,9 +39,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         $facet: {
           totalCount: [{ $count: "totalVideos" }],
           videos: [
-            {
-              $sort: sort,
-            },
+            { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
             {
               $skip: skip,
             },

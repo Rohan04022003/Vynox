@@ -55,7 +55,12 @@ const App = () => {
                 setTagSearch={setTagSearch} />
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
-                <Home />
+                <Home
+                  setSearch={setSearch}
+                  search={search}
+                  tagSearch={tagSearch}
+                  setTagSearch={setTagSearch}
+                />
               </div>
             </ProtectedRoute>
           }
