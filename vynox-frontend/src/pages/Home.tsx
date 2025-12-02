@@ -67,17 +67,23 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
             <VideoCard key={vid._id} video={vid} />
           ))}
 
-          {/* Load More Button */}
-          {hasMore && !loading && (
-            <div className="flex justify-center mt-10">
-              <button
-                className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
-                onClick={() => fetchVideos(search || tagSearch || "", sortType, limit)}
-              >
-                Click Here to Load More Tweets
-              </button>
-            </div>
-          )}
+        </div>
+      )}
+      {/* for No tweets found */}
+      {!loading && videos.length === 0 && (
+        <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
+          <span>No videos found.</span> <span>Try changing the filter or search keyword.</span>
+        </div>
+      )}
+      {/* Load More Button */}
+      {hasMore && !loading && (
+        <div className="flex justify-center mt-10">
+          <button
+            className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
+            onClick={() => fetchVideos(search || tagSearch || "", sortType, limit)}
+          >
+            Click Here to Load More Videos
+          </button>
         </div>
       )}
     </div>
