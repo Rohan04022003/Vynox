@@ -13,7 +13,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user) {
+        if (user?.email) {
             localStorage.setItem("user", JSON.stringify(user));
         }
     }, [user]);

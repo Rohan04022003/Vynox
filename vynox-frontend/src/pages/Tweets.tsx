@@ -95,7 +95,7 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
             )}
 
             {/* Load More Button */}
-            {hasMore && !loading && (
+            {hasMore && !loading && tweets.length !== 0 && (
                 <div className="flex justify-center mt-10">
                     <button
                         className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"

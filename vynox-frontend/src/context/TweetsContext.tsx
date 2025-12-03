@@ -26,7 +26,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const fetchedTweets: Tweet[] = res.data?.data?.tweets || [];
-      console.log(fetchedTweets)
+
       if (newPage) {
         // filter changed → replace
         setTweets(fetchedTweets);
