@@ -17,6 +17,7 @@ const VideoUploadForm = () => {
     const [isPublished, setPublished] = useState<boolean>(true);
     const [thumbnail, setThumbnail] = useState<FilePreview | null>(null);
     const [videoFile, setVideoFile] = useState<FilePreview | null>(null);
+    const [videoSize, setVideoSize] = useState<number | undefined>(undefined)
     const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -31,8 +32,10 @@ const VideoUploadForm = () => {
     const handleVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
         const fileInput = e.target;
         if (fileInput && fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
             const previewURL = URL.createObjectURL(fileInput.files[0]);
             setVideoFile({ file: fileInput, previewURL });
+            setVideoSize(file.size);
         }
     };
 
@@ -42,6 +45,7 @@ const VideoUploadForm = () => {
 
     const removeVideo = () => {
         setVideoFile(null);
+        setVideoSize(undefined)
     };
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -49,6 +53,9 @@ const VideoUploadForm = () => {
 
         if (!thumbnail?.file?.files?.[0] || !videoFile?.file?.files?.[0]) {
             toast.error("Please upload both thumbnail and video.");
+            return;
+        } else if(videoSize && videoSize / (1024 * 1024) > 80 ) {
+            toast.error("video should not more than 80MB.");
             return;
         }
 
@@ -208,6 +215,7 @@ const VideoUploadForm = () => {
                                 onChange={handleVideoChange}
                             />
                         </div>
+                        <p className="text-xs font-medium text-red-600">{videoSize && videoSize / (1024 * 1024) > 80 ? "Video size must be less than 80MB" : ""}</p>
                     </div>
 
                     <div className="flex items-center gap-2 py-3">
