@@ -77,15 +77,16 @@ const VideoUploadForm = () => {
                 toast.success("Video Uploaded Successfully!");
                 navigate("/");
             }
-            } catch (error: unknown) {
-                if (typeof error === "object" && error !== null && "response" in error) {
-                    // @ts-expect-error: error may have response property
-                    toast.error(error.response?.data?.message || error.message);
-                } else if (error instanceof Error) {
-                    toast.error(error.message);
-                } else {
-                    toast.error("An unknown error occurred.");
-                }
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                const message =
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Something went wrong.";
+
+                toast.error(message);
+                return;
+            }
         } finally {
             setLoading(false);
         }

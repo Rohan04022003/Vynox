@@ -114,7 +114,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     const video = await Video.create({
       videoFile: {
-        url: videoURL.url,
+        url: videoURL.hlsUrl || videoURL.secure_url,
         public_Id: videoURL.public_id,
       },
       thumbnail: {
@@ -137,8 +137,10 @@ const publishAVideo = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, video, "Video uploaded successfully."));
   } catch (error) {
-    await deleteFromCloudinary(videoURL.public_id, "video");
-    await deleteFromCloudinary(thumbnailURL.public_id, "image");
+    videoURL.public_id &&
+      (await deleteFromCloudinary(videoURL.public_id, "video"));
+    thumbnailURL.public_id &&
+      (await deleteFromCloudinary(thumbnailURL.public_id, "image"));
 
     throw new ApiError(
       500,
