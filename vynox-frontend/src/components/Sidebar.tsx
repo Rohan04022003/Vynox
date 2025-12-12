@@ -8,7 +8,6 @@ import { useState } from "react";
 const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
     const navigate = useNavigate();
     const { setUser } = useUser();
-    console.log(isOpen)
     const [loading, setLoading] = useState(false);
 
     // logout handler

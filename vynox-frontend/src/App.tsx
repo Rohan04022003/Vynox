@@ -11,6 +11,7 @@ import Tweets from "./pages/Tweets";
 import VideoUploadForm from "./pages/VideoUploadForm";
 import TweetUploadForm from "./pages/TweetUploadForm";
 import { useState } from "react";
+import VideoPlayPage from "./pages/VideoPlayPage";
 
 const App = () => {
 
@@ -107,6 +108,18 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <TweetUploadForm />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/video/:id"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <VideoPlayPage />
               </div>
             </ProtectedRoute>
           }

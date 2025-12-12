@@ -12,6 +12,8 @@ import type { Video, VideosContextType } from "../types";
 const VideosContext = createContext<VideosContextType | undefined>(undefined);
 
 export const VideosProvider = ({ children }: { children: ReactNode }) => {
+  const [playVideo, setPlayVideo] = useState({})
+  const [playVideoLoading, setPlayVideoLoading] = useState(false)
   const [videos, setVideos] = useState<Video[]>([]); // yeh useState vidoes ko hold karega.
   const [loading, setLoading] = useState(false); // yeh loading screen ke liye bana hai.
   const [page, setPage] = useState<number>(1); // yeh by default page 1 karega.
@@ -54,6 +56,30 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+
+  const fetchCurrentPlayingVideo = async (videoId: string) => {
+
+    try {
+
+      setPlayVideoLoading(true);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/videos/${videoId}`, // yeh current playing video ka data dega.
+        { withCredentials: true },
+      );
+
+      const fetchedVideo = res.data?.data[0] || {};
+      setPlayVideo(fetchedVideo);
+
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setPlayVideoLoading(false)
+    }
+
+  }
+
+
   return (
     <VideosContext.Provider
       value={{
@@ -62,6 +88,9 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         hasMore,
         fetchVideos,
         setVideos,
+        playVideo,
+        playVideoLoading,
+        fetchCurrentPlayingVideo
       }}
     >
       {children}

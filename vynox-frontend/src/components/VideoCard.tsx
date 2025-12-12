@@ -2,6 +2,7 @@
 import { Eye, ThumbsUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { formatDuration } from "../utils/videoDuration";
+import { useNavigate } from "react-router-dom";
 
 type VideoCardProps = {
     video: any;
@@ -9,9 +10,11 @@ type VideoCardProps = {
 
 const VideoCard = ({ video }: VideoCardProps) => {
     const owner = video.owner?.[0];
+    const navigate = useNavigate();
 
     return (
         <div
+            onClick={() => navigate(`/video/${video?._id}`)}
             className="
         w-full max-w-[320px] 
         bg-white 

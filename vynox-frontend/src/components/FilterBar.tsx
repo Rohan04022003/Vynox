@@ -96,7 +96,7 @@ const FilterBar = ({ search,
             <button onClick={() => setIsOpen(prev => !prev)} className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200 cursor-pointer">
                 <FilterIcon className="text-neutral-700" />
             </button>
-            <div className={`w-60 flex-col fixed bg-neutral-200 p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"}`}>
+            <div className={`w-60 z-10 flex-col fixed bg-neutral-200 shadow-2xl shadow-black p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"}`}>
                 {/* Sort */}
                 <div className="flex flex-col pb-3">
                     <label className="text-xs text-neutral-600 font-medium mb-1">Sort By</label>
