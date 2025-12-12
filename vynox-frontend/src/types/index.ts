@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Dispatch, SetStateAction } from "react";
 
 // videosTypes
@@ -24,15 +25,18 @@ export interface Video {
 }
 
 export interface VideosContextType {
+  playVideo: any
   videos: Video[];
   loading: boolean;
+  playVideoLoading: boolean
   hasMore: boolean;
   fetchVideos: (
-    str?: string,
+    str: string,
     sortType?: string,
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
 }
 

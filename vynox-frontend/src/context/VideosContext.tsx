@@ -57,8 +57,8 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
-  const fetchCurrentPlayingVideo = async (videoId: string) => {
-
+  const fetchCurrentPlayingVideo = async (videoId?: string) => {
+    if (!videoId) return;
     try {
 
       setPlayVideoLoading(true);
