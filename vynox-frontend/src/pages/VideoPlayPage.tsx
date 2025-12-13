@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowDown, BellRing, Dot, Eye, MessageSquare, ThumbsUp } from "lucide-react";
+import { ArrowDown, BellRing, Dot, Edit, Eye, MessageSquare, ThumbsUp, Trash } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
-import CommentFilter from "../components/CommentFilter";
+import CommentsSkeleton from "../components/skeleton/CommentsSkeleton";
+import { useUser } from "../context/userContext";
 
 const VideoPlayPage = () => {
 
   const navigation = useNavigate();
+  const { user } = useUser();
 
   const {
     playVideo,
@@ -21,17 +23,36 @@ const VideoPlayPage = () => {
     loading,
     videos,
     hasMoreVideos,
+    hasMoreComments,
+    comments,
+    commentLoading,
+    fetchCurrentPlayingVideoComments,
+    commentPage,
+    setCommentPage,
+    totalComments
   } = useVideosContext();
 
   const params = useParams();
+  const [limit, setLimit] = useState<number>(1);
 
+  // currenct playing video load
   useEffect(() => {
     if (!params?.id) return;
-
     fetchCurrentPlayingVideo?.(params.id);
-    fetchVideos("", "desc", 20, 1);
+  }, [params?.id]);
 
-  }, [params?.id]);// only first time load play video and all recommended videos
+  // Recommended videos ko ek bar load kiya hai
+  useEffect(() => {
+    fetchVideos("", "desc", 20, 1);
+  }, []);
+
+  // Sync comments.
+  useEffect(() => {
+    if (!params?.id) return;
+    setCommentPage(1);
+    fetchCurrentPlayingVideoComments?.(params.id, 1, limit);
+  }, [params?.id, limit]);
+
 
   // async function HandleLikeVideo(id: string) {
   //   try {
@@ -40,6 +61,7 @@ const VideoPlayPage = () => {
 
   //   }
   // }
+
 
   return (
     <div className="flex items-start gap-4 w-full p-4 bg-white">
@@ -96,47 +118,123 @@ const VideoPlayPage = () => {
           </button>
         </div>
 
-        {/* DESCRIPTION (Collapsible) */}
+        {/* DESCRIPTION collapsible hai */}
         <DescriptionBox description={playVideo?.description} />
 
         {/* COMMENTS */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-neutral-900 mt-6">
-          Comments ({playVideo?.totalComents})
-        </h2>
+        <div className="flex items-center justify-between mt-6">
+          <h2 className="text-xl font-semibold text-neutral-900">
+            {`Comments (${totalComments})`}
+          </h2>
 
-            <CommentFilter />
+          {/* yeh comments ko filter karne ke liye hai  */}
+          <div className='relative'>
+            <select
+              className="px-3 py-1 border border-neutral-300 rounded-md outline-none text-xs cursor-pointer text-neutral-700"
+              value={limit}
+              onChange={(e) => setLimit(Number(e.target.value))}
+            >
+              <option value={1}>1 per Comments</option>
+              <option value={10}>10 per Comments</option>
+              <option value={15}>15 per Comments</option>
+              <option value={20}>20 per Comments</option>
+            </select>
+          </div>
 
         </div>
 
         <div className="flex flex-col gap-3 mt-4">
-          {playVideo?.comments?.map((c: any) => (
-            <div key={c._id} className="flex flex-col bg-neutral-100 p-2 rounded-xl">
-              <div className="flex gap-2 items-center justify-between">
+          {comments.map((c: any) => (
+            <div
+              key={c._id}
+              className="flex flex-col bg-neutral-100 p-2 rounded-xl"
+            >
+              <div className="flex gap-2 items-start justify-between">
+                {/* LEFT */}
                 <div className="flex gap-1 items-center">
                   <img
-                    src={c?.owner?.[0]?.avatar?.url}
-                    className="w-10 h-10 rounded-full"
+                    src={c.owner?.avatar?.url}
+                    className="w-10 h-10 rounded-full object-cover"
                   />
+
                   <div className="flex flex-col">
                     <p className="text-neutral-900 font-semibold">
-                      {c?.owner?.[0]?.fullName}
+                      @{c.owner?.username}
                     </p>
                     <span className="text-neutral-500 text-xs">
-                      {c?.createdAt &&
-                        formatDistanceToNow(new Date(c.createdAt), { addSuffix: true })}
+                      {c.createdAt &&
+                        formatDistanceToNow(new Date(c.createdAt), {
+                          addSuffix: true,
+                        })}
                     </span>
                   </div>
                 </div>
-                <button className="flex items-center gap-1 bg-green-200 text-green-800 px-2 py-1 rounded-full text-xs font-medium cursor-pointer"><ThumbsUp size={16} /> {c?.likeCount}</button>
+
+                {/* RIGHT (LIKES + AVATARS) */}
+                <div className="flex items-center gap-2">
+                  {/* Overlapping Avatars */}
+                  {c.likedUsers?.length > 0 && (
+                    <div className="flex -space-x-2">
+                      {c.likedUsers.slice(0, 3).map((u: any, i: number) => (
+                        <img
+                          key={i}
+                          src={u.avatar?.url}
+                          className="w-6 h-6 rounded-full border-2 border-neutral-100 object-cover"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Like Button */}
+                  <button
+                    className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${c.isLikedByCurrentUser
+                      ? "bg-green-600 text-white"
+                      : "bg-green-200 text-green-800"
+                      }`}
+                  >
+                    <ThumbsUp size={14} />
+                    {c.totalLikes}
+                  </button>
+                  <button className={`text-orange-700 text-xs items-center gap-1 px-3 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex": "hidden"}`}><Edit size={14}/> Edit</button>
+                  <button className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex": "hidden"}`}><Trash size={14}/></button>
+                </div>
               </div>
+
+              {/* COMMENT TEXT */}
               <div className="mt-1">
                 <p className="text-neutral-700">{c.content}</p>
               </div>
             </div>
           ))}
-          <button className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer">Load more comments <ArrowDown size={15} className="mt-1" /></button>
+
+          {/* Load More Button */}
+          {hasMoreComments && !loading && comments.length !== 0 && !commentLoading && (
+            <div className="flex justify-center mt-5 mb-10">
+              <button
+                className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
+                onClick={() =>
+                  fetchCurrentPlayingVideoComments?.(
+                    params?.id,
+                    commentPage,
+                    limit
+                  )
+                }
+              >
+                Load More Comments <ArrowDown size={15} className="mt-1" />
+              </button>
+            </div>
+          )}
         </div>
+
+        {commentLoading && <CommentsSkeleton />}
+
+        {!commentLoading && comments.length === 0 && (
+          <p className="text-center text-neutral-500 mt-4">
+            No comments yet
+          </p>
+        )}
+
+
       </div>}
 
       {/* RIGHT SIDE */}
@@ -192,7 +290,7 @@ const VideoPlayPage = () => {
           {hasMoreVideos && !loading && videos.length !== 0 && (
             <div className="flex justify-center mt-5">
               <button
-                className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
+                className="flex items-center gap-1 bg-neutral-200 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
                 onClick={() => fetchVideos("", "desc", 20, 1)}
               >
                 Load More Videos <ArrowDown size={15} className="mt-1" />
@@ -222,7 +320,7 @@ const DescriptionBox = ({ description }: { description: string }) => {
       {description?.length > 130 && (
         <button
           onClick={() => setOpen(!open)}
-          className="text-neutral-700 font-semibold mt-2 text-xs bg-neutral-200 px-3 py-1 rounded-xl cursor-pointer"
+          className="text-neutral-700 font-semibold mt-2 text-xs bg-neutral-100 px-3 py-1 rounded-xl cursor-pointer"
         >
           {open ? "Show less" : "Show more"}
         </button>

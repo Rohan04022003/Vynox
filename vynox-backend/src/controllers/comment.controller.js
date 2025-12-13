@@ -20,25 +20,25 @@ const getVideoComments = asyncHandler(async (req, res) => {
   const skip = (pageNum - 1) * limitNum;
 
   try {
+    const userId = new mongoose.Types.ObjectId(req.user._id);
+
     const result = await Comment.aggregate([
       {
         $match: {
           video: new mongoose.Types.ObjectId(videoId),
         },
       },
+
       {
         $facet: {
           totalCount: [{ $count: "totalComments" }],
-          Comments: [
-            {
-              $sort: { createdAt: -1 },
-            },
-            {
-              $skip: skip,
-            },
-            {
-              $limit: limitNum,
-            },
+
+          comments: [
+            { $sort: { updatedAt: -1 } },
+            { $skip: skip },
+            { $limit: limitNum },
+
+            // 🔹 Owner details
             {
               $lookup: {
                 from: "users",
@@ -55,13 +55,66 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 ],
               },
             },
+            { $unwind: "$owner" },
+
+            // 🔹 Likes lookup
+            {
+              $lookup: {
+                from: "likes",
+                let: { commentId: "$_id" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ["$comment", "$$commentId"] },
+                    },
+                  },
+
+                  // only user info
+                  {
+                    $lookup: {
+                      from: "users",
+                      localField: "likedBy",
+                      foreignField: "_id",
+                      as: "user",
+                      pipeline: [{ $project: { avatar: 1 } }],
+                    },
+                  },
+                  { $unwind: "$user" },
+                ],
+                as: "likes",
+              },
+            },
+
+            // Computed fields
+            {
+              $addFields: {
+                totalLikes: { $size: "$likes" },
+
+                // sirf 3 avatars
+                likedUsers: {
+                  $slice: ["$likes.user", 3],
+                },
+
+                // current user ne like kiya ya nahi
+                isLikedByCurrentUser: {
+                  $in: [userId, "$likes.likedBy"],
+                },
+              },
+            },
+
+            // cleanup
+            {
+              $project: {
+                likes: 0,
+              },
+            },
           ],
         },
       },
     ]);
 
     const totalComments = result[0]?.totalCount[0]?.totalComments || 0;
-    const comments = result[0]?.Comments || [];
+    const comments = result[0]?.comments || [];
 
     return res.status(200).json(
       new ApiResponse(
@@ -77,7 +130,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
       )
     );
   } catch (error) {
-    
     throw new ApiError(
       500,
       "Something went wrong while fetching all comments."

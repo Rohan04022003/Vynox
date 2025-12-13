@@ -25,6 +25,7 @@ export interface Video {
 }
 
 export interface VideosContextType {
+  page: number;
   playVideo: any
   comments: any
   videos: Video[];
@@ -42,7 +43,9 @@ export interface VideosContextType {
   fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
   fetchCurrentPlayingVideoComments?: (videoId?: string, limit?: number, newPage?: number) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
-  setComments: React.Dispatch<React.SetStateAction<any>>;
+  commentPage: number
+  setCommentPage: React.Dispatch<React.SetStateAction<number>>;
+  totalComments: number
 }
 
 // tweetTypes

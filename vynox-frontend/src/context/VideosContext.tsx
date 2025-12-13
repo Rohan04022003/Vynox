@@ -22,6 +22,8 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   const [page, setPage] = useState<number>(1); // yeh by default page 1 karega.
   const [hasMoreVideos, setHasMoreVideos] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
   const [hasMoreComments, setHasMoreCommets] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
+  const [commentPage, setCommentPage] = useState(1);
+  const [ totalComments, setTotalComments] = useState(0)
 
   const fetchVideos = async ( // videos ko fetch karega yeh method.
     str = "",
@@ -84,40 +86,37 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
+
   // yeh current playing video ke comments ko fetch krega.
   const fetchCurrentPlayingVideoComments = async (
     videoId?: string,
-    limit = 10,
-    newPage?: number
+    pageToFetch = 1,
+    limit = 10
   ) => {
-    const pageToFetch = newPage ?? page;
+    if (!videoId) return;
 
     try {
       setCommentLoading(true);
 
-      const res = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/comments`,
+      const res: any = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/comments/${videoId}`,
         {
-          params: {
-            videoId,
-            limit,
-            page: pageToFetch,
-          },
+          params: { limit, page: pageToFetch },
           withCredentials: true,
         }
       );
 
       const fetchedComments = res.data?.data?.comments ?? [];
+      setTotalComments(res.data?.data?.totalComments)
 
-      if (newPage) {
+      if (pageToFetch === 1) {
         setComments(fetchedComments);
-        setPage(2);
-        setHasMoreCommets(fetchedComments.length === limit);
       } else {
-        setComments((prev: any) => [...prev, ...fetchedComments]);
-        setPage(pageToFetch + 1);
-        setHasMoreCommets(fetchedComments.length === limit);
+        setComments((prev: any[]) => [...prev, ...fetchedComments]);
       }
+
+      setCommentPage(pageToFetch + 1);
+      setHasMoreCommets(fetchedComments.length === limit);
     } catch (error) {
       console.error("Error fetching comments:", error);
     } finally {
@@ -139,10 +138,13 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         playVideoLoading,
         fetchCurrentPlayingVideo,
         comments,
-        setComments,
+        page,
         commentLoading,
         hasMoreComments,
-        fetchCurrentPlayingVideoComments
+        fetchCurrentPlayingVideoComments,
+        commentPage,
+        setCommentPage,
+        totalComments
       }}
     >
       {children}

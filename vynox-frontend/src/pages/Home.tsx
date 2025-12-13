@@ -6,6 +6,7 @@ import VideoCardSkeleton from "../components/skeleton/VideoCardSkeleton";
 import FilterBar from "../components/FilterBar";
 import type { tweetsProps as videosProps } from "../types";
 import { useVideosContext } from "../context/VideosContext";
+import { ArrowDown } from "lucide-react";
 
 const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
   const [sortType, setSortType] = useState<string>("desc");
@@ -15,7 +16,6 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
   // initial load
   useEffect(() => {
     if(search) return;
-    
     fetchVideos("", "desc", 20, 1);
   }, []);
 
@@ -79,12 +79,12 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
       )}
       {/* Load More Button */}
       {hasMoreVideos && !loading && videos.length !== 0 && (
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-5 mb-10">
           <button
-            className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
+            className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
             onClick={() => fetchVideos(search || tagSearch || "", sortType, limit)}
           >
-            Click Here to Load More Videos
+            Load More Videos <ArrowDown size={15} className="mt-1" />
           </button>
         </div>
       )}

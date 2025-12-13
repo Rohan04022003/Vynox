@@ -6,13 +6,14 @@ import type { Tweet, tweetsProps } from "../types";
 import TweetCard from "../components/TweetCard";
 import FilterBar from "../components/FilterBar";
 import { useTweetsContext } from "../context/TweetsContext";
+import { ArrowDown } from "lucide-react";
 
 const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
-    const [limit, setLimit] = useState<number>(20);
+    const [limit, setLimit] = useState<number>(10);
 
     const openTweet = (tweet: Tweet) => {
         setSelectedTweet(tweet);
@@ -37,7 +38,7 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
 
     // initial load
     useEffect(() => {
-        fetchTweets("", "desc", 20, 1);
+        fetchTweets("", "desc", 10, 1);
     }, []);
 
     return (
@@ -96,12 +97,12 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
 
             {/* Load More Button */}
             {hasMoreTweets && !loading && tweets.length !== 0 && (
-                <div className="flex justify-center mt-10">
+                <div className="flex justify-center mt-5 mb-10">
                     <button
-                        className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
+                        className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
                         onClick={() => fetchTweets(search || tagSearch || "", sortType, limit)}
                     >
-                        Click Here to Load More Tweets
+                        Load More Tweets <ArrowDown size={15} className="mt-1" />
                     </button>
                 </div>
             )}

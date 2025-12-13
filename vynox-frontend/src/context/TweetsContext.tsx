@@ -14,7 +14,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
   const fetchTweets = async (
     str = "",
     sortType = "desc",
-    limit = 20,
+    limit = 10,
     newPage?: number
   ) => {
     const pageToFetch = newPage || page;
