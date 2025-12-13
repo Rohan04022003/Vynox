@@ -9,7 +9,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMoreTweets, setHasMoreTweets] = useState(true);
 
   const fetchTweets = async (
     str = "",
@@ -31,12 +31,12 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
         // filter changed → replace
         setTweets(fetchedTweets);
         setPage(2);
-        setHasMore(fetchedTweets.length === limit);
+        setHasMoreTweets(fetchedTweets.length === limit);
       } else {
         // load more → append
         setTweets(prev => [...prev, ...fetchedTweets]);
         setPage(pageToFetch + 1);
-        setHasMore(fetchedTweets.length === limit);
+        setHasMoreTweets(fetchedTweets.length === limit);
       }
     } catch (err) {
       console.error("Error fetching tweets:", err);
@@ -47,7 +47,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <TweetsContext.Provider
-      value={{ tweets, setTweets, loading, fetchTweets, hasMore }}
+      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets }}
     >
       {children}
     </TweetsContext.Provider>

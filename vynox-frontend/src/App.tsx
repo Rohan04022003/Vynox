@@ -116,7 +116,8 @@ const App = () => {
           path="/video/:id"
           element={
             <ProtectedRoute>
-              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} />
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
+                setSearch={setSearch} />
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <VideoPlayPage />

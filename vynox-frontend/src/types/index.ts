@@ -26,10 +26,13 @@ export interface Video {
 
 export interface VideosContextType {
   playVideo: any
+  comments: any
   videos: Video[];
   loading: boolean;
   playVideoLoading: boolean
-  hasMore: boolean;
+  commentLoading: boolean
+  hasMoreVideos: boolean;
+  hasMoreComments: boolean;
   fetchVideos: (
     str: string,
     sortType?: string,
@@ -37,7 +40,9 @@ export interface VideosContextType {
     newPage?: number
   ) => Promise<void>;
   fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
+  fetchCurrentPlayingVideoComments?: (videoId?: string, limit?: number, newPage?: number) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
+  setComments: React.Dispatch<React.SetStateAction<any>>;
 }
 
 // tweetTypes
@@ -68,7 +73,7 @@ export interface TweetsContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
-  hasMore: boolean;
+  hasMoreTweets: boolean;
 }
 
 export interface TweetCardProps {

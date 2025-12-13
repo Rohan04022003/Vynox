@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
@@ -15,9 +16,12 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   const [playVideo, setPlayVideo] = useState({})
   const [playVideoLoading, setPlayVideoLoading] = useState(false)
   const [videos, setVideos] = useState<Video[]>([]); // yeh useState vidoes ko hold karega.
+  const [comments, setComments] = useState<any>([]); // yeh useState vidoes ko hold karega.
   const [loading, setLoading] = useState(false); // yeh loading screen ke liye bana hai.
+  const [commentLoading, setCommentLoading] = useState(false); // yeh loading screen ke liye bana hai.
   const [page, setPage] = useState<number>(1); // yeh by default page 1 karega.
-  const [hasMore, setHasMore] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
+  const [hasMoreVideos, setHasMoreVideos] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
+  const [hasMoreComments, setHasMoreCommets] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
 
   const fetchVideos = async ( // videos ko fetch karega yeh method.
     str = "",
@@ -43,11 +47,11 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
       if (newPage) {
         setVideos(fetchedVideos); // videos ko setVideos me set kiya hai.
         setPage(2);
-        setHasMore(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
       } else {
         setVideos(prev => [...prev, ...fetchedVideos]); // next page ke content ko aad kiya hai.
         setPage(pageToFetch + 1);
-        setHasMore(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
       }
     } catch (error) {
       console.error("Error fetching videos:", error);
@@ -56,7 +60,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-
+  // current playing video ko fetch krega.
   const fetchCurrentPlayingVideo = async (videoId?: string) => {
     if (!videoId) return;
     try {
@@ -80,17 +84,65 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   }
 
 
+  // yeh current playing video ke comments ko fetch krega.
+  const fetchCurrentPlayingVideoComments = async (
+    videoId?: string,
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage ?? page;
+
+    try {
+      setCommentLoading(true);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/comments`,
+        {
+          params: {
+            videoId,
+            limit,
+            page: pageToFetch,
+          },
+          withCredentials: true,
+        }
+      );
+
+      const fetchedComments = res.data?.data?.comments ?? [];
+
+      if (newPage) {
+        setComments(fetchedComments);
+        setPage(2);
+        setHasMoreCommets(fetchedComments.length === limit);
+      } else {
+        setComments((prev: any) => [...prev, ...fetchedComments]);
+        setPage(pageToFetch + 1);
+        setHasMoreCommets(fetchedComments.length === limit);
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+
+
   return (
     <VideosContext.Provider
       value={{
         videos,
         loading,
-        hasMore,
+        hasMoreVideos,
         fetchVideos,
         setVideos,
         playVideo,
         playVideoLoading,
-        fetchCurrentPlayingVideo
+        fetchCurrentPlayingVideo,
+        comments,
+        setComments,
+        commentLoading,
+        hasMoreComments,
+        fetchCurrentPlayingVideoComments
       }}
     >
       {children}

@@ -5,8 +5,9 @@ import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, BellRing, Dot, Eye, MessageSquare, ThumbsUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import PlayVideoSkeleton from "../components/skeleton/playVideoSkeleton";
+import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
+import CommentFilter from "../components/CommentFilter";
 
 const VideoPlayPage = () => {
 
@@ -19,7 +20,7 @@ const VideoPlayPage = () => {
     fetchVideos,
     loading,
     videos,
-    hasMore
+    hasMoreVideos,
   } = useVideosContext();
 
   const params = useParams();
@@ -30,13 +31,13 @@ const VideoPlayPage = () => {
     fetchCurrentPlayingVideo?.(params.id);
     fetchVideos("", "desc", 20, 1);
 
-  }, [params]);// only first time load play video and all recommended videos
+  }, [params?.id]);// only first time load play video and all recommended videos
 
   // async function HandleLikeVideo(id: string) {
   //   try {
-      
+
   //   } catch (error) {
-      
+
   //   }
   // }
 
@@ -99,9 +100,14 @@ const VideoPlayPage = () => {
         <DescriptionBox description={playVideo?.description} />
 
         {/* COMMENTS */}
-        <h2 className="text-xl font-semibold text-neutral-900 mt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-neutral-900 mt-6">
           Comments ({playVideo?.totalComents})
         </h2>
+
+            <CommentFilter />
+
+        </div>
 
         <div className="flex flex-col gap-3 mt-4">
           {playVideo?.comments?.map((c: any) => (
@@ -183,7 +189,7 @@ const VideoPlayPage = () => {
             </div>
           ))}
           {/* Load More Button */}
-          {hasMore && !loading && videos.length !== 0 && (
+          {hasMoreVideos && !loading && videos.length !== 0 && (
             <div className="flex justify-center mt-5">
               <button
                 className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"

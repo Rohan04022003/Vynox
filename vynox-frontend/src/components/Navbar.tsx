@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
@@ -24,17 +25,19 @@ const Navbar: React.FC<isOpenSideNavProps> = ({
     const isFirstRender = useRef(true); // iska use first render ko prevent krne ke liye kiya hai.
 
 
-    const handleSearch = () => { // yeh function search bar ko trigger kr raha hai.
-        if (location.pathname === "/tweets" && search && search.length > 1) {
-            setTagSearch?.("")
-            setTweets?.([]);
-            fetchTweets?.(search, "desc", 20, 1);
-        } else if (location.pathname === "/" && search && search.length > 1) {
-            setTagSearch?.("")
-            setVideos?.([]);
-            fetchVideos?.(search, "desc", 20, 1);
-        }
-    }
+const handleSearch = () => {
+  if (!search || search.length <= 1) return;
+
+  setTagSearch?.("");
+
+  const isTweetPage = location.pathname === "/tweets";
+
+  if (!isTweetPage) navigate("/");
+
+  isTweetPage
+    ? (setTweets?.([]), fetchTweets?.(search, "desc", 20, 1))
+    : (setVideos?.([]), fetchVideos?.(search, "desc", 20, 1));
+};
 
     useEffect(() => {
         if (isFirstRender.current) {

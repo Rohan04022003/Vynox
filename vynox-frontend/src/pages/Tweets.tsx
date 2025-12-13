@@ -10,7 +10,7 @@ import { useTweetsContext } from "../context/TweetsContext";
 const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const { tweets, setTweets, loading, fetchTweets, hasMore } = useTweetsContext();
+    const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(20);
 
@@ -95,7 +95,7 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
             )}
 
             {/* Load More Button */}
-            {hasMore && !loading && tweets.length !== 0 && (
+            {hasMoreTweets && !loading && tweets.length !== 0 && (
                 <div className="flex justify-center mt-10">
                     <button
                         className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"

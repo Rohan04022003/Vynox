@@ -10,10 +10,12 @@ import { useVideosContext } from "../context/VideosContext";
 const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
   const [sortType, setSortType] = useState<string>("desc");
   const [limit, setLimit] = useState<number>(20);
-  const { videos, setVideos, loading, fetchVideos, hasMore } = useVideosContext();
+  const { videos, setVideos, loading, fetchVideos, hasMoreVideos } = useVideosContext();
 
   // initial load
   useEffect(() => {
+    if(search) return;
+    
     fetchVideos("", "desc", 20, 1);
   }, []);
 
@@ -76,7 +78,7 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
         </div>
       )}
       {/* Load More Button */}
-      {hasMore && !loading && videos.length !== 0 && (
+      {hasMoreVideos && !loading && videos.length !== 0 && (
         <div className="flex justify-center mt-10">
           <button
             className="px-3 py-2 bg-neutral-600 text-white rounded-md hover:bg-neutral-700 text-xs cursor-pointer"
