@@ -11,6 +11,7 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
       index: true,
+      maxlength: 20
     },
     email: {
       type: String,
@@ -24,6 +25,7 @@ const userSchema = new Schema(
       required: true,
       trim: true,
       index: true,
+      maxlength: 25,
     },
     avatar: {
       url: { type: String, required: true },
@@ -36,6 +38,7 @@ const userSchema = new Schema(
     bio: {
       type: String,
       default: "",
+      maxlength: 250,
     },
     socialLinks: {
       linkedin: { type: String, default: "" },
@@ -52,6 +55,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
+      maxlength: 30,
     },
     refreshToken: {
       type: String,

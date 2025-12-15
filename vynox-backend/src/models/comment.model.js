@@ -7,6 +7,7 @@ const commentSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 500,
     },
     video: {
       type: Schema.Types.ObjectId,

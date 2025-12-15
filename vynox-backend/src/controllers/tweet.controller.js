@@ -15,6 +15,13 @@ const createTweet = asyncHandler(async (req, res) => {
 
   const { content } = req.body;
 
+  if (!content?.trim() || content?.trim().length > 1500) {
+    throw new ApiError(
+      400,
+      "Tweet Content length should be 1–1500 characters."
+    );
+  }
+
   const user = await User.findById(req.user?._id);
 
   if (!user) {
@@ -145,8 +152,8 @@ const getAllTweets = asyncHandler(async (req, res) => {
   const tweetsList = result[0]?.tweets || [];
   const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
 
-  console.log(tweetsList)
-  console.log(totalTweets)
+  console.log(tweetsList);
+  console.log(totalTweets);
 
   return res.status(200).json({
     status: 200,
@@ -242,8 +249,11 @@ const updateTweet = asyncHandler(async (req, res) => {
   const { content } = req.body;
   const { tweetId } = req.params;
 
-  if (!content || content.trim() === "") {
-    throw new ApiError(400, "Content cannot be empty.");
+  if (!content?.trim() || content?.trim().length > 1500) {
+    throw new ApiError(
+      400,
+      "Tweet Content length should be 1–1500 characters."
+    );
   }
 
   const tweet = await Tweet.findOne({ _id: tweetId, owner: req.user?._id });

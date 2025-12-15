@@ -34,6 +34,8 @@ const VideoPlayPage = () => {
 
   const params = useParams();
   const [limit, setLimit] = useState<number>(1);
+  const [isEditComment, setIsEditComment] = useState<string>("");
+  const [currentCommentContent, setCurrentCommentContent] = useState<string>("")
 
   // currenct playing video load
   useEffect(() => {
@@ -52,6 +54,17 @@ const VideoPlayPage = () => {
     setCommentPage(1);
     fetchCurrentPlayingVideoComments?.(params.id, 1, limit);
   }, [params?.id, limit]);
+
+  const handleEditCommentClick = (commentId: string, content: string) => {
+    console.log(commentId, content)
+    setIsEditComment(commentId);
+    setCurrentCommentContent(content);
+  };
+
+  const handleCancelCommentClick = () => {
+    setIsEditComment("");
+    setCurrentCommentContent("");
+  }
 
 
   // async function HandleLikeVideo(id: string) {
@@ -143,11 +156,17 @@ const VideoPlayPage = () => {
 
         </div>
 
+            {/* Add Comment  */}
+        <div className={`mt-3 w-full items-center gap-2 ${isEditComment ? "hidden" : "flex"}`}>
+            <textarea maxLength={500} placeholder="Leave a Comment." className="w-full px-3 py-1 border-2 text-base border-neutral-400 rounded-md outline-none" />
+            <button className="px-3 py-2 rounded-md bg-neutral-200 text-sm text-neutral-800 cursor-pointer">Comment</button>
+        </div>
+
         <div className="flex flex-col gap-3 mt-4">
           {comments.map((c: any) => (
             <div
               key={c._id}
-              className="flex flex-col bg-neutral-100 p-2 rounded-xl"
+              className="flex flex-col bg-neutral-100 p-2 rounded-xl relative"
             >
               <div className="flex gap-2 items-start justify-between">
                 {/* LEFT */}
@@ -156,6 +175,8 @@ const VideoPlayPage = () => {
                     src={c.owner?.avatar?.url}
                     className="w-10 h-10 rounded-full object-cover"
                   />
+
+                  {c.isEdited ? <Edit size={18} className="text-xs text-orange-800 bg-orange-100 p-1 rounded-full absolute top-8 left-8" /> : ""}
 
                   <div className="flex flex-col">
                     <p className="text-neutral-900 font-semibold">
@@ -195,15 +216,36 @@ const VideoPlayPage = () => {
                     <ThumbsUp size={14} />
                     {c.totalLikes}
                   </button>
-                  <button className={`text-orange-700 text-xs items-center gap-1 px-3 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex": "hidden"}`}><Edit size={14}/> Edit</button>
-                  <button className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex": "hidden"}`}><Trash size={14}/></button>
+                  <button onClick={() => handleEditCommentClick(c._id, c.content)} className={`text-orange-700 text-xs items-center gap-1 px-2 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id && !(isEditComment === c._id) ? "flex" : "hidden"}`}><Edit size={14} /></button>
+                  <button className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}><Trash size={14} /></button>
                 </div>
               </div>
 
               {/* COMMENT TEXT */}
-              <div className="mt-1">
-                <p className="text-neutral-700">{c.content}</p>
+              <div className="mt-2 space-y-2">
+                <p className={`text-neutral-700 text-base ${isEditComment === c._id ? "hidden" : "flext"}`}>{c.content}</p>
+                <textarea
+                  disabled={isEditComment === c._id ? false : true}
+                  onChange={(e) => setCurrentCommentContent(e.target.value)}
+                  value={currentCommentContent}
+                  rows={3}
+                  className={`${isEditComment === c._id ? "flex" : "hidden"} w-full resize-none rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-700 bg-neutral-50 focus:outline-none`} />
+
+                <div className="flex gap-2 justify-end">
+                  <button
+                    disabled={currentCommentContent === c.content ? true : false}
+                    className={`px-4 py-1.5 text-sm font-medium text-green-800 bg-green-200 rounded-md transition ${isEditComment === c._id ? "flex" : "hidden"} ${currentCommentContent === c.content ? "cursor-not-allowed" : "cursor-pointer hover:bg-green-700 hover:text-white"}`}>
+                    Save
+                  </button>
+
+                  <button
+                    onClick={handleCancelCommentClick}
+                    className={`px-4 py-1.5 text-sm font-medium cursor-pointer text-red-800 bg-red-200 rounded-md hover:bg-red-700 hover:text-white transition ${isEditComment === c._id ? "flex" : "hidden"}`}>
+                    Cancel
+                  </button>
+                </div>
               </div>
+
             </div>
           ))}
 

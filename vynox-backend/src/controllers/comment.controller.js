@@ -143,8 +143,10 @@ const addComment = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { content } = req.body;
 
-  if (!content.trim()) {
-    throw new ApiError(400, "comment length atleast 1 char");
+  const trimmedContent = content.trim();
+
+  if (trimmedContent.length === 0 || trimmedContent.length > 500) {
+    throw new ApiError(400, "Comment length should be 1–500 characters.");
   }
 
   if (!mongoose.Types.ObjectId.isValid(videoId)) {
@@ -159,7 +161,7 @@ const addComment = asyncHandler(async (req, res) => {
 
   try {
     await Comment.create({
-      content,
+      content: trimmedContent,
       video: videoId,
       owner: req.user?._id,
     });
@@ -178,15 +180,17 @@ const updateComment = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
   const { content } = req.body;
 
-  if (!content.trim()) {
-    throw new ApiError(400, "comment length at least 1 char");
+  const trimmedContent = content.trim();
+
+  if (trimmedContent.length === 0 || trimmedContent.length > 500) {
+    throw new ApiError(400, "Comment length should be 1–500 characters.");
   }
 
   try {
     const comment = await Comment.findOneAndUpdate(
       { _id: commentId, owner: req.user?._id },
       {
-        content,
+        content: trimmedContent,
         isEdited: true,
       },
       {

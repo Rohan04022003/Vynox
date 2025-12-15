@@ -12,6 +12,14 @@ const createPlaylist = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Playlist name is required");
   }
 
+  if (name?.trim().length > 50) {
+    throw new ApiError(400, "Name cannot exceed 50 characters.");
+  }
+
+  if (description?.trim().length > 1000) {
+    throw new ApiError(400, "Description cannot exceed 1000 characters.");
+  }
+
   const playlist = await Playlist.create({
     name,
     description,

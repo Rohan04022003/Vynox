@@ -50,6 +50,27 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
+  // Username length
+  if (username.trim().length > 20) {
+    throw new ApiError(400, "Username cannot exceed 20 characters.");
+  }
+
+  // Full name length
+  if (fullName.trim().length > 25) {
+    throw new ApiError(400, "Full name cannot exceed 25 characters.");
+  }
+
+  // Password length
+  if (password.length > 30) {
+    throw new ApiError(400, "Password cannot exceed 30 characters.");
+  }
+
+  // Email format (basic regex)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    throw new ApiError(400, "Invalid email address.");
+  }
+
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
@@ -123,7 +144,8 @@ const registerUser = asyncHandler(async (req, res) => {
         .status(500)
         .json(
           new ApiResponse(
-            500, {},
+            500,
+            {},
             "Something went wrong while registering the user"
           )
         );
@@ -152,45 +174,30 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  // req body -> data
-  // username or email
-  //find the user
-  //password check
-  //access and referesh token
-  //send cookie
+  const { identifier, password } = req.body;
 
-  const { email, username, password } = req.body;
-
-  if (!username && !email) {
+  if (!identifier) {
     res
       .status(400)
       .json(new ApiResponse(400, {}, "username or email is required"));
     throw new ApiError(400, "username or email is required");
   }
 
-  // Here is an alternative of above code based on logic discussed in video:
-  // if (!(username || email)) {
-  //     throw new ApiError(400, "username or email is required")
+  const isEmail = identifier.includes("@");
 
-  // }
-
-  const user = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  const user = await User.findOne(
+    isEmail ? { email: identifier } : { username: identifier }
+  );
 
   if (!user) {
-    res
-      .status(404)
-      .json(new ApiResponse(404, {}, "User does not exist"));
+    res.status(404).json(new ApiResponse(404, {}, "User does not exist"));
     throw new ApiError(404, "User does not exist");
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
-    res
-      .status(404)
-      .json(new ApiResponse(401, {}, "Invalid user credentials"));
+    res.status(404).json(new ApiResponse(401, {}, "Invalid user credentials"));
     throw new ApiError(401, "Invalid user credentials");
   }
 
@@ -308,6 +315,13 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
+  if (!newPassword.trim() || newPassword?.trim().length > 30) {
+    throw new ApiError(
+      400,
+      "password should not be empty or more than 30 char"
+    );
+  }
+
   const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
@@ -333,6 +347,34 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email, bio, socialLinks } = req.body;
+
+  //Full name length
+  if (fullName.trim().length > 25) {
+    throw new ApiError(400, "Full name cannot exceed 25 characters.");
+  }
+
+  // Email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    throw new ApiError(400, "Invalid email address.");
+  }
+
+  // Bio length (optional)
+  if (bio && bio.trim().length > 250) {
+    throw new ApiError(400, "Bio cannot exceed 250 characters.");
+  }
+
+  // Social links validation
+  if (socialLinks) {
+    const { linkedin, github, instagram, twitter } = socialLinks;
+
+    const links = [linkedin, github, instagram, twitter];
+    links.forEach((link) => {
+      if (link && link.length > 200) {
+        throw new ApiError(400, "Social link URL is too long.");
+      }
+    });
+  }
 
   for (let key in socialLinks) {
     if (socialLinks[key]) {

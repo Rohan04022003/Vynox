@@ -88,8 +88,19 @@ const getAllVideos = asyncHandler(async (req, res) => {
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description, isPublished } = req.body;
 
-  if (!title?.trim() || !description?.trim()) {
+  const trimmedTitle = title?.trim();
+  const trimmedDescription = description?.trim();
+
+  if (!trimmedTitle || !trimmedDescription) {
     throw new ApiError(400, "Title and description are required.");
+  }
+
+  if (trimmedTitle.length > 100) {
+    throw new ApiError(400, "Title max length is 100 characters.");
+  }
+
+  if (trimmedDescription.length > 1500) {
+    throw new ApiError(400, "Description max length is 1500 characters.");
   }
 
   const user = await User.findById(req.user?._id);
@@ -266,11 +277,21 @@ const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { title, description } = req.body;
 
-  if (!title?.trim() || !description?.trim()) {
+  const trimmedTitle = title?.trim();
+  const trimmedDescription = description?.trim();
+
+  if (!trimmedTitle || !trimmedDescription) {
     throw new ApiError(400, "Title and description are required.");
   }
 
-  // ✅ Correct way: findOne instead of findById
+  if (trimmedTitle.length > 100) {
+    throw new ApiError(400, "Title max length is 100 characters.");
+  }
+
+  if (trimmedDescription.length > 1500) {
+    throw new ApiError(400, "Description max length is 1500 characters.");
+  }
+
   const oldVideoDetails = await Video.findOne({
     _id: videoId,
     owner: req.user._id,
@@ -289,7 +310,6 @@ const updateVideo = asyncHandler(async (req, res) => {
   const oldThumbnailPublicId = oldVideoDetails.thumbnail?.public_Id;
 
   try {
-    // Upload new thumbnail
     thumbnailURL = await uploadOnCloudinary(thumbnailLocalPath, "image");
 
     if (!thumbnailURL) {
@@ -304,7 +324,6 @@ const updateVideo = asyncHandler(async (req, res) => {
 
     await oldVideoDetails.save({ validateBeforeSave: false });
 
-    // ✅ Delete old thumbnail AFTER saving new one
     if (oldThumbnailPublicId) {
       await deleteFromCloudinary(oldThumbnailPublicId, "image");
     }
@@ -319,7 +338,6 @@ const updateVideo = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    // ✅ Only delete newly uploaded thumbnail if DB update fails
     if (thumbnailURL?.public_id) {
       await deleteFromCloudinary(thumbnailURL.public_id);
     }

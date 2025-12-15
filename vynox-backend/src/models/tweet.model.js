@@ -5,6 +5,7 @@ const tweetSchema = new Schema(
     content: {
       type: String,
       required: true,
+      maxlength: 1500,
     },
     tweetImage: {
       url: {
