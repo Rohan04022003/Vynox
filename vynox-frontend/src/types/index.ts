@@ -29,6 +29,7 @@ export interface VideosContextType {
   playVideo: any
   comments: any
   videos: Video[];
+  setPlayVideo: React.Dispatch<React.SetStateAction<any>>;
   loading: boolean;
   playVideoLoading: boolean
   commentLoading: boolean
@@ -43,6 +44,7 @@ export interface VideosContextType {
   fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
   fetchCurrentPlayingVideoComments?: (videoId?: string, limit?: number, newPage?: number) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
+  setComments: React.Dispatch<React.SetStateAction<any>>;
   commentPage: number
   setCommentPage: React.Dispatch<React.SetStateAction<number>>;
   totalComments: number

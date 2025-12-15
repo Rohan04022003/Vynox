@@ -18,38 +18,26 @@
 /* it is loader css */
 
 .loader {
-  width: 15px;
-  height: 15px;
-  border: 3px solid #afd3ff;
-  border-bottom-color: #3391e7;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
+  width: 12px;
+  aspect-ratio: 1;
+  --c: no-repeat linear-gradient(#4580E9 calc(50% - 10px),#ABBBE9 0 calc(50% + 10px),#4580E9 0);
+  background: 
+    var(--c) 0%   100%,
+    var(--c) 50%  100%,
+    var(--c) 100% 100%;
+  background-size: 20% calc(200% + 20px);
+  animation:l4 1s infinite linear;
 }
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes slideLeft {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0%);
-  }
+@keyframes l4 {
+    33%  {background-position: 0% 50%,50% 100%,100% 100%}
+    50%  {background-position: 0%  0%,50%  50%,100% 100%}
+    66%  {background-position: 0%  0%,50%   0%,100%  50%}
+    100% {background-position: 0%  0%,50%   0%,100%   0%}
 }
 
 .animate-slideLeft {
   animation: slideLeft 0.5s ease-out;
 }
-
 
 .hide-scrollbar {
   overflow-x: scroll;

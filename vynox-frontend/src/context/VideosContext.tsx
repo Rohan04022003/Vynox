@@ -23,7 +23,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   const [hasMoreVideos, setHasMoreVideos] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
   const [hasMoreComments, setHasMoreCommets] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
   const [commentPage, setCommentPage] = useState(1);
-  const [ totalComments, setTotalComments] = useState(0)
+  const [totalComments, setTotalComments] = useState(0)
 
   const fetchVideos = async ( // videos ko fetch karega yeh method.
     str = "",
@@ -135,9 +135,11 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         fetchVideos,
         setVideos,
         playVideo,
+        setPlayVideo,
         playVideoLoading,
         fetchCurrentPlayingVideo,
         comments,
+        setComments,
         page,
         commentLoading,
         hasMoreComments,
