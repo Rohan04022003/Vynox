@@ -65,6 +65,34 @@ const VideoPlayPage = () => {
     fetchCurrentPlayingVideoComments?.(params.id, 1, limit);
   }, [params?.id, limit]);
 
+  // yeh views count ke liye function hai.
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/videos/${params?.id}/view`,
+          {},
+          { withCredentials: true }
+        );
+
+        if (response.status === 200) {
+          setPlayVideo((prev: any) => {
+            if (!prev) return prev;
+
+            return {
+              ...prev,
+              views: prev.views + 1,
+            };
+          });
+        }
+      } catch (error) {
+        console.log("Video view failed:", error);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [params?.id]);
+
   const handleEditCommentClick = (commentId: string, content: string) => {
     setEditComment({ id: commentId, content });
   };
@@ -142,7 +170,6 @@ const VideoPlayPage = () => {
 
   const handleLikeVideo = async (videoId: string) => {
     try {
-      console.log("clicked")
       setVideoLikeLoader(true)
 
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
