@@ -171,6 +171,7 @@ const getVideoById = asyncHandler(async (req, res) => {
           _id: new mongoose.Types.ObjectId(videoId),
         },
       },
+
       {
         $lookup: {
           from: "users",
@@ -188,56 +189,13 @@ const getVideoById = asyncHandler(async (req, res) => {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "comments",
-          localField: "_id",
-          foreignField: "video",
-          as: "comments",
-          pipeline: [
-            {
-              $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "owner",
-                pipeline: [
-                  {
-                    $project: {
-                      avatar: 1,
-                      fullName: 1,
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      },
+
       {
         $addFields: {
-          comments: {
-            $slice: [
-              {
-                $sortArray: {
-                  input: "$comments",
-                  sortBy: { createdAt: -1 },
-                },
-              },
-              3,
-            ],
-          },
-          totalComents: { $size: "$comments" },
+          ownerId: { $arrayElemAt: ["$owner._id", 0] },
         },
       },
-      {
-        $project: {
-          commentsData: 0, // response me raw data chhupa diya
-        },
-      },
-      {
-        $addFields: { ownerId: { $arrayElemAt: ["$owner._id", 0] } },
-      },
+
       {
         $lookup: {
           from: "subscriptions",
@@ -246,17 +204,33 @@ const getVideoById = asyncHandler(async (req, res) => {
           as: "subscribers",
         },
       },
+
+      {
+        $lookup: {
+          from: "likes",
+          localField: "_id",
+          foreignField: "video",
+          as: "likes",
+        },
+      },
+
       {
         $addFields: {
           totalSubscribers: { $size: "$subscribers" },
           isSubscribed: {
             $in: [req.user._id, "$subscribers.subscriber"],
           },
+          totalLikes: { $size: "$likes" },
+          isLiked: {
+            $in: [req.user._id, "$likes.likedBy"],
+          },
         },
       },
+
       {
         $project: {
           subscribers: 0,
+          likes: 0,
         },
       },
     ]);

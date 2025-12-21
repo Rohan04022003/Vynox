@@ -141,8 +141,8 @@ const VideoPlayPage = () => {
   }
 
   const handleLikeVideo = async (videoId: string) => {
-    console.log()
     try {
+      console.log("clicked")
       setVideoLikeLoader(true)
 
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
@@ -152,12 +152,12 @@ const VideoPlayPage = () => {
 
           if (!prev) return;
 
-          const isLiked = prev.isLikedByCurrentUser;
+          const isLiked = prev.isLiked;
 
           return {
             ...prev,
             likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1, // agar isLiked true hai toh 1 kam nahi to 1 jyada.
-            isLikedByCurrentUser: !isLiked,
+            isLiked: !isLiked,
           };
         })
       }
@@ -176,7 +176,7 @@ const VideoPlayPage = () => {
       {/* LEFT SIDE */}
       {playVideoLoading ? <PlayVideoSkeleton /> : <div className="w-[60%]">
 
-        {/* VIDEO PLAYER */}
+        {/* Video Player */}
         <video
           src={playVideo?.videoFile?.url}
           controls
@@ -184,7 +184,7 @@ const VideoPlayPage = () => {
           className="w-full h-[60vh] rounded-xl bg-black"
         />
 
-        {/* TITLE */}
+        {/* Title */}
         <h1 className="text-neutral-700 text-xl font-semibold mt-2">
           {playVideo?.title}
         </h1>
@@ -192,18 +192,18 @@ const VideoPlayPage = () => {
         {/* Views / Likes / Time */}
         <div className="flex items-center justify-between text-xs text-neutral-600 mt-3">
           <div className="flex items-center gap-3">
-            <p className="flex items-center gap-2 px-3 py-[2px] rounded-full bg-green-100 text-green-800 cursor-pointer">
+            <button onClick={() => params?.id && handleLikeVideo(params?.id)} className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-green-100 text-green-800 cursor-pointer">
               <ThumbsUp size={16} className="" />
-              <span className="text-base">{playVideo.likeCount}</span>
-            </p>
-            <span className="flex items-center gap-2 px-3 py-[2px] rounded-full bg-neutral-100 text-base"><Eye size={16} className="" /> {playVideo.views}</span>
-            <span className="flex items-center gap-2 px-3 py-[2px] rounded-full bg-neutral-100 text-base"><MessageSquare size={16} className="" />{playVideo?.totalComents}</span>
+              {videoLikeLoader ? <span className="loader"></span> : <span className="text-base">{playVideo.likeCount}</span>}
+            </button>
+            <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><Eye size={16} className="" /> {playVideo.views}</span>
+            <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><MessageSquare size={16} className="" />{totalComments}</span>
           </div>
           <span className="bg-neutral-100 px-3 py-2 rounded-full font-semibold">{playVideo?.createdAt &&
             formatDistanceToNow(new Date(playVideo.createdAt), { addSuffix: true })}</span>
         </div>
 
-        {/* OWNER SECTION */}
+        {/* Owner Section */}
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-3">
             <img
@@ -225,7 +225,7 @@ const VideoPlayPage = () => {
           </button>
         </div>
 
-        {/* DESCRIPTION collapsible hai */}
+        {/* Description collapsible hai */}
         <DescriptionBox description={playVideo?.description} />
 
         {/* Add Comment  */}
