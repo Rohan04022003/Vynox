@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowDown, BellRing, Dot, Edit, Eye, MessageSquare, ThumbsUp, Trash } from "lucide-react";
+import { ArrowDown, AudioLines, BellRing, Dot, Edit, Eye, MessageSquare, ThumbsUp, Trash } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
@@ -48,6 +48,7 @@ const VideoPlayPage = () => {
   const [videoLikeLoader, setVideoLikeLoader] = useState<boolean>(false)
   const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
   const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
+  const [subscribeLoader, setSubscribeLoader] = useState<boolean>(false)
 
   // currenct playing video load
   useEffect(() => {
@@ -262,6 +263,35 @@ const VideoPlayPage = () => {
 
   // ____________________________________________________________
 
+  // channel subscription function 
+  const handleSubscribe = async (channelId: string) => {
+    try {
+      setSubscribeLoader(true)
+
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/subscriptions/c/${channelId}`, {}, { withCredentials: true })
+
+      if (response.status === 200) {
+        setPlayVideo((prev: any) => {
+
+          if (!prev) return;
+
+          const isSubscribed = prev.isSubscribed;
+
+          return {
+            ...prev,
+            totalSubscribers: isSubscribed ? prev.totalSubscribers - 1 : prev.totalSubscribers + 1, // agar isSubscribed true hai toh 1 kam nahi to 1 jyada.
+            isSubscribed: !isSubscribed,
+
+          };
+        })
+      }
+
+    } catch (error) {
+      console.log("Subscribe toggle failed:", error);
+    } finally {
+      setSubscribeLoader(false)
+    }
+  }
 
   return (
     <div className="flex items-start gap-4 w-full p-4 bg-white">
@@ -313,8 +343,10 @@ const VideoPlayPage = () => {
             </div>
           </div>
 
-          <button className="bg-red-900 hover:bg-red-800 duration-300 text-red-100 px-4 py-2 rounded-md font-semibold cursor-pointer">
-            {playVideo?.isSubscribed ? <BellRing /> : "Subscribe"}
+          <button
+            onClick={() => handleSubscribe(playVideo?.owner?.[0]?._id)}
+            className="bg-red-900 hover:bg-red-800 duration-300 text-red-100 text-xs px-3 py-2 rounded-md font-semibold cursor-pointer">
+            {subscribeLoader ? <AudioLines size={18} /> : playVideo?.isSubscribed ? <BellRing size={18} /> : "Subscribe"}
           </button>
         </div>
 
