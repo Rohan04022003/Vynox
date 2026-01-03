@@ -37,7 +37,7 @@ const VideoPlayPage = () => {
   } = useVideosContext();
 
   const params = useParams();
-  const [limit, setLimit] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
   const [editComment, setEditComment] = useState<{
     id: string;
     content: string;
@@ -47,7 +47,7 @@ const VideoPlayPage = () => {
   const [commentAddLoader, setCommentAddLoader] = useState<boolean>(false)
   const [videoLikeLoader, setVideoLikeLoader] = useState<boolean>(false)
   const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
-  // const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
+  const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
 
   // currenct playing video load
   useEffect(() => {
@@ -95,14 +95,35 @@ const VideoPlayPage = () => {
     return () => clearTimeout(timer);
   }, [params?.id]);
 
-  const handleEditCommentClick = (commentId: string, content: string) => {
-    setEditComment({ id: commentId, content });
-  };
+  const handleLikeVideo = async (videoId: string) => {
+    try {
+      setVideoLikeLoader(true)
 
-  const handleCancelCommentClick = () => {
-    setEditComment({ id: "", content: "" });
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
+
+      if (response.status === 200) {
+        setPlayVideo((prev: any) => {
+
+          if (!prev) return;
+
+          const isLiked = prev.isLiked;
+
+          return {
+            ...prev,
+            likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1, // agar isLiked true hai toh 1 kam nahi to 1 jyada.
+            isLiked: !isLiked,
+          };
+        })
+      }
+
+    } catch (error) {
+      console.log("Video like Failed: ", error)
+    } finally {
+      setVideoLikeLoader(false)
+    }
   }
 
+  // yaha se comments ki logic start hota hai like CRUD.
   const handleCommentUpdate = async (commentId: string) => {
     try {
       setCommentUpdateLoader(true);
@@ -170,34 +191,6 @@ const VideoPlayPage = () => {
     }
   }
 
-  const handleLikeVideo = async (videoId: string) => {
-    try {
-      setVideoLikeLoader(true)
-
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
-
-      if (response.status === 200) {
-        setPlayVideo((prev: any) => {
-
-          if (!prev) return;
-
-          const isLiked = prev.isLiked;
-
-          return {
-            ...prev,
-            likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1, // agar isLiked true hai toh 1 kam nahi to 1 jyada.
-            isLiked: !isLiked,
-          };
-        })
-      }
-
-    } catch (error) {
-      console.log("Video like Failed: ", error)
-    } finally {
-      setVideoLikeLoader(false)
-    }
-  }
-
   const handleLikeComment = async (commentId: string) => {
     try {
       setCommentLikeLoader(commentId);
@@ -237,7 +230,37 @@ const VideoPlayPage = () => {
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      setCommentDeleteLoader(commentId);
 
+      const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`, { withCredentials: true })
+
+      if (response.status === 200) {
+        setComments((prev: any[]) =>
+          Array.isArray(prev)
+            ? prev.filter((c) => c._id !== commentId)
+            : prev
+        );
+      }
+
+    } catch (error) {
+      console.log("Comment deletion Failed: ", error)
+      toast.error("Comment delete unsuccessfull.")
+    } finally {
+      setCommentDeleteLoader("")
+    }
+  }
+
+  const handleEditCommentClick = (commentId: string, content: string) => {
+    setEditComment({ id: commentId, content });
+  };
+
+  const handleCancelCommentClick = () => {
+    setEditComment({ id: "", content: "" });
+  }
+
+  // ____________________________________________________________
 
 
   return (
