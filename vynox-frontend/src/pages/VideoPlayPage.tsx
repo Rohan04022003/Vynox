@@ -46,6 +46,8 @@ const VideoPlayPage = () => {
   const [addComment, setAddComment] = useState<string>("");
   const [commentAddLoader, setCommentAddLoader] = useState<boolean>(false)
   const [videoLikeLoader, setVideoLikeLoader] = useState<boolean>(false)
+  const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
+  // const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
 
   // currenct playing video load
   useEffect(() => {
@@ -196,6 +198,47 @@ const VideoPlayPage = () => {
     }
   }
 
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      setCommentLikeLoader(commentId);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/likes/toggle/c/${commentId}`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        setComments((prev: any[]) => {
+          if (!Array.isArray(prev)) return prev;
+
+          return prev.map((comment) => { // because yeh array hai.
+            if (comment._id !== commentId) return comment;
+
+            const isLiked = comment.isLikedByCurrentUser;
+            console.log({ ...comment })
+            return {
+              ...comment,
+              totalLikes: isLiked
+                ? comment.totalLikes - 1
+                : comment.totalLikes + 1,
+              isLikedByCurrentUser: !isLiked,
+              likedUsers: isLiked ? comment.likedUsers.filter((u: any) => u._id !== user._id)
+                : [...comment.likedUsers, { _id: user._id, avatar: { url: user.avatar.url, public_id: user.avatar.public_id } }]
+            };
+          });
+        });
+
+      }
+    } catch (error) {
+      console.log("Comment like failed:", error);
+    } finally {
+      setCommentLikeLoader("");
+    }
+  };
+
+
+
 
   return (
     <div className="flex items-start gap-4 w-full p-4 bg-white">
@@ -219,7 +262,7 @@ const VideoPlayPage = () => {
         {/* Views / Likes / Time */}
         <div className="flex items-center justify-between text-xs text-neutral-600 mt-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => params?.id && handleLikeVideo(params?.id)} className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-green-100 text-green-800 cursor-pointer">
+            <button onClick={() => params?.id && handleLikeVideo(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
               <ThumbsUp size={16} className="" />
               {videoLikeLoader ? <span className="loader"></span> : <span className="text-base">{playVideo.likeCount}</span>}
             </button>
@@ -337,16 +380,17 @@ const VideoPlayPage = () => {
 
                   {/* video Like Button */}
                   <button
+                    onClick={() => handleLikeComment(c._id)}
                     className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${c.isLikedByCurrentUser
                       ? "bg-green-600 text-white"
                       : "bg-green-200 text-green-800"
                       }`}
                   >
                     <ThumbsUp size={14} />
-                    {c.totalLikes}
+                    {CommentLikeLoader === c._id ? <span className="loader"></span> : c.totalLikes}
                   </button>
                   <button onClick={() => handleEditCommentClick(c._id, c.content)} className={`text-orange-700 text-xs items-center gap-1 px-2 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id && !(editComment.id === c._id) ? "flex" : "hidden"}`}><Edit size={14} /></button>
-                  <button className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}><Trash size={14} /></button>
+                  <button onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoader === c._id ? <span className="loader"></span> : <Trash size={14} />}</button>
                 </div>
               </div>
 
