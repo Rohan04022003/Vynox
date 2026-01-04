@@ -9,6 +9,7 @@ import {
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
 import { sendMail } from "../services/mail.service.js";
+import { Like } from "../models/like.model.js";
 
 const createTweet = asyncHandler(async (req, res) => {
   //TODO: create tweet
@@ -275,9 +276,12 @@ const updateTweet = asyncHandler(async (req, res) => {
 const deleteTweet = asyncHandler(async (req, res) => {
   //TODO: delete tweet
 
-  const { tweetId } = req.params;
-
   try {
+    const { tweetId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(tweetId)) {
+      throw new ApiError(400, "Invalid tweet id");
+    }
     const tweet = await Tweet.findOne({ _id: tweetId, owner: req.user?._id });
 
     if (!tweet) {
@@ -289,8 +293,13 @@ const deleteTweet = asyncHandler(async (req, res) => {
 
     const tweetImage_public_Id = tweet.tweetImage?.public_Id;
 
-    await tweet.deleteOne({ validateBeforeSave: false });
+    // delete tweet
+    await tweet.deleteOne();
 
+    // delete all related likes documents or data.
+    await Like.deleteMany({ tweet: tweetId });
+
+    // delete image from cloudinary
     if (tweetImage_public_Id) {
       await deleteFromCloudinary(tweetImage_public_Id, "image");
     }
