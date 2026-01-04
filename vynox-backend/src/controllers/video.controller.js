@@ -9,6 +9,9 @@ import {
   uploadOnCloudinary,
 } from "../utils/cloudinary.js";
 import { sendMail } from "../services/mail.service.js";
+import { Comment } from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
+import { VideoView } from "../models/videoView.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortType, userId } = req.query;
@@ -323,9 +326,13 @@ const updateVideo = asyncHandler(async (req, res) => {
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
-  const { videoId } = req.params;
-
   try {
+    const { videoId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+      throw new ApiError(400, "Invalid video id");
+    }
+
     const video = await Video.findOne({
       _id: videoId,
       owner: req.user._id,
@@ -338,7 +345,31 @@ const deleteVideo = asyncHandler(async (req, res) => {
     const videoFile_public_id = video.videoFile.public_Id;
     const thumbnail_public_id = video.thumbnail.public_Id;
 
+    // delete video
     await video.deleteOne({ validateBeforeSave: false });
+
+    // view count documents ko delete kr rhe hai.
+    await VideoView.deleteMany({
+      video: videoId,
+    });
+
+    // sare comments nikala hai video ke
+    const comments = await Comment.find({ video: videoId }, { _id: 1 });
+    // commentIds ko save kr liya.
+    const commentIds = comments.map((c) => c._id);
+
+    // ab comments ke likes ko delete kiya hai.
+    if (commentIds.length > 0) {
+      await Like.deleteMany({
+        comment: { $in: commentIds },
+      });
+    }
+
+    // ab comments ko delete kiya hai.
+    await Comment.deleteMany({ video: videoId });
+
+    // uske baad video ko.
+    await Like.deleteMany({ video: videoId });
 
     await deleteFromCloudinary(videoFile_public_id, "video");
     await deleteFromCloudinary(thumbnail_public_id, "image");
