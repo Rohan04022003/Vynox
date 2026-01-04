@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowDown, AudioLines, BellRing, Dot, Edit, Eye, MessageSquare, ThumbsUp, Trash } from "lucide-react";
+import { ArrowDown, ThumbsUp, BellRing, Dot, Edit, Eye, MessageSquare, Trash, Loader } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
@@ -346,7 +346,7 @@ const VideoPlayPage = () => {
           <button
             onClick={() => handleSubscribe(playVideo?.owner?.[0]?._id)}
             className="bg-red-900 hover:bg-red-800 duration-300 text-red-100 text-xs px-3 py-2 rounded-md font-semibold cursor-pointer">
-            {subscribeLoader ? <AudioLines size={18} /> : playVideo?.isSubscribed ? <BellRing size={18} /> : "Subscribe"}
+            {subscribeLoader ? <Loader size={18} className="animate-spin"/> : playVideo?.isSubscribed ? <BellRing size={18} /> : "Subscribe"}
           </button>
         </div>
 
@@ -362,7 +362,7 @@ const VideoPlayPage = () => {
             maxLength={500}
             placeholder="Leave a Comment."
             className=" resize-none w-full px-3 py-1 border text-base border-neutral-400 rounded-md outline-none" />
-          <button onClick={() => params?.id && handleAddComment(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
+          <button disabled={addComment.length < 1} onClick={() => params?.id && handleAddComment(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
             {commentAddLoader ? <span className="loader"></span> : "Comment"}
           </button>
         </div>

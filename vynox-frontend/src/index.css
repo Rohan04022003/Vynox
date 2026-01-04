@@ -28,6 +28,7 @@
   background-size: 20% calc(200% + 20px);
   animation:l4 1s infinite linear;
 }
+
 @keyframes l4 {
     33%  {background-position: 0% 50%,50% 100%,100% 100%}
     50%  {background-position: 0%  0%,50%  50%,100% 100%}

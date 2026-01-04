@@ -1,5 +1,6 @@
 import mongoose, { mongo } from "mongoose";
 import { Comment } from "../models/comment.model.js";
+import { Like } from "../models/like.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -228,6 +229,11 @@ const deleteComment = asyncHandler(async (req, res) => {
     if (!comment) {
       throw new ApiError(404, "Comment not found or unauthorized request.");
     }
+
+    // for delete all like record related to the comment
+    await Like.deleteMany({
+      comment: commentId,
+    });
 
     return res
       .status(200)
