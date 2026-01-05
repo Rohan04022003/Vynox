@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { WatchHistory } from "../models/watchHistory.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -54,6 +55,108 @@ export const deleteHistory = asyncHandler(async (req, res) => {
     throw new ApiError(
       500,
       "Something went wrong while deleting watched history.: " + error?.message
+    );
+  }
+});
+
+export const clearHistory = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  await WatchHistory.deleteMany({
+    user: userId,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Watch history cleared."));
+});
+
+export const getHistory = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const watchedHistories = await WatchHistory.aggregate([
+      //  user match kr rhe hai.
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId),
+        },
+      },
+
+      // recently watched top pe aayega means pehle.
+      {
+        $sort: { lastWatchedAt: -1 },
+      },
+
+      // Lookup video
+      {
+        $lookup: {
+          from: "videos",
+          localField: "video",
+          foreignField: "_id",
+          as: "video",
+          pipeline: [
+            {
+              $project: {
+                title: 1,
+                thumbnail: 1,
+                duration: 1,
+                views: 1,
+                owner: 1,
+                createdAt: 1,
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $unwind: "$owner",
+            },
+          ],
+        },
+      },
+
+      //  Flatten video array
+      {
+        $unwind: "$video",
+      },
+
+      // Final response shape bata rhe hai yaha pe
+      {
+        $project: {
+          _id: 1,
+          lastWatchedAt: 1,
+          video: 1,
+        },
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          watchedHistories,
+          "All History fetched successfully."
+        )
+      );
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something went wrong while fetching all history.: " + error?.message
     );
   }
 });

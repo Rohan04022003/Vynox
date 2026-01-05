@@ -41,7 +41,7 @@ const VideoCard = ({ video }: VideoCardProps) => {
 
             {/* Info */}
             <div className="p-2 flex flex-col gap-1">
-                <h3 className="text-sm font-semibold line-clamp-2">{video.title}</h3>
+                <h3 className="text-sm font-semibold line-clamp-2">{video?.title}</h3>
 
                 {/* Owner Info */}
                 <div className="flex items-center gap-2 mt-1">
@@ -56,10 +56,10 @@ const VideoCard = ({ video }: VideoCardProps) => {
                 {/* Views / Likes / Time */}
                 <div className="flex items-center justify-between text-xs text-neutral-500 mt-1">
                     <div className="flex items-center gap-1">
-                        <span className="flex items-center gap-1 px-3 py-[2px] rounded-full bg-neutral-50"><Eye size={14} className="" /> {video.views}</span>
-                        <span className="flex items-center gap-1 px-3 py-[2px] rounded-full bg-neutral-50">
+                        <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50"><Eye size={14} className="" /> {video?.views}</span>
+                        <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
                             <ThumbsUp size={14} className="" />
-                            {video.likeCount}
+                            {video?.likeCount}
                         </span>
                     </div>
                     <span>{formatDistanceToNow(new Date(video.createdAt))} ago</span>

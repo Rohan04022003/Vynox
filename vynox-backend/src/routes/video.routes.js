@@ -10,6 +10,7 @@ import {
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { incrementView } from "../controllers/view.controller.js";
+import { clearHistory, createHistory, deleteHistory, getHistory } from "../controllers/watchHistroy.controller.js";
 
 const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
@@ -39,7 +40,13 @@ router
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
-// yeb view ko inc. karega.
+// yeh view ko inc. karega.
 router.route("/:videoId/view").post(incrementView);
+
+// yaha se history ko manage kr rhe hai.
+router.route("/:videoId/history").post(createHistory)
+router.route("/delete-history/:watchedHistoryId").delete(deleteHistory)
+router.route("/watched/clear-history").delete(clearHistory)
+router.route("/watched/history").get(getHistory)
 
 export default router;
