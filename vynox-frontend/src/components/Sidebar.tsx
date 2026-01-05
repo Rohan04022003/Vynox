@@ -50,7 +50,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
             <div className="flex flex-col gap-2">
                 <MenuItem to="/" icon={Home} label={`${isOpen ? "Home" : ""}`} />
                 <MenuItem to="/tweets" icon={Image} label={`${isOpen ? "Tweets" : ""}`} />
-                <MenuItem to="/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
+                <MenuItem to="/video/watched/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
                 <MenuItem to="/liked-videos" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
                 <MenuItem to="/liked-Tweets" icon={Heart} label={`${isOpen ? "Liked Tweets" : ""}`} />
                 <MenuItem to="/library" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />

@@ -12,6 +12,7 @@ import VideoUploadForm from "./pages/VideoUploadForm";
 import TweetUploadForm from "./pages/TweetUploadForm";
 import { useState } from "react";
 import VideoPlayPage from "./pages/VideoPlayPage";
+import WatchHistory from "./pages/WatchHistory";
 
 const App = () => {
 
@@ -121,6 +122,19 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <VideoPlayPage />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="video/watched/history"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
+                setSearch={setSearch} />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <WatchHistory />
               </div>
             </ProtectedRoute>
           }

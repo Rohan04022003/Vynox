@@ -96,6 +96,20 @@ const VideoPlayPage = () => {
     return () => clearTimeout(timer);
   }, [params?.id]);
 
+  // yeh watche history create krega.
+  useEffect(() => {
+    const watchedHistoryCreate = async () => {
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/videos/${params?.id}/history`,
+        {},
+        { withCredentials: true }
+      );
+    }
+
+    watchedHistoryCreate();
+
+  }, [params?.id])
+
   const handleLikeVideo = async (videoId: string) => {
     try {
       setVideoLikeLoader(true)

@@ -76,14 +76,14 @@ export const getHistory = asyncHandler(async (req, res) => {
 
   try {
     const watchedHistories = await WatchHistory.aggregate([
-      //  user match kr rhe hai.
+      // User match
       {
         $match: {
           user: new mongoose.Types.ObjectId(userId),
         },
       },
 
-      // recently watched top pe aayega means pehle.
+      // Recent first
       {
         $sort: { lastWatchedAt: -1 },
       },
@@ -122,24 +122,42 @@ export const getHistory = asyncHandler(async (req, res) => {
                 ],
               },
             },
-            {
-              $unwind: "$owner",
-            },
+            { $unwind: "$owner" },
           ],
         },
       },
 
-      //  Flatten video array
+      // Flatten video
+      { $unwind: "$video" },
+
+      // lastWatchedAt ko video ke andar dal rahe hai.
       {
-        $unwind: "$video",
+        $addFields: {
+          "video.lastWatchedAt": "$lastWatchedAt",
+        },
       },
 
-      // Final response shape bata rhe hai yaha pe
+      // Sirf video object rakh rhe hai.
       {
         $project: {
-          _id: 1,
-          lastWatchedAt: 1,
+          _id: 0,
           video: 1,
+        },
+      },
+
+      // Saare videos ko ek array me group kar rhe hai.
+      {
+        $group: {
+          _id: null,
+          videos: { $push: "$video" },
+        },
+      },
+
+      // _id hata diya rhe hai.
+      {
+        $project: {
+          _id: 0,
+          videos: 1,
         },
       },
     ]);

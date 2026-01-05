@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Eye, ThumbsUp } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Clock, Eye, ThumbsUp } from "lucide-react";
 import { formatDuration } from "../utils/videoDuration";
 import { useNavigate } from "react-router-dom";
+import { formatShortTime } from "../utils/timeShortFormater";
 
 type VideoCardProps = {
     video: any;
 };
 
 const VideoCard = ({ video }: VideoCardProps) => {
-    const owner = video.owner?.[0];
+    const owner = video.owner;
     const navigate = useNavigate();
+
 
     return (
         <div
@@ -57,12 +58,17 @@ const VideoCard = ({ video }: VideoCardProps) => {
                 <div className="flex items-center justify-between text-xs text-neutral-500 mt-1">
                     <div className="flex items-center gap-1">
                         <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50"><Eye size={14} className="" /> {video?.views}</span>
-                        <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
+                        {video?.likeCount && <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
                             <ThumbsUp size={14} className="" />
                             {video?.likeCount}
-                        </span>
+                        </span>}
+                        {video?.lastWatchedAt && <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
+                            <Clock size={14} className="" />
+                            {formatShortTime(video?.lastWatchedAt) + " ago"}
+
+                        </span>}
                     </div>
-                    <span>{formatDistanceToNow(new Date(video.createdAt))} ago</span>
+                    <span>{formatShortTime(video.createdAt)} ago</span>
                 </div>
             </div>
         </div>
