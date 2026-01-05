@@ -56,7 +56,7 @@ export const incrementView = asyncHandler(async (req, res) => {
     });
 
     return res
-      .status(200)
+      .status(201)
       .json(new ApiResponse(200, null, "View counted successfully."));
 
       

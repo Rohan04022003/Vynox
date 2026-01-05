@@ -78,7 +78,7 @@ const VideoPlayPage = () => {
           { withCredentials: true }
         );
 
-        if (response.status === 200) {
+        if (response.status === 201) {
           setPlayVideo((prev: any) => {
             if (!prev) return prev;
 
