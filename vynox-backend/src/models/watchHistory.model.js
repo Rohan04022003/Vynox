@@ -1,21 +1,20 @@
 import mongoose from "mongoose";
 
-const videoViewSchema = new mongoose.Schema(
+const watchHistorySchema = new mongoose.Schema(
   {
-    video: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Video",
-      required: true,
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
       required: true,
+      index: true,
     },
-    lastViewCountedAt: {
+    video: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      index: true,
+    },
+    lastWatchedAt: {
       type: Date,
       default: Date.now,
-      required: true,
     },
   },
   { timestamps: true }
@@ -24,10 +23,10 @@ const videoViewSchema = new mongoose.Schema(
 //  Unique constraint ke liye: 1 user + 1 video
 videoViewSchema.index({ video: 1, user: 1 }, { unique: true });
 
-// TTL index: auto delete ho jayega after 2 days
-videoViewSchema.index(
-  { lastViewCountedAt: 1 },
-  { expireAfterSeconds: 60 * 60 * 24 * 2 }
+// TTL index → auto delete ho jayega after 30 days
+watchHistorySchema.index(
+  { lastWatchedAt: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 * 30 } // 30 days
 );
 
-export const VideoView = mongoose.model("VideoView", videoViewSchema);
+export const WatchHistory = mongoose.model("WatchHistory", watchHistorySchema);

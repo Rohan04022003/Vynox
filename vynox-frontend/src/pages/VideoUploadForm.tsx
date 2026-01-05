@@ -54,7 +54,7 @@ const VideoUploadForm = () => {
         if (!thumbnail?.file?.files?.[0] || !videoFile?.file?.files?.[0]) {
             toast.error("Please upload both thumbnail and video.");
             return;
-        } else if(videoSize && videoSize / (1024 * 1024) > 80 ) {
+        } else if (videoSize && videoSize / (1024 * 1024) > 80) {
             toast.error("video should not more than 80MB.");
             return;
         }
@@ -221,7 +221,7 @@ const VideoUploadForm = () => {
                     <div className="flex items-center gap-2 py-3">
                         <label htmlFor="isPublished" className="flex items-center gap-[5px] cursor-pointer">
                             <EarthLock size={18} color="gray" />
-                            <span className="text-sm text-neutral-600">Click here to hide video from all users.</span>
+                            <span className="text-sm text-neutral-600">Click here to private video.</span>
                         </label>
                         <input defaultChecked={false} onChange={(e) => setPublished(e.target.checked)} type="checkbox" name="isPublished" id="isPublished" className="mt-1 accent-neutral-600 cursor-pointer" />
                     </div>

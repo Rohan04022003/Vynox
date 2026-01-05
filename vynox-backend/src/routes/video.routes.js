@@ -40,6 +40,6 @@ router
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
 // yeb view ko inc. karega.
-router.route("/:id/view").post(incrementView);
+router.route("/:videoId/view").post(incrementView);
 
 export default router;
