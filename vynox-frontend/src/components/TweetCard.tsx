@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
-import { Edit2, Heart, MoreVertical } from "lucide-react";
+import { Edit2, Heart, Loader, MoreVertical } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "../context/userContext";
@@ -62,7 +62,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }
                 className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
                     <Heart size={14} />
                     <span className="ml-1 font-medium text-xs flex items-center justify-center">
-                        {loading ? <span className="loader"></span> : tweet?.totalLikes}</span>
+                        {loading ? <Loader size={15} className="animate-spin" /> : tweet?.totalLikes}</span>
                 </button>
                 <span className="text-xs text-neutral-700">{tweet ? formatDistanceToNow(new Date(tweet?.createdAt)) : ""} ago</span>
             </div>

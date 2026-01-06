@@ -4,7 +4,7 @@ import { useState } from "react";
 import vynox from "../../assets/vynox.png";
 import google_logo from "../../assets/google.webp";
 import axios from "axios";
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -237,7 +237,7 @@ const Register = () => {
           type="submit"
           className="w-full mt-4 px-6 py-2 bg-[#005fb8] text-white rounded-md font-semibold hover:bg-[#006dd2] duration-300 cursor-pointer"
         >
-          {loading ? <span className="loader"></span> : "Register"}
+          {loading ? <Loader size={18} className="animate-spin" /> : "Register"}
         </button>
 
         {/* Google Button */}

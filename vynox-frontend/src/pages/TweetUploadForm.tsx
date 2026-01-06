@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ImageIcon, X } from "lucide-react";
+import { ImageIcon, Loader, X } from "lucide-react";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom"
@@ -134,8 +134,8 @@ const TweetUploadForm = () => {
                             />
                         </div>
                     </div>
-                    <button className="px-4 py-2 mt-5 w-full rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
-                        {loading ? <span className="loader"></span> : "Publish Tweet"}
+                    <button className="flex ice justify-center px-4 py-2 mt-5 w-full rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
+                        {loading ? <Loader size={24} className="animate-spin"/> : "Publish Tweet"}
                     </button>
                 </div>
             </form>

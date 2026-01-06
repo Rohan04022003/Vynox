@@ -331,7 +331,7 @@ const VideoPlayPage = () => {
           <div className="flex items-center gap-3">
             <button onClick={() => params?.id && handleLikeVideo(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
               <ThumbsUp size={16} className="" />
-              {videoLikeLoader ? <span className="loader"></span> : <span className="text-base">{playVideo.likeCount}</span>}
+              {videoLikeLoader ? <Loader size={16} className="animate-spin" /> : <span className="text-base">{playVideo.likeCount}</span>}
             </button>
             <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><Eye size={16} className="" /> {playVideo.views}</span>
             <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><MessageSquare size={16} className="" />{totalComments}</span>
@@ -377,7 +377,7 @@ const VideoPlayPage = () => {
             placeholder="Leave a Comment."
             className=" resize-none w-full px-3 py-1 border text-base border-neutral-400 rounded-md outline-none" />
           <button disabled={addComment.length < 1} onClick={() => params?.id && handleAddComment(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
-            {commentAddLoader ? <span className="loader"></span> : "Comment"}
+            {commentAddLoader ? <Loader size={14} className="animate-spin" /> : "Comment"}
           </button>
         </div>
 
@@ -424,10 +424,8 @@ const VideoPlayPage = () => {
                       @{c.owner?.username}
                     </p>
                     <span className="text-neutral-500 text-xs">
-                      {c.createdAt &&
-                        formatDistanceToNow(new Date(c.createdAt), {
-                          addSuffix: true,
-                        })}
+                      {c.createdAt && formatDistanceToNow(c.createdAt)
+                      }
                     </span>
                   </div>
                 </div>
@@ -456,10 +454,10 @@ const VideoPlayPage = () => {
                       }`}
                   >
                     <ThumbsUp size={14} />
-                    {CommentLikeLoader === c._id ? <span className="loader"></span> : c.totalLikes}
+                    {CommentLikeLoader === c._id ? <Loader size={14} className="animate-spin" /> : c.totalLikes}
                   </button>
                   <button onClick={() => handleEditCommentClick(c._id, c.content)} className={`text-orange-700 text-xs items-center gap-1 px-2 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id && !(editComment.id === c._id) ? "flex" : "hidden"}`}><Edit size={14} /></button>
-                  <button onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoader === c._id ? <span className="loader"></span> : <Trash size={14} />}</button>
+                  <button onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoader === c._id ? <Loader size={14} className="animate-spin" /> : <Trash size={14} />}</button>
                 </div>
               </div>
 
@@ -484,7 +482,7 @@ const VideoPlayPage = () => {
                     disabled={editComment.content === c.content ? true : false}
                     className={`px-4 py-1.5 text-sm font-medium text-green-800 bg-green-200 rounded-md transition ${editComment.id === c._id ? "flex" : "hidden"} ${editComment.id === c.content ? "cursor-not-allowed" : "cursor-pointer hover:bg-green-700 hover:text-white"}`}>
                     {
-                      commentUpdateLoader ? <span className="loader"></span> : "Update"
+                      commentUpdateLoader ? <Loader size={20} className="animate-spin" /> : "Update"
                     }
                   </button>
 

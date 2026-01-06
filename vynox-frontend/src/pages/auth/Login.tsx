@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import vynox from "../../assets/vynox.png"
 import google_logo from "../../assets/google.webp"
 import { useState } from "react"
-import { Eye, EyeClosed } from "lucide-react"
+import { Eye, EyeClosed, Loader } from "lucide-react"
 import axios from "axios"
 import { useUser } from "../../context/userContext"
 
@@ -125,7 +125,7 @@ const Login = () => {
           disabled={loading}
           className="w-full flex items-center justify-center px-6 py-2 bg-[#005fb8] text-white rounded-sm font-semibold hover:bg-[#006dd2] duration-300"
         >
-          {loading ? <span className="loader"></span> : "Login"}
+          {loading ? <Loader size={24} className="animate-spin" /> : "Login"}
         </button>
 
         {/* Google login (disabled for now) */}

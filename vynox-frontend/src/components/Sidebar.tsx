@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart } from "lucide-react";
+import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart, Loader } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
 import axios from "axios";
@@ -64,7 +64,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
                 >
                     {
                         loading ?
-                            <span className="loader"></span> :
+                            <Loader size={18} className="animate-spin" /> :
                             <><LogOut size={18} />
                                 {isOpen ? <span>Logout</span> : ""}</>
                     }

@@ -15,31 +15,6 @@
   font-family: var(--font-sans);
 }
 
-/* it is loader css */
-
-.loader {
-  width: 12px;
-  aspect-ratio: 1;
-  --c: no-repeat linear-gradient(#4580E9 calc(50% - 10px),#ABBBE9 0 calc(50% + 10px),#4580E9 0);
-  background: 
-    var(--c) 0%   100%,
-    var(--c) 50%  100%,
-    var(--c) 100% 100%;
-  background-size: 20% calc(200% + 20px);
-  animation:l4 1s infinite linear;
-}
-
-@keyframes l4 {
-    33%  {background-position: 0% 50%,50% 100%,100% 100%}
-    50%  {background-position: 0%  0%,50%  50%,100% 100%}
-    66%  {background-position: 0%  0%,50%   0%,100%  50%}
-    100% {background-position: 0%  0%,50%   0%,100%   0%}
-}
-
-.animate-slideLeft {
-  animation: slideLeft 0.5s ease-out;
-}
-
 .hide-scrollbar {
   overflow-x: scroll;
   scrollbar-width: none; /* Firefox */
