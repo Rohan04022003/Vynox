@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { EarthLock, Image as ImageIcon, X } from "lucide-react";
+import { EarthLock, Image as ImageIcon, Loader, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -226,8 +226,8 @@ const VideoUploadForm = () => {
                         <input defaultChecked={false} onChange={(e) => setPublished(e.target.checked)} type="checkbox" name="isPublished" id="isPublished" className="mt-1 accent-neutral-600 cursor-pointer" />
                     </div>
 
-                    <button className="px-4 py-2 rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
-                        {loading ? <span className="loader"></span> : "Publish Video"}
+                    <button className="w-full flex items-center justify-center px-4 py-2 rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
+                        {loading ? <Loader size={24} className="animate-spin"/> : "Publish Video"}
                     </button>
                 </div>
             </form>

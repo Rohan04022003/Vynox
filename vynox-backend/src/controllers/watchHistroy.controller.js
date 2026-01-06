@@ -134,6 +134,7 @@ export const getHistory = asyncHandler(async (req, res) => {
       {
         $addFields: {
           "video.lastWatchedAt": "$lastWatchedAt",
+          "video.watchHistoryId": "$_id",
         },
       },
 

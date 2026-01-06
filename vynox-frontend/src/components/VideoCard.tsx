@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Clock, Eye, ThumbsUp } from "lucide-react";
+import { Clock, Eye, Loader, ThumbsUp, Trash2 } from "lucide-react";
 import { formatDuration } from "../utils/videoDuration";
 import { useNavigate } from "react-router-dom";
 import { formatShortTime } from "../utils/timeShortFormater";
 
 type VideoCardProps = {
     video: any;
+    handleDeleteHistory: any;
+    videoHistoryDeleteLoading: string
 };
 
-const VideoCard = ({ video }: VideoCardProps) => {
+const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: VideoCardProps) => {
     const owner = video.owner;
     const navigate = useNavigate();
 
@@ -45,13 +47,24 @@ const VideoCard = ({ video }: VideoCardProps) => {
                 <h3 className="text-sm font-semibold line-clamp-2">{video?.title}</h3>
 
                 {/* Owner Info */}
-                <div className="flex items-center gap-2 mt-1">
-                    <img
-                        src={owner?.avatar?.url}
-                        alt={owner?.username}
-                        className="w-7 h-7 rounded-full object-cover border border-gray-200"
-                    />
-                    <span className="text-xs text-neutral-600">{owner?.username}</span>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 mt-1">
+                        <img
+                            src={owner?.avatar?.url}
+                            alt={owner?.username}
+                            className="w-7 h-7 rounded-full object-cover border border-gray-200"
+                        />
+                        <span className="text-xs text-neutral-600">{owner?.username}</span>
+                    </div>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation(); // parent onClick tak nahi jayega
+                            handleDeleteHistory(video?.watchHistoryId); // delete logic
+                        }}
+                        className={`${video?.watchHistoryId ? "flex" : "hidden"} cursor-pointer bg-red-50 p-[.3rem] rounded-md`}
+                    >
+                        {videoHistoryDeleteLoading === video?.watchHistoryId ? <Loader size={14} className="text-red-600 animate-spin" /> : <Trash2 size={14} className="text-red-700" />}
+                    </button>
                 </div>
 
                 {/* Views / Likes / Time */}

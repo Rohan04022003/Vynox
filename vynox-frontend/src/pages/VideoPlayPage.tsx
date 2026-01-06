@@ -562,9 +562,9 @@ const VideoPlayPage = () => {
 
                 {/* CHANNEL */}
                 <div className="flex items-center gap-2 rounded-full mb-1">
-                  <img src={v?.owner[0]?.avatar?.url} alt="avatar" className="w-7 h-7 rounded-full" />
+                  <img src={v?.owner?.avatar?.url} alt="avatar" className="w-7 h-7 rounded-full" />
                   <p className="text-neutral-700 text-sm font-medium">
-                    {v.owner?.[0]?.fullName}
+                    {v.owner?.fullName}
                   </p>
                 </div>
 
