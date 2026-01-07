@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import { formatDistanceToNow } from "date-fns";
-import { Edit2, Heart, Loader, MoreVertical } from "lucide-react";
+import { BellRing, Edit2, Heart, Loader, MoreVertical } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "../context/userContext";
 import type { TweetCardProps } from "../types";
+import { formatShortTime } from "../utils/timeShortFormater";
 
-const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }) => {
-    const owner = tweet?.owner?.[0];
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, handleSubscribe, subscribeLoader }) => {
+    const owner = Array.isArray(tweet?.owner) ? tweet?.owner[0] : tweet?.owner;
     const [loading, setLoading] = useState<boolean>(false)
     const { user } = useUser();
 
-
-    async function handleLike(id: string) {
-        console.log(id)
+    const handleLike = async (id: string) => {
         try {
             setLoading(true);
             const response = await axios.post(
@@ -34,7 +32,6 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }
         }
     }
 
-
     return (
         <div className='border border-neutral-300 shadow-lg w-full p-2 rounded-lg'>
             <div className='flex items-center justify-between gap-2 mb-2'>
@@ -45,7 +42,9 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
-                    <button className={`px-3 py-1 rounded-full text-xs font-semibold text-pink-700 bg-pink-50 cursor-pointer ${user?._id === owner?._id ? "hidden" : "flex"}`}>Subscribe</button>
+                    <button
+                        onClick={() => owner?._id && handleSubscribe(owner?._id)}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold text-red-700 bg-red-50 cursor-pointer ${user?._id === owner?._id ? "hidden" : "flex"}`}>{subscribeLoader === owner?._id ? <Loader size={16} className="animate-spin" /> : tweet?.isSubscribed ? <BellRing size={16} /> : "Subscribe"}</button>
                     <MoreVertical size={18} className="text-neutral-600" />
                 </div>
             </div>
@@ -57,14 +56,14 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate }
             </div>
 
             <div className="flex items-center justify-between mt-3 w-full">
-                <button 
-                onClick={() => { if (tweet?._id) handleLike(tweet?._id) }} 
-                className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
+                <button
+                    onClick={() => { if (tweet?._id) handleLike(tweet?._id) }}
+                    className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
                     <Heart size={14} />
                     <span className="ml-1 font-medium text-xs flex items-center justify-center">
-                        {loading ? <Loader size={15} className="animate-spin" /> : tweet?.totalLikes}</span>
+                        {loading ? <Loader size={16} className="animate-spin" /> : tweet?.totalLikes}</span>
                 </button>
-                <span className="text-xs text-neutral-700">{tweet ? formatDistanceToNow(new Date(tweet?.createdAt)) : ""} ago</span>
+                <span className="text-xs text-neutral-700">{tweet && formatShortTime(tweet?.createdAt)} ago</span>
             </div>
         </div>
     );

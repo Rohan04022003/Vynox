@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import TweetCardSkeleton from "../components/skeleton/TweetCardSkeleton";
@@ -7,6 +8,8 @@ import TweetCard from "../components/TweetCard";
 import FilterBar from "../components/FilterBar";
 import { useTweetsContext } from "../context/TweetsContext";
 import { ArrowDown } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
@@ -14,6 +17,8 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
     const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(10);
+    const [subscribeLoader, setSubscribeLoader] = useState<string>("")
+
 
     const openTweet = (tweet: Tweet) => {
         setSelectedTweet(tweet);
@@ -40,6 +45,43 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
     useEffect(() => {
         fetchTweets("", "desc", 10, 1);
     }, []);
+
+    // channel subscription function 
+    const handleSubscribe = async (channelId: string) => {
+        try {
+            setSubscribeLoader(channelId)
+            let isSubscribed = true
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/subscriptions/c/${channelId}`, {}, { withCredentials: true })
+
+            if (response.status === 200) {
+                setTweets((prev: Tweet[]) => {
+
+                    if (!Array.isArray(prev)) return prev;
+
+                    return prev.map((t: any) => {
+                        if (t.owner._id !== channelId) return t;
+                        isSubscribed = t.isSubscribed;
+                        return {
+                            ...t,
+                            isSubscribed: !isSubscribed,
+                        };
+                    })
+                })
+                if (!isSubscribed) {
+                    toast.success("Subscribed")
+                } else {
+                    toast.success("Unsubscribed")
+
+                }
+            }
+
+        } catch (error) {
+            toast.error("Subscribe toggle failed")
+            console.log("Subscribe toggle failed:", error);
+        } finally {
+            setSubscribeLoader("")
+        }
+    }
 
     return (
         <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
@@ -78,6 +120,8 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
                         tweet={tweet}
                         onOpen={openTweet}
                         handleLikeUpdate={handleLikeUpdate}
+                        handleSubscribe={handleSubscribe}
+                        subscribeLoader={subscribeLoader}
                     />
                 ))}
 

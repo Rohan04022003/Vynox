@@ -89,7 +89,10 @@ const WatchHistory = () => {
   return (
     <div className="w-full bg-gray-50 p-4">
       <div className="flex w-full items-center justify-between mb-5">
-        <h2 className="font-semibold text-neutral-700">Watch History</h2>
+        <div>
+          <h2 className="font-semibold text-neutral-700">Watch History</h2>
+          <p className="text-xs text-neutral-500 font-medium">History will automatically remove after 30 days.</p>
+        </div>
         <button
           onClick={handleClearAllHistory}
           className={`${videos.length > 0 ? "flex" : "hidden"} bg-neutral-200 px-3 py-1 rounded-md text-neutral-700 text-[12px] font-medium cursor-pointer`}>{clearAllHistoryLoading ? <Loader size={17} className="text-neutral-700 animate-spin" /> : "Clear All"}</button>

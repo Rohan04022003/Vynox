@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowDown, ThumbsUp, BellRing, Dot, Edit, Eye, MessageSquare, Trash, Loader } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
 import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
 import CommentsSkeleton from "../components/skeleton/CommentsSkeleton";
 import { useUser } from "../context/userContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { formatShortTime } from "../utils/timeShortFormater";
 
 const VideoPlayPage = () => {
 
@@ -164,11 +164,14 @@ const VideoPlayPage = () => {
         )
         )
         setEditComment({ id: "", content: "" });
+        toast.success("Comment was Updated.")
+
       } else {
         setEditComment({ id: "", content: "" });
       }
 
     } catch (error) {
+      toast.error("Comment Updation Failed.")
       console.log("Comment Update Failed: ", error)
       setEditComment({ id: "", content: "" });
     } finally {
@@ -200,7 +203,7 @@ const VideoPlayPage = () => {
 
     } catch (error) {
       console.log("Comment add Failed: ", error)
-      toast.error("Comment added unsuccessfull.")
+      toast.error("Comment added Failed.")
     } finally {
       setCommentAddLoader(false)
     }
@@ -224,7 +227,7 @@ const VideoPlayPage = () => {
             if (comment._id !== commentId) return comment;
 
             const isLiked = comment.isLikedByCurrentUser;
-            console.log({ ...comment })
+
             return {
               ...comment,
               totalLikes: isLiked
@@ -257,6 +260,8 @@ const VideoPlayPage = () => {
             ? prev.filter((c) => c._id !== commentId)
             : prev
         );
+
+        toast.success("Comment was Deleted.")
       }
 
     } catch (error) {
@@ -281,7 +286,7 @@ const VideoPlayPage = () => {
   const handleSubscribe = async (channelId: string) => {
     try {
       setSubscribeLoader(true)
-
+      let isSubscribed = true
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/subscriptions/c/${channelId}`, {}, { withCredentials: true })
 
       if (response.status === 200) {
@@ -289,7 +294,7 @@ const VideoPlayPage = () => {
 
           if (!prev) return;
 
-          const isSubscribed = prev.isSubscribed;
+          isSubscribed = prev.isSubscribed;
 
           return {
             ...prev,
@@ -298,9 +303,17 @@ const VideoPlayPage = () => {
 
           };
         })
+
+        if (!isSubscribed) {
+          toast.success("Subscribed")
+        } else {
+          toast.success("Unsubscribed")
+        }
+
       }
 
     } catch (error) {
+      toast.error("Subscribe toggle failed")
       console.log("Subscribe toggle failed:", error);
     } finally {
       setSubscribeLoader(false)
@@ -337,7 +350,7 @@ const VideoPlayPage = () => {
             <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><MessageSquare size={16} className="" />{totalComments}</span>
           </div>
           <span className="bg-neutral-100 px-3 py-2 rounded-full font-semibold">{playVideo?.createdAt &&
-            formatDistanceToNow(new Date(playVideo.createdAt), { addSuffix: true })}</span>
+            formatShortTime(playVideo.createdAt)} ago</span>
         </div>
 
         {/* Owner Section */}
@@ -424,8 +437,8 @@ const VideoPlayPage = () => {
                       @{c.owner?.username}
                     </p>
                     <span className="text-neutral-500 text-xs">
-                      {c.createdAt && formatDistanceToNow(c.createdAt)
-                      }
+                      {c.createdAt && formatShortTime(c.createdAt)
+                      } ago
                     </span>
                   </div>
                 </div>
@@ -570,7 +583,7 @@ const VideoPlayPage = () => {
                 <p className="flex items-center text-neutral-400 text-xs">
                   {v.views} views <Dot size={20} />{" "}
                   {v.createdAt &&
-                    formatDistanceToNow(new Date(v.createdAt), { addSuffix: true })}
+                    formatShortTime(v.createdAt)} ago
                 </p>
               </div>
 

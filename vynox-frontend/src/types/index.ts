@@ -66,6 +66,7 @@ export interface Tweet {
   isEdited?: boolean;
   isLiked?: boolean;
   totalLikes?: number;
+  isSubscribed?: boolean;
 }
 
 export interface TweetsContextType {
@@ -85,6 +86,9 @@ export interface TweetCardProps {
   tweet: Tweet;
   onOpen: (tweet: Tweet) => void;
   handleLikeUpdate: (id: string) => void;
+  handleSubscribe: (id: string) => void;
+  subscribeLoader: string
+  
 }
 
 export interface TweetDetailProps {

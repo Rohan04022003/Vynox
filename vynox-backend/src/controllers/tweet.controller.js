@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import { Tweet } from "../models/tweet.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -93,27 +93,64 @@ const getAllTweets = asyncHandler(async (req, res) => {
     : null;
 
   const result = await Tweet.aggregate([
-    { $match: filter },
+    // Filter tweets
+    {
+      $match: filter,
+    },
 
+    // Facet for pagination + total count
     {
       $facet: {
         totalCount: [{ $count: "totalTweets" }],
 
         tweets: [
+          // Sort + Pagination
           { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
           { $skip: skip },
           { $limit: limitNum },
 
+          // Owner lookup
           {
             $lookup: {
               from: "users",
               localField: "owner",
               foreignField: "_id",
               as: "owner",
-              pipeline: [{ $project: { username: 1, avatar: 1, fullName: 1 } }],
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    avatar: 1,
+                    fullName: 1,
+                  },
+                },
+              ],
             },
           },
 
+          // Flatten owner
+          { $unwind: "$owner" },
+
+          // Subscriptions lookup (who subscribed this owner)
+          {
+            $lookup: {
+              from: "subscriptions",
+              localField: "owner._id",
+              foreignField: "channel",
+              as: "subscribers",
+            },
+          },
+
+          // isSubscribed (CORRECT logic)
+          {
+            $addFields: {
+              isSubscribed: {
+                $in: [ new mongoose.Types.ObjectId(userId), "$subscribers.subscriber"]
+              },
+            },
+          },
+
+          // Likes lookup
           {
             $lookup: {
               from: "likes",
@@ -123,6 +160,7 @@ const getAllTweets = asyncHandler(async (req, res) => {
             },
           },
 
+          // Likes count + isLiked
           {
             $addFields: {
               totalLikes: { $size: "$likes" },
@@ -143,6 +181,14 @@ const getAllTweets = asyncHandler(async (req, res) => {
                   0,
                 ],
               },
+            },
+          },
+
+          // Cleanup
+          {
+            $project: {
+              subscribers: 0,
+              likes: 0,
             },
           },
         ],

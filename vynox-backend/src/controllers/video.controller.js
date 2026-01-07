@@ -224,19 +224,22 @@ const getVideoById = asyncHandler(async (req, res) => {
         $addFields: {
           totalSubscribers: { $size: "$subscribers" },
           isSubscribed: {
-            $in: [req.user._id, "$subscribers.subscriber"],
+            $in: [
+              new mongoose.Types.ObjectId(req.user._id),
+              "$subscribers.subscriber",
+            ],
           },
           totalLikes: { $size: "$likes" },
           isLiked: {
-            $in: [req.user._id, "$likes.likedBy"],
+            $in: [new mongoose.Types.ObjectId(req.user._id), "$likes.likedBy"],
           },
         },
       },
 
       {
         $project: {
-          subscribers: 0,
-          likes: 0,
+          subscribers: 0, // remove subs object actual json response se.
+          likes: 0, // remove likes obj.
         },
       },
     ]);
