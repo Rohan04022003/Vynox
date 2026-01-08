@@ -6,8 +6,8 @@ import { formatShortTime } from "../utils/timeShortFormater";
 
 type VideoCardProps = {
     video: any;
-    handleDeleteHistory: any;
-    videoHistoryDeleteLoading: string
+    handleDeleteHistory?: any;
+    videoHistoryDeleteLoading?: string
 };
 
 const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: VideoCardProps) => {
@@ -71,9 +71,9 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
                 <div className="flex items-center justify-between text-xs text-neutral-500 mt-1">
                     <div className="flex items-center gap-1">
                         <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50"><Eye size={14} className="" /> {video?.views}</span>
-                        {!video?.lastWatchedAt && <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
+                        {!video?.lastWatchedAt && <span className={`flex items-center gap-1 px-2 py-[2px] rounded-full ${video?.likeCount || video?.likeCount === 0 ? "bg-neutral-50" : "bg-green-50 text-green-700"}`}>
                             <ThumbsUp size={14} className="" />
-                            {video?.likeCount}
+                            {video?.likeCount || video?.likeCount === 0 ? video?.likeCount : "Liked"}
                         </span>}
                         {video?.lastWatchedAt && <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
                             <Clock size={14} className="" />

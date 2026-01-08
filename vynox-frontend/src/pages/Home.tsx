@@ -15,7 +15,7 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
 
   // initial load
   useEffect(() => {
-    if(search) return;
+    if (search) return;
     fetchVideos("", "desc", 20, 1);
   }, []);
 
@@ -71,7 +71,7 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
 
         </div>
       )}
-      {/* for No tweets found */}
+      {/* for No video found */}
       {!loading && videos.length === 0 && (
         <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
           <span>No videos found.</span> <span>Try changing the filter or search keyword.</span>

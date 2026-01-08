@@ -114,10 +114,10 @@ export interface tweetsProps {
 };
 
 export interface FilterBarProps {
-  search: string;
-  setSearch: (v: string) => void;
-  tagSearch: string;
-  setTagSearch: (v: string) => void;
+  search?: string;
+  setSearch?: (v: string) => void;
+  tagSearch?: string;
+  setTagSearch?: (v: string) => void;
   sortType: string;
   setSortType: (v: string) => void;
   limit: number;

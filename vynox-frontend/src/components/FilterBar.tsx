@@ -29,6 +29,8 @@ const FilterBar = ({ search,
     const [isOpen, setIsOpen] = useState<boolean>(false) // filter div ko show hide ke liye.
     const location = useLocation(); // iska use path match ke liye kiya hai.
 
+    const isLikedRoute = location.pathname === "/video/user/liked-videos"; // check kr rhe hai liked video path ka location
+
     useEffect(() => { // yeh tab chalega jb filter me koi changes aayega aur ha path ke according function call hoga.
 
         if (isFirstRender.current) {
@@ -51,28 +53,28 @@ const FilterBar = ({ search,
         if (location.pathname === "/tweets") {
 
             if (tag === tagSearch) {
-                setTagSearch("");
-                setSearch("");
+                setTagSearch?.("");
+                setSearch?.("");
                 setTweets?.([]);
                 await fetchTweets?.("", sortType, limit, 1);
                 return;
             }
 
-            setTagSearch(tag);
-            setSearch("");
+            setTagSearch?.(tag);
+            setSearch?.("");
             setTweets?.([]);
             await fetchTweets?.(tag.toLowerCase(), sortType, limit, 1);
         } else {
             if (tag === tagSearch) {
-                setTagSearch("");
-                setSearch("");
+                setTagSearch?.("");
+                setSearch?.("");
                 setVideos?.([]);
                 await fetchVideos?.("", sortType, limit, 1);
                 return;
             }
 
-            setTagSearch(tag);
-            setSearch("");
+            setTagSearch?.(tag);
+            setSearch?.("");
             setVideos?.([]);
             await fetchVideos?.(tag.toLowerCase(), sortType, limit, 1);
 
@@ -80,21 +82,29 @@ const FilterBar = ({ search,
     };
 
     return (
-        <div className="w-full flex items-center justify-between p-3 bg-white shadow rounded-xl mb-4 relative overflow-hidden">
-            <div className="flex items-center gap-3 hide-scrollbar mr-5">
-                {popularTags.map((tag, index) => (
-                    <button
-                        onClick={() => handleTagSearch(tag)}
-                        key={index}
-                        className={`px-3 py-1 rounded-md text-xs cursor-pointer ${tag === tagSearch ? "bg-neutral-700 text-neutral-100" : "bg-neutral-200 text-neutral-700"
-                            }`}
-                    >
-                        {tag}
-                    </button>
-                ))}
-            </div>
-            <button onClick={() => setIsOpen(prev => !prev)} className="w-12 h-9 rounded-md flex items-center justify-center bg-neutral-200 cursor-pointer">
-                <FilterIcon className="text-neutral-700" />
+        <div className={`w-full flex items-center justify-between ${isLikedRoute ? "mb-5" : "p-3 bg-white shadow rounded-xl mb-4 relative overflow-hidden"}`}>
+            {
+                !isLikedRoute ? <div className={`flex items-center gap-3 hide-scrollbar mr-5`}>
+                    {popularTags.map((tag, index) => (
+                        <button
+                            onClick={() => handleTagSearch(tag)}
+                            key={index}
+                            className={`px-3 py-1 rounded-md text-xs cursor-pointer ${tag === tagSearch ? "bg-neutral-700 text-neutral-100" : "bg-neutral-200 text-neutral-700"
+                                }`}
+                        >
+                            {tag}
+                        </button>
+                    ))}
+                </div> :
+                    <div className="heading">
+                        <h2 className="font-semibold text-neutral-700">Liked Videos</h2>
+                        <p className="text-xs text-neutral-500 font-medium">
+                            Videos you’ve liked, all in one place
+                        </p>
+                    </div>
+            }
+            <button onClick={() => setIsOpen(prev => !prev)} className="w-10 h-7 rounded-md flex items-center justify-center bg-neutral-200 cursor-pointer">
+                <FilterIcon size={16} className="text-neutral-700" />
             </button>
             <div className={`w-60 z-10 flex-col fixed bg-neutral-200 shadow-2xl shadow-black p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"}`}>
                 {/* Sort */}

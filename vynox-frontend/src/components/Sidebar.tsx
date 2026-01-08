@@ -36,7 +36,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `flex items-center gap-3 px-5 py-2 cursor-pointer text-sm font-medium 
+                `flex items-center gap-3 px-5 py-2 cursor-pointer text-xs font-medium 
         ${isActive ? "bg-neutral-200 text-neutral-700" : "text-neutral-600 hover:bg-neutral-100"}`
             }
         >
@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
                 <MenuItem to="/" icon={Home} label={`${isOpen ? "Home" : ""}`} />
                 <MenuItem to="/tweets" icon={Image} label={`${isOpen ? "Tweets" : ""}`} />
                 <MenuItem to="/video/watched/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
-                <MenuItem to="/liked-videos" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
+                <MenuItem to="/video/user/liked-videos" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
                 <MenuItem to="/liked-Tweets" icon={Heart} label={`${isOpen ? "Liked Tweets" : ""}`} />
                 <MenuItem to="/library" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />
             </div>
@@ -60,7 +60,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
                 <MenuItem to="/settings" icon={Settings} label={`${isOpen ? "Settings" : ""}`} />
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-5 py-2 rounded-lg cursor-pointer text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+                    className="flex items-center gap-3 px-5 py-2 rounded-lg cursor-pointer text-xs font-medium text-neutral-600 hover:bg-neutral-100"
                 >
                     {
                         loading ?

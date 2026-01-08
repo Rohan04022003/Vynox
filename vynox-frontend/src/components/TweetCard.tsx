@@ -48,7 +48,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
                     <MoreVertical size={18} className="text-neutral-600" />
                 </div>
             </div>
-            <p className="text-sm mb-3 text-neutral-600">{tweet?.content && tweet.content.length > 30 ? tweet.content.slice(0, 30) + "..." : tweet?.content}</p>
+            <p className="text-xs mb-3 text-neutral-600">{tweet?.content && tweet.content.length > 30 ? tweet.content.slice(0, 30) + "..." : tweet?.content}</p>
             <div
                 onClick={() => tweet && onOpen(tweet)}
                 className="w-full h-32">

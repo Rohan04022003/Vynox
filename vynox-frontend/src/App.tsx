@@ -13,6 +13,7 @@ import TweetUploadForm from "./pages/TweetUploadForm";
 import { useState } from "react";
 import VideoPlayPage from "./pages/VideoPlayPage";
 import WatchHistory from "./pages/WatchHistory";
+import LikedVideos from "./pages/LikedVideos";
 
 const App = () => {
 
@@ -135,6 +136,19 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <WatchHistory />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="video/user/liked-videos"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
+                setSearch={setSearch} />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <LikedVideos />
               </div>
             </ProtectedRoute>
           }

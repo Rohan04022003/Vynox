@@ -157,7 +157,7 @@ const likedVideos = asyncHandler(async (req, res) => {
                 ],
               },
             },
-            { $unwind: "$video.owner" },
+            { $unwind: "$owner" },
 
             // owner ko video ke inside me rakhne ke liye
             {
