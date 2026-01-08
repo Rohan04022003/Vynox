@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  commentedVideos,
   deleteVideo,
   getAllVideos,
   getVideoById,
@@ -11,7 +12,12 @@ import {
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { incrementView } from "../controllers/view.controller.js";
-import { clearHistory, createHistory, deleteHistory, getHistory } from "../controllers/watchHistroy.controller.js";
+import {
+  clearHistory,
+  createHistory,
+  deleteHistory,
+  getHistory,
+} from "../controllers/watchHistroy.controller.js";
 
 const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
@@ -44,13 +50,16 @@ router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 // fetch video liked by user.
 router.route("/user/liked").get(likedVideos);
 
+// fetch video commented by user.
+router.route("/user/commented").get(commentedVideos);
+
 // yeh view ko inc. karega.
 router.route("/:videoId/view").post(incrementView);
 
 // yaha se history ko manage kr rhe hai.
-router.route("/:videoId/history").post(createHistory)
-router.route("/delete-history/:watchedHistoryId").delete(deleteHistory)
-router.route("/watched/clear-history").delete(clearHistory)
-router.route("/watched/history").get(getHistory)
+router.route("/:videoId/history").post(createHistory);
+router.route("/delete-history/:watchedHistoryId").delete(deleteHistory);
+router.route("/watched/clear-history").delete(clearHistory);
+router.route("/watched/history").get(getHistory);
 
 export default router;
