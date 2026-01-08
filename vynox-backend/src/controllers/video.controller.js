@@ -91,6 +91,113 @@ const getAllVideos = asyncHandler(async (req, res) => {
   }
 });
 
+const likedVideos = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, sortType } = req.query;
+  const userId = req.user._id;
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  try {
+    const results = await Like.aggregate([
+      {
+        $match: {
+          likedBy: new mongoose.Types.ObjectId(userId),
+          video: { $exists: true, $ne: null }, // yeh video id present hai ya nahi check krega uske baad hi video like mana jayega.
+        },
+      },
+
+      // facet ka use pagination ke liye use kiya hai.
+      {
+        $facet: {
+          totalCount: [{ $count: "totalVideos" }],
+
+          videos: [
+            { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+            { $skip: skip },
+            { $limit: Number(limit) },
+
+            // yaha pe get video kr rhe hai.
+            {
+              $lookup: {
+                from: "videos",
+                localField: "video",
+                foreignField: "_id",
+                as: "video",
+                pipeline: [
+                  {
+                    $project: {
+                      title: 1,
+                      thumbnail: 1,
+                      duration: 1,
+                      views: 1,
+                      owner: 1,
+                      createdAt: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            { $unwind: "$video" },
+
+            // owner ko get kar rha hai same getAllVideos jaisa.
+            {
+              $lookup: {
+                from: "users",
+                localField: "video.owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      username: 1,
+                      fullName: 1,
+                      avatar: 1,
+                    },
+                  },
+                ],
+              },
+            },
+            { $unwind: "$video.owner" },
+
+            // owner ko video ke inside me rakhne ke liye
+            {
+              $addFields: {
+                "video.owner": "$owner",
+              },
+            },
+
+            // video ko root object bana rhe hai.
+            {
+              $replaceRoot: {
+                newRoot: "$video",
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    const totalVideos = results[0]?.totalCount[0]?.totalVideos || 0;
+    const videos = results[0]?.videos || [];
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalVideos,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(totalVideos / limit),
+          videos,
+        },
+        "Liked Videos fetched successfully."
+      )
+    );
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong while fetching liked videos");
+  }
+});
+
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description, isPublished } = req.body;
 
@@ -425,4 +532,5 @@ export {
   updateVideo,
   deleteVideo,
   togglePublishStatus,
+  likedVideos,
 };

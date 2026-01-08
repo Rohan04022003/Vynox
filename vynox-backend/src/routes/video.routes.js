@@ -3,6 +3,7 @@ import {
   deleteVideo,
   getAllVideos,
   getVideoById,
+  likedVideos,
   publishAVideo,
   togglePublishStatus,
   updateVideo,
@@ -39,6 +40,9 @@ router
   .patch(upload.single("thumbnail"), updateVideo);
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+
+// fetch video liked by user.
+router.route("/user/liked").get(likedVideos);
 
 // yeh view ko inc. karega.
 router.route("/:videoId/view").post(incrementView);
