@@ -8,7 +8,6 @@ import {
 } from "react";
 import axios from "axios";
 import type { Video, VideosContextType } from "../types";
-import { useLocation } from "react-router-dom";
 
 
 const VideosContext = createContext<VideosContextType | undefined>(undefined);
@@ -26,45 +25,36 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   const [commentPage, setCommentPage] = useState(1);
   const [totalComments, setTotalComments] = useState(0)
 
-  // path identify krne ke liye
-  const location = useLocation();
-
-  const fetchVideos = async (
+  const fetchVideos = async ( // videos ko fetch karega yeh method.
     str = "",
     sortType = "desc",
     limit = 10,
     newPage?: number
   ) => {
-    const pageToFetch = newPage ?? page;
+    const pageToFetch = newPage ?? page; // yeh hamare current page number ko set krega.
 
     try {
       setLoading(true);
 
-      const isLikedRoute =
-        location.pathname === "/video/user/liked-videos";
-
       const res = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}${isLikedRoute ? "/videos/user/liked" : "/videos"
-        }`,
+        `${import.meta.env.VITE_BASE_URL}/videos`, // yeh videos ka acutal url hai.
         {
-          params: isLikedRoute
-            ? { sortType, limit, page: pageToFetch }
-            : { query: str, sortType, limit, page: pageToFetch },
+          params: { query: str, sortType, limit, page: pageToFetch }, // query hai videos ko fetch krne ke liye.
           withCredentials: true,
         }
       );
 
-      const fetchedVideos: Video[] = res.data?.data?.videos ?? [];
+      const fetchedVideos: Video[] = res.data?.data?.videos ?? []; // yaha pe fetchedVideos me woh filterd aur fetched videos aayenge.
 
-      if (newPage !== undefined) {
-        setVideos(fetchedVideos);
-        setPage(pageToFetch + 1);
+      if (newPage) {
+        setVideos(fetchedVideos); // videos ko setVideos me set kiya hai.
+        setPage(2);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
       } else {
-        setVideos(prev => [...prev, ...fetchedVideos]);
+        setVideos(prev => [...prev, ...fetchedVideos]); // next page ke content ko aad kiya hai.
         setPage(pageToFetch + 1);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
       }
-
-      setHasMoreVideos(fetchedVideos.length === limit);
     } catch (error) {
       console.error("Error fetching videos:", error);
     } finally {
@@ -72,6 +62,41 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchLikedVideos = async ( // liked videos ko fetch karega yeh method.
+    sortType = "desc",
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage ?? page; // yeh hamare current page number ko set krega.
+
+    try {
+      setLoading(true);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/videos/user/liked`,
+        {
+          params:{ sortType, limit, page: pageToFetch },
+          withCredentials: true,
+        }
+      );
+
+      const fetchedVideos: Video[] = res.data?.data?.videos ?? []; // yaha pe fetchedVideos me woh filterd aur fetched videos aayenge.
+
+      if (newPage) {
+        setVideos(fetchedVideos); // videos ko setVideos me set kiya hai.
+        setPage(2);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      } else {
+        setVideos(prev => [...prev, ...fetchedVideos]); // next page ke content ko aad kiya hai.
+        setPage(pageToFetch + 1);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      }
+    } catch (error) {
+      console.error("Error fetching liked videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // current playing video ko fetch krega.
   const fetchCurrentPlayingVideo = async (videoId?: string) => {
@@ -157,7 +182,8 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         fetchCurrentPlayingVideoComments,
         commentPage,
         setCommentPage,
-        totalComments
+        totalComments,
+        fetchLikedVideos
       }}
     >
       {children}

@@ -63,7 +63,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
                     <span className="ml-1 font-medium text-xs flex items-center justify-center">
                         {loading ? <Loader size={16} className="animate-spin" /> : tweet?.totalLikes}</span>
                 </button>
-                <span className="text-xs text-neutral-700">{tweet && formatShortTime(tweet?.createdAt)} ago</span>
+                <span className="bg-neutral-100 text-neutral-700 px-2 py-1 text-[11px] rounded-full">{tweet && formatShortTime(tweet?.createdAt)} ago</span>
             </div>
         </div>
     );

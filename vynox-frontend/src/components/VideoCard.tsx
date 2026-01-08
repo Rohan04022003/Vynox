@@ -81,7 +81,7 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
 
                         </span>}
                     </div>
-                    <span>{formatShortTime(video.createdAt)} ago</span>
+                    <span className="bg-neutral-50 px-2 py-[.2rem] text-[11px] rounded-full">{formatShortTime(video.createdAt)} ago</span>
                 </div>
             </div>
         </div>

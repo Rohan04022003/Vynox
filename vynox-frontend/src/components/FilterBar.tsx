@@ -15,7 +15,8 @@ const FilterBar = ({ search,
     setTweets,
     fetchTweets,
     setVideos,
-    fetchVideos
+    fetchVideos,
+    fetchLikedVideos
 }: FilterBarProps) => {
 
     const popularTags: string[] = [
@@ -43,7 +44,12 @@ const FilterBar = ({ search,
             fetchTweets?.(search || tagSearch || "", sortType, limit, 1)
             setIsOpen(false)
         } else {
-            fetchVideos?.(search || tagSearch || "", sortType, limit, 1)
+            if (isLikedRoute) {
+                fetchLikedVideos?.(sortType, limit, 1)
+            } else {
+
+                fetchVideos?.(search || tagSearch || "", sortType, limit, 1)
+            }
             setIsOpen(false)
         }
 

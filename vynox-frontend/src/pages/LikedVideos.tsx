@@ -10,11 +10,11 @@ import { ArrowDown } from "lucide-react";
 const LikedVideos = () => {
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(20);
-    const { videos, setVideos, loading, fetchVideos, hasMoreVideos } = useVideosContext();
+    const { videos, setVideos, loading, fetchLikedVideos, hasMoreVideos } = useVideosContext();
 
     // initial load
     useEffect(() => {
-        fetchVideos("", sortType, limit, 1);
+        fetchLikedVideos(sortType, limit, 1);
     }, [sortType, limit]);
 
     return (
@@ -25,7 +25,7 @@ const LikedVideos = () => {
                 setSortType={setSortType}
                 limit={limit}
                 setLimit={setLimit}
-                fetchVideos={fetchVideos}
+                fetchLikedVideos={fetchLikedVideos}
                 setVideos={setVideos}
             />
             {loading ? (
@@ -76,7 +76,7 @@ const LikedVideos = () => {
                 <div className="flex justify-center mt-5 mb-10">
                     <button
                         className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
-                        onClick={() => fetchVideos("", sortType, limit)}
+                        onClick={() => fetchLikedVideos(sortType, limit)}
                     >
                         Load More Videos <ArrowDown size={15} className="mt-1" />
                     </button>

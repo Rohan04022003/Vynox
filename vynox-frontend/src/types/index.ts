@@ -41,6 +41,11 @@ export interface VideosContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchLikedVideos: (
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
   fetchCurrentPlayingVideoComments?: (videoId?: string, limit?: number, newPage?: number) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
@@ -125,5 +130,6 @@ export interface FilterBarProps {
   fetchTweets?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
   setTweets?: React.Dispatch<React.SetStateAction<Tweet[]>>;
   fetchVideos?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
+  fetchLikedVideos?: (sortType: string, limit: number, page?: number) => Promise<void>;
   setVideos?: React.Dispatch<React.SetStateAction<Video[]>>;
 };
