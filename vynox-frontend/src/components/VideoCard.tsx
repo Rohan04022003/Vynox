@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Clock, Eye, Loader, ThumbsUp, Trash2 } from "lucide-react";
+import { Clock, Eye, Loader, MessageSquareIcon, ThumbsUp, Trash2 } from "lucide-react";
 import { formatDuration } from "../utils/videoDuration";
 import { useNavigate } from "react-router-dom";
 import { formatShortTime } from "../utils/timeShortFormater";
@@ -72,8 +72,8 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
                     <div className="flex items-center gap-1">
                         <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50"><Eye size={14} className="" /> {video?.views}</span>
                         {!video?.lastWatchedAt && <span className={`flex items-center gap-1 px-2 py-[2px] rounded-full ${video?.likeCount || video?.likeCount === 0 ? "bg-neutral-50" : "bg-green-50 text-green-700"}`}>
-                            <ThumbsUp size={14} className="" />
-                            {video?.likeCount || video?.likeCount === 0 ? video?.likeCount : "Liked"}
+                            {video?.userComment?.content ? <MessageSquareIcon size={14} /> : <ThumbsUp size={14} className="" />}
+                            {video?.likeCount || video?.likeCount === 0 ? video?.likeCount : video?.userComment?.content ? formatShortTime(video?.userComment?.createdAt) : "Liked"}
                         </span>}
                         {video?.lastWatchedAt && <span className="flex items-center gap-1 px-2 py-[2px] rounded-full bg-neutral-50">
                             <Clock size={14} className="" />
@@ -82,6 +82,10 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
                         </span>}
                     </div>
                     <span className="bg-neutral-50 px-2 py-[.2rem] text-[11px] rounded-full">{formatShortTime(video.createdAt)} ago</span>
+                </div>
+                <div className="comment">
+                    <h4 className="text-xs text-neutral-700 py-1 border-b border-neutral-200">Comment</h4>
+                    <p className="text-xs pt-1 text-neutral-600">{video?.userComment?.content.slice(0, 40) + "..."}</p>
                 </div>
             </div>
         </div>

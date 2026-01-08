@@ -60,7 +60,7 @@ const FilterBar = ({
                             key={tag}
                             onClick={() => handleTagClick(tag)}
                             className={`px-3 py-1 rounded-md text-xs cursor-pointer ${tag === activeTag
-                                    ? "bg-neutral-700 text-neutral-100"
+                                    ? "bg-sky-700 text-neutral-100"
                                     : "bg-neutral-200 text-neutral-700"
                                 }`}
                         >

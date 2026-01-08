@@ -46,6 +46,11 @@ export interface VideosContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchCommentedVideos: (
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   fetchCurrentPlayingVideo?: (videoId?: string) => Promise<void>
   fetchCurrentPlayingVideoComments?: (videoId?: string, limit?: number, newPage?: number) => Promise<void>
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;

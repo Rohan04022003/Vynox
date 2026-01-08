@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
             to={to}
             className={({ isActive }) =>
                 `flex items-center gap-3 px-5 py-2 cursor-pointer text-xs font-medium 
-        ${isActive ? "bg-neutral-200 text-neutral-700" : "text-neutral-600 hover:bg-neutral-100"}`
+        ${isActive ? "bg-neutral-200 text-sky-700" : "text-neutral-600 hover:bg-neutral-100"}`
             }
         >
             <Icon size={18} />
@@ -51,9 +51,9 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
                 <MenuItem to="/" icon={Home} label={`${isOpen ? "Home" : ""}`} />
                 <MenuItem to="/tweets" icon={Image} label={`${isOpen ? "Tweets" : ""}`} />
                 <MenuItem to="/video/watched/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
-                <MenuItem to="/video/user/liked-videos" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
+                <MenuItem to="/videos/liked-by-you" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
                 <MenuItem to="/liked-Tweets" icon={Heart} label={`${isOpen ? "Liked Tweets" : ""}`} />
-                <MenuItem to="/library" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />
+                <MenuItem to="/videos/commented-by-you" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />
             </div>
 
             <div className="flex flex-col border-t border-neutral-200 pt-3">

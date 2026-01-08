@@ -14,6 +14,7 @@ import { useState } from "react";
 import VideoPlayPage from "./pages/VideoPlayPage";
 import WatchHistory from "./pages/WatchHistory";
 import LikedVideos from "./pages/LikedVideos";
+import CommentedVideos from "./pages/CommentedVideos";
 
 const App = () => {
 
@@ -141,7 +142,7 @@ const App = () => {
           }
         />
         <Route
-          path="video/user/liked-videos"
+          path="/videos/liked-by-you"
           element={
             <ProtectedRoute>
               <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
@@ -149,6 +150,19 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <LikedVideos />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="videos/commented-by-you"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
+                setSearch={setSearch} />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <CommentedVideos />
               </div>
             </ProtectedRoute>
           }

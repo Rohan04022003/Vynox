@@ -8,14 +8,14 @@ import { useVideosContext } from "../context/VideosContext";
 import { ArrowDown } from "lucide-react";
 import vynox from "../assets/vynox.png"
 
-const LikedVideos = () => {
+const CommentedVideos = () => {
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(20);
-    const { videos, loading, fetchLikedVideos, hasMoreVideos } = useVideosContext();
+    const { videos, loading, hasMoreVideos, fetchCommentedVideos } = useVideosContext();
 
     // initial load
     useEffect(() => {
-        fetchLikedVideos(sortType, limit, 1);
+        fetchCommentedVideos(sortType, limit, 1);
     }, []);
 
     return (
@@ -28,11 +28,11 @@ const LikedVideos = () => {
                 setLimit={setLimit}
                 showTags={false}
                 title={{
-                    heading: "Liked Videos",
-                    subHeading: "Videos you’ve liked, all in one place"
+                    heading: "Commented Videos",
+                    subHeading: "Videos you’ve Commented, all in one place"
                 }}
                 onFilterChange={({ sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like sortType, limit
-                    fetchLikedVideos(sortType, limit, 1);
+                    fetchCommentedVideos(sortType, limit, 1);
                 }}
             />
             {loading ? (
@@ -76,7 +76,7 @@ const LikedVideos = () => {
             {!loading && videos.length === 0 && (
                 <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
                     <img src={vynox} alt="vynox-logo" className="w-14 opacity-50" />
-                    <span>No Liked Videos Found.</span>
+                    <span>No Commented Videos Found.</span>
                 </div>
             )}
             {/* Load More Button */}
@@ -84,7 +84,7 @@ const LikedVideos = () => {
                 <div className="flex justify-center mt-5 mb-10">
                     <button
                         className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
-                        onClick={() => fetchLikedVideos(sortType, limit)}
+                        onClick={() => fetchCommentedVideos(sortType, limit)}
                     >
                         Load More Videos <ArrowDown size={15} className="mt-1" />
                     </button>
@@ -94,4 +94,4 @@ const LikedVideos = () => {
     );
 };
 
-export default LikedVideos;
+export default CommentedVideos;
