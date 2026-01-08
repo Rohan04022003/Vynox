@@ -93,7 +93,7 @@ const FilterBar = ({
 
             {/* Dropdown */}
             <div
-                className={`w-60 z-10 flex-col fixed bg-neutral-200 shadow-2xl shadow-black p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"
+                className={`w-60 z-10 flex-col fixed bg-neutral-200 shadow-sm shadow-black-200 p-3 right-5 top-36 rounded-md ${isOpen ? "flex" : "hidden"
                     }`}
             >
                 {/* Sort */}
