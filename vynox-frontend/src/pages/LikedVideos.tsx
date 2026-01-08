@@ -6,6 +6,7 @@ import VideoCardSkeleton from "../components/skeleton/VideoCardSkeleton";
 import FilterBar from "../components/FilterBar";
 import { useVideosContext } from "../context/VideosContext";
 import { ArrowDown } from "lucide-react";
+import vynox from "../assets/vynox.png"
 
 const LikedVideos = () => {
     const [sortType, setSortType] = useState<string>("desc");
@@ -74,7 +75,8 @@ const LikedVideos = () => {
             {/* for No video found */}
             {!loading && videos.length === 0 && (
                 <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
-                    <span>No videos found.</span> <span>Try changing the filter or search keyword.</span>
+                    <img src={vynox} alt="vynox-logo" className="w-14 opacity-50" />
+                    <span>No Liked Videos Found.</span>
                 </div>
             )}
             {/* Load More Button */}
