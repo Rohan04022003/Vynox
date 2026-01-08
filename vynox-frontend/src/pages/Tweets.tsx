@@ -11,7 +11,7 @@ import { ArrowDown } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => {
+const Tweets = ({ search, tagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
@@ -88,16 +88,14 @@ const Tweets = ({ search, setSearch, tagSearch, setTagSearch }: tweetsProps) => 
 
             {/* FilterBar */}
             <FilterBar
-                search={search}
-                setSearch={setSearch}
-                tagSearch={tagSearch}
-                setTagSearch={setTagSearch}
                 sortType={sortType}
                 setSortType={setSortType}
                 limit={limit}
                 setLimit={setLimit}
-                fetchTweets={fetchTweets}
-                setTweets={setTweets}
+                showTags
+                onFilterChange={({ tag, sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like tag, sortType, limit
+                    fetchTweets(tag || "", sortType, limit, 1);
+                }}
             />
 
 

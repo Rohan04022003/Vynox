@@ -10,7 +10,7 @@ import { ArrowDown } from "lucide-react";
 const LikedVideos = () => {
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(20);
-    const { videos, setVideos, loading, fetchLikedVideos, hasMoreVideos } = useVideosContext();
+    const { videos, loading, fetchLikedVideos, hasMoreVideos } = useVideosContext();
 
     // initial load
     useEffect(() => {
@@ -25,8 +25,14 @@ const LikedVideos = () => {
                 setSortType={setSortType}
                 limit={limit}
                 setLimit={setLimit}
-                fetchLikedVideos={fetchLikedVideos}
-                setVideos={setVideos}
+                showTags={false}
+                title={{
+                    heading: "Liked Videos",
+                    subHeading: "Videos you’ve liked, all in one place"
+                }}
+                onFilterChange={({ sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like sortType, limit
+                    fetchLikedVideos(sortType, limit, 1);
+                }}
             />
             {loading ? (
                 <div

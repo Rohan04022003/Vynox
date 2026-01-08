@@ -75,7 +75,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/videos/user/liked`,
         {
-          params:{ sortType, limit, page: pageToFetch },
+          params: { sortType, limit, page: pageToFetch },
           withCredentials: true,
         }
       );
@@ -120,8 +120,6 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
 
   }
-
-
 
   // yeh current playing video ke comments ko fetch krega.
   const fetchCurrentPlayingVideoComments = async (

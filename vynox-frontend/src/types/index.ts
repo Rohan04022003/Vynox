@@ -118,18 +118,22 @@ export interface tweetsProps {
   tagSearch: string;
 };
 
-export interface FilterBarProps {
+export type FilterPayload = {
   search?: string;
-  setSearch?: (v: string) => void;
-  tagSearch?: string;
-  setTagSearch?: (v: string) => void;
+  tag?: string;
+  sortType: string;
+  limit: number;
+};
+
+export type FilterBarProps = {
   sortType: string;
   setSortType: (v: string) => void;
   limit: number;
   setLimit: (v: number) => void;
-  fetchTweets?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
-  setTweets?: React.Dispatch<React.SetStateAction<Tweet[]>>;
-  fetchVideos?: (q: string, sortType: string, limit: number, page?: number) => Promise<void>;
-  fetchLikedVideos?: (sortType: string, limit: number, page?: number) => Promise<void>;
-  setVideos?: React.Dispatch<React.SetStateAction<Video[]>>;
+  onFilterChange: (payload: FilterPayload) => void;
+  showTags?: boolean;
+  title?: {
+    heading: string;
+    subHeading?: string;
+  };
 };

@@ -8,10 +8,10 @@ import type { tweetsProps as videosProps } from "../types";
 import { useVideosContext } from "../context/VideosContext";
 import { ArrowDown } from "lucide-react";
 
-const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
+const Home = ({ search, tagSearch }: videosProps) => {
   const [sortType, setSortType] = useState<string>("desc");
   const [limit, setLimit] = useState<number>(20);
-  const { videos, setVideos, loading, fetchVideos, hasMoreVideos } = useVideosContext();
+  const { videos, loading, fetchVideos, hasMoreVideos } = useVideosContext();
 
   // initial load
   useEffect(() => {
@@ -23,16 +23,14 @@ const Home = ({ search, setSearch, tagSearch, setTagSearch }: videosProps) => {
     <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
       {/* FilterBar */}
       <FilterBar
-        search={search}
-        setSearch={setSearch}
-        tagSearch={tagSearch}
-        setTagSearch={setTagSearch}
         sortType={sortType}
         setSortType={setSortType}
         limit={limit}
         setLimit={setLimit}
-        fetchVideos={fetchVideos}
-        setVideos={setVideos}
+        showTags
+        onFilterChange={({ tag, sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like tag, sortType, limit
+          fetchVideos(tag || "", sortType, limit, 1);
+        }}
       />
       {loading ? (
         <div
