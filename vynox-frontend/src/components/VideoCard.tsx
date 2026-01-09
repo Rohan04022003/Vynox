@@ -83,10 +83,10 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
                     </div>
                     <span className="bg-neutral-50 px-2 py-[.2rem] text-[11px] rounded-full">{formatShortTime(video.createdAt)} ago</span>
                 </div>
-                <div className="comment">
+                {video?.userComment?.content.length > 0 && <div className="comment">
                     <h4 className="text-xs text-neutral-700 py-1 border-b border-neutral-200">Comment</h4>
                     <p className="text-xs pt-1 text-neutral-600">{video?.userComment?.content.slice(0, 40) + "..."}</p>
-                </div>
+                </div>}
             </div>
         </div>
     );
