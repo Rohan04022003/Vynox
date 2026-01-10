@@ -134,7 +134,9 @@ const TweetUploadForm = () => {
                             />
                         </div>
                     </div>
-                    <button className="flex ice justify-center px-4 py-2 mt-5 w-full rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
+                    <button
+                    disabled={loading}
+                    className="flex ice justify-center px-4 py-2 mt-5 w-full rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition cursor-pointer">
                         {loading ? <Loader size={24} className="animate-spin"/> : "Publish Tweet"}
                     </button>
                 </div>

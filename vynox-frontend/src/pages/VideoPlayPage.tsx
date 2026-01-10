@@ -53,8 +53,8 @@ const VideoPlayPage = () => {
     content: string;
   }>({ id: "", content: "" });
   const [commentUpdateLoader, setCommentUpdateLoader] = useState<boolean>(false)
-  const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
-  const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
+  const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
+  const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
 
   // yeh isSubscribe and totalSubs. ke initial value set krega.
   useEffect(() => {
@@ -178,7 +178,7 @@ const VideoPlayPage = () => {
 
   const handleLikeComment = async (commentId: string) => {
     try {
-      setCommentLikeLoader(commentId);
+      setCommentLikeLoaderId(commentId);
 
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/likes/toggle/c/${commentId}`,
@@ -211,13 +211,13 @@ const VideoPlayPage = () => {
     } catch (error) {
       console.log("Comment like failed:", error);
     } finally {
-      setCommentLikeLoader("");
+      setCommentLikeLoaderId("");
     }
   };
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      setCommentDeleteLoader(commentId);
+      setCommentDeleteLoaderId(commentId);
 
       const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`, { withCredentials: true })
 
@@ -235,7 +235,7 @@ const VideoPlayPage = () => {
       console.log("Comment deletion Failed: ", error)
       toast.error("Comment delete unsuccessfull.")
     } finally {
-      setCommentDeleteLoader("")
+      setCommentDeleteLoaderId("")
     }
   }
 
@@ -271,7 +271,9 @@ const VideoPlayPage = () => {
         {/* Views / Likes / Time */}
         <div className="flex items-center justify-between text-xs text-neutral-600 mt-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => params?.id && handleLikeVideo?.(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
+            <button
+              disabled={videoLikeLoader}
+              onClick={() => params?.id && handleLikeVideo?.(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
               <ThumbsUp size={16} className="" />
               {videoLikeLoader ? <Loader size={16} className="animate-spin" /> : <span className="text-base">{playVideo.likeCount}</span>}
             </button>
@@ -319,7 +321,7 @@ const VideoPlayPage = () => {
             maxLength={500}
             placeholder="Leave a Comment."
             className=" resize-none w-full px-3 py-1 border text-base border-neutral-400 rounded-md outline-none" />
-          <button disabled={addComment.length < 1} onClick={() => params?.id && handleAddComment?.(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
+          <button disabled={addComment.length < 1 || commentAddLoader} onClick={() => params?.id && handleAddComment?.(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
             {commentAddLoader ? <Loader size={14} className="animate-spin" /> : "Comment"}
           </button>
         </div>
@@ -390,6 +392,7 @@ const VideoPlayPage = () => {
 
                   {/* video Like Button */}
                   <button
+                    disabled={CommentLikeLoaderId === c._id}
                     onClick={() => handleLikeComment(c._id)}
                     className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${c.isLikedByCurrentUser
                       ? "bg-green-600 text-white"
@@ -397,10 +400,12 @@ const VideoPlayPage = () => {
                       }`}
                   >
                     <ThumbsUp size={14} />
-                    {CommentLikeLoader === c._id ? <Loader size={14} className="animate-spin" /> : c.totalLikes}
+                    {CommentLikeLoaderId === c._id ? <Loader size={14} className="animate-spin" /> : c.totalLikes}
                   </button>
                   <button onClick={() => handleEditCommentClick(c._id, c.content)} className={`text-orange-700 text-xs items-center gap-1 px-2 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id && !(editComment.id === c._id) ? "flex" : "hidden"}`}><Edit size={14} /></button>
-                  <button onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoader === c._id ? <Loader size={14} className="animate-spin" /> : <Trash size={14} />}</button>
+                  <button
+                    disabled={commentDeleteLoaderId === c._id}
+                    onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoaderId === c._id ? <Loader size={14} className="animate-spin" /> : <Trash size={14} />}</button>
                 </div>
               </div>
 
@@ -422,7 +427,7 @@ const VideoPlayPage = () => {
                 <div className="flex gap-2 justify-end">
                   <button
                     onClick={() => handleCommentUpdate(c?._id)}
-                    disabled={editComment.content === c.content ? true : false}
+                    disabled={editComment.content === c.content || commentUpdateLoader ? true : false}
                     className={`px-4 py-1.5 text-sm font-medium text-green-800 bg-green-200 rounded-md transition ${editComment.id === c._id ? "flex" : "hidden"} ${editComment.id === c.content ? "cursor-not-allowed" : "cursor-pointer hover:bg-green-700 hover:text-white"}`}>
                     {
                       commentUpdateLoader ? <Loader size={20} className="animate-spin" /> : "Update"

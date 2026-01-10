@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import type { TweetDetailProps } from "../types";
 
 const TweetDetail: React.FC<TweetDetailProps> = ({ tweet, onClose }) => {
-    const owner = tweet?.owner?.[0];
+    const owner = tweet?.owner;
 
     return (
         <div className="

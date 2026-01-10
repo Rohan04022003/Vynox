@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart, Loader } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+import { useUser } from "../context/userContext";
 import axios from "axios";
 import { useState } from "react";
 
@@ -59,6 +59,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
             <div className="flex flex-col border-t border-neutral-200 pt-3">
                 <MenuItem to="/settings" icon={Settings} label={`${isOpen ? "Settings" : ""}`} />
                 <button
+                    disabled={loading}
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-5 py-2 rounded-lg cursor-pointer text-xs font-medium text-neutral-600 hover:bg-neutral-100"
                 >

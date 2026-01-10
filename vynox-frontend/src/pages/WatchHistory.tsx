@@ -11,7 +11,7 @@ const WatchHistory = () => {
 
   const [videos, setVideos] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(false)
-  const [videoHistoryDeleteLoading, setVideoHistoryDeleteLoading] = useState<string>("")
+  const [videoHistoryDeleteLoadingId, setVideoHistoryDeleteLoadingId] = useState<string>("")
   const [clearAllHistoryLoading, setClearAllHistoryLoading] = useState<boolean>(false)
 
   // initial load
@@ -41,7 +41,7 @@ const WatchHistory = () => {
   // delete history one by one
   const handleDeleteHistory = async (watchedHistoryId: string) => {
     try {
-      setVideoHistoryDeleteLoading(watchedHistoryId);
+      setVideoHistoryDeleteLoadingId(watchedHistoryId);
 
       const response = await axios.delete(
         `${import.meta.env.VITE_BASE_URL}/videos/delete-history/${watchedHistoryId}`,
@@ -59,7 +59,7 @@ const WatchHistory = () => {
       toast.error("Failed during deleting video history");
       console.error("Failed during deleting video history:", error);
     } finally {
-      setVideoHistoryDeleteLoading("");
+      setVideoHistoryDeleteLoadingId("");
     }
   };
 
@@ -94,6 +94,7 @@ const WatchHistory = () => {
           <p className="text-xs text-neutral-500 font-medium">History will automatically remove after 30 days.</p>
         </div>
         <button
+          disabled={clearAllHistoryLoading}
           onClick={handleClearAllHistory}
           className={`${videos.length > 0 ? "flex" : "hidden"} bg-neutral-200 px-3 py-1 rounded-md text-neutral-700 text-[12px] font-medium cursor-pointer`}>{clearAllHistoryLoading ? <Loader size={17} className="text-neutral-700 animate-spin" /> : "Clear All"}</button>
       </div>
@@ -129,7 +130,7 @@ const WatchHistory = () => {
         >
 
           {videos.map((vid: any) => (
-            <VideoCard key={vid._id} video={vid} handleDeleteHistory={handleDeleteHistory} videoHistoryDeleteLoading={videoHistoryDeleteLoading} />
+            <VideoCard key={vid._id} video={vid} handleDeleteHistory={handleDeleteHistory} videoHistoryDeleteLoadingId={videoHistoryDeleteLoadingId} />
           ))}
 
         </div>

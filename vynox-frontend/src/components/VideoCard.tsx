@@ -7,10 +7,10 @@ import { formatShortTime } from "../utils/timeShortFormater";
 type VideoCardProps = {
     video: any;
     handleDeleteHistory?: any;
-    videoHistoryDeleteLoading?: string
+    videoHistoryDeleteLoadingId?: string
 };
 
-const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: VideoCardProps) => {
+const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoadingId }: VideoCardProps) => {
     const owner = video.owner;
     const navigate = useNavigate();
 
@@ -57,13 +57,14 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoading }: Vi
                         <span className="text-xs text-neutral-600">{owner?.username}</span>
                     </div>
                     <button
+                    disabled={videoHistoryDeleteLoadingId === video?.watchHistoryId}
                         onClick={(e) => {
                             e.stopPropagation(); // parent onClick tak nahi jayega
                             handleDeleteHistory(video?.watchHistoryId); // delete logic
                         }}
                         className={`${video?.watchHistoryId ? "flex" : "hidden"} cursor-pointer bg-red-50 p-[.3rem] rounded-md`}
                     >
-                        {videoHistoryDeleteLoading === video?.watchHistoryId ? <Loader size={14} className="text-red-600 animate-spin" /> : <Trash2 size={14} className="text-red-700" />}
+                        {videoHistoryDeleteLoadingId === video?.watchHistoryId ? <Loader size={14} className="text-red-600 animate-spin" /> : <Trash2 size={14} className="text-red-700" />}
                     </button>
                 </div>
 

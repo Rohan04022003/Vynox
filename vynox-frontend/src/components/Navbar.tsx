@@ -3,7 +3,7 @@
 import { Menu, Mic, Plus, Search } from "lucide-react"
 import vynox from "../assets/vynox.png"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useUser } from "../context/UserContext"
+import { useUser } from "../context/userContext"
 import type { isOpenSideNavProps } from "../types"
 import { useTweetsContext } from "../context/TweetsContext"
 import { useEffect, useRef } from "react"
