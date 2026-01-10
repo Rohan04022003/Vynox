@@ -8,6 +8,7 @@ import {
 } from "react";
 import axios from "axios";
 import type { Video, VideosContextType } from "../types";
+import toast from "react-hot-toast";
 
 
 const VideosContext = createContext<VideosContextType | undefined>(undefined);
@@ -24,6 +25,11 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   const [hasMoreComments, setHasMoreCommets] = useState(true); // iska use hamne aur content next page pe hai ya nahi uske liye use kiya hai.
   const [commentPage, setCommentPage] = useState(1);
   const [totalComments, setTotalComments] = useState(0)
+  const [videoLikeLoader, setVideoLikeLoader] = useState<boolean>(false)
+  // comments part starts here.
+  const [commentAddLoader, setCommentAddLoader] = useState<boolean>(false)
+  const [addComment, setAddComment] = useState<string>("");
+
 
   const fetchVideos = async ( // videos ko fetch karega yeh method.
     str = "",
@@ -194,7 +200,64 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleLikeVideo = async (videoId: string) => {
+    try {
+      setVideoLikeLoader(true)
 
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
+
+      if (response.status === 200) {
+        setPlayVideo((prev: any) => {
+
+          if (!prev) return;
+
+          const isLiked = prev.isLiked;
+
+          return {
+            ...prev,
+            likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1, // agar isLiked true hai toh 1 kam nahi to 1 jyada.
+            isLiked: !isLiked,
+          };
+        })
+      }
+
+    } catch (error) {
+      console.log("Video like Failed: ", error)
+    } finally {
+      setVideoLikeLoader(false)
+    }
+  }
+
+  // comment part starts here.
+  const handleAddComment = async (videoId: string) => {
+    try {
+      setCommentAddLoader(true);
+
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/comments/${videoId}`,
+        {
+          content: addComment
+        },
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.status === 200) {
+        await fetchCurrentPlayingVideoComments?.(videoId, 1, 10);
+        setAddComment("")
+        toast.success("Comment added.")
+      } else {
+        setAddComment("")
+        toast.error("Comment added unsuccessfull.")
+      }
+
+    } catch (error) {
+      console.log("Comment add Failed: ", error)
+      toast.error("Comment added Failed.")
+    } finally {
+      setCommentAddLoader(false)
+    }
+  }
 
   return (
     <VideosContext.Provider
@@ -218,7 +281,14 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         setCommentPage,
         totalComments,
         fetchLikedVideos,
-        fetchCommentedVideos
+        fetchCommentedVideos,
+        handleLikeVideo,
+        videoLikeLoader,
+        // comments part
+        handleAddComment,
+        addComment,
+        setAddComment,
+        commentAddLoader
       }}
     >
       {children}

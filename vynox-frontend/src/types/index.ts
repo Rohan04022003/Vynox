@@ -58,6 +58,13 @@ export interface VideosContextType {
   commentPage: number
   setCommentPage: React.Dispatch<React.SetStateAction<number>>;
   totalComments: number
+  handleLikeVideo?: (videoId: string) => Promise<void>
+  videoLikeLoader: boolean
+  // comment part
+  handleAddComment?: (videoId: string) => Promise<void>
+  commentAddLoader: boolean
+  addComment: string;
+  setAddComment: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // tweetTypes

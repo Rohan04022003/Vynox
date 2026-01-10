@@ -33,7 +33,14 @@ const VideoPlayPage = () => {
     fetchCurrentPlayingVideoComments,
     commentPage,
     setCommentPage,
-    totalComments
+    totalComments,
+    videoLikeLoader,
+    handleLikeVideo,
+    // comment part
+    handleAddComment,
+    addComment,
+    setAddComment,
+    commentAddLoader
   } = useVideosContext();
 
   const params = useParams();
@@ -43,9 +50,6 @@ const VideoPlayPage = () => {
     content: string;
   }>({ id: "", content: "" });
   const [commentUpdateLoader, setCommentUpdateLoader] = useState<boolean>(false)
-  const [addComment, setAddComment] = useState<string>("");
-  const [commentAddLoader, setCommentAddLoader] = useState<boolean>(false)
-  const [videoLikeLoader, setVideoLikeLoader] = useState<boolean>(false)
   const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
   const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
   const [subscribeLoader, setSubscribeLoader] = useState<boolean>(false)
@@ -110,34 +114,6 @@ const VideoPlayPage = () => {
 
   }, [params?.id])
 
-  const handleLikeVideo = async (videoId: string) => {
-    try {
-      setVideoLikeLoader(true)
-
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/likes/toggle/v/${videoId}`, {}, { withCredentials: true })
-
-      if (response.status === 200) {
-        setPlayVideo((prev: any) => {
-
-          if (!prev) return;
-
-          const isLiked = prev.isLiked;
-
-          return {
-            ...prev,
-            likeCount: isLiked ? prev.likeCount - 1 : prev.likeCount + 1, // agar isLiked true hai toh 1 kam nahi to 1 jyada.
-            isLiked: !isLiked,
-          };
-        })
-      }
-
-    } catch (error) {
-      console.log("Video like Failed: ", error)
-    } finally {
-      setVideoLikeLoader(false)
-    }
-  }
-
   // yaha se comments ki logic start hota hai like CRUD.
   const handleCommentUpdate = async (commentId: string) => {
     try {
@@ -176,36 +152,6 @@ const VideoPlayPage = () => {
       setEditComment({ id: "", content: "" });
     } finally {
       setCommentUpdateLoader(false)
-    }
-  }
-
-  const handleAddComment = async (videoId: string) => {
-    try {
-      setCommentAddLoader(true);
-
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/comments/${videoId}`,
-        {
-          content: addComment
-        },
-        {
-          withCredentials: true
-        }
-      )
-
-      if (response.status === 200) {
-        await fetchCurrentPlayingVideoComments?.(videoId, 1, limit);
-        setAddComment("")
-        toast.success("Comment added.")
-      } else {
-        setAddComment("")
-        toast.error("Comment added unsuccessfull.")
-      }
-
-    } catch (error) {
-      console.log("Comment add Failed: ", error)
-      toast.error("Comment added Failed.")
-    } finally {
-      setCommentAddLoader(false)
     }
   }
 
@@ -342,7 +288,7 @@ const VideoPlayPage = () => {
         {/* Views / Likes / Time */}
         <div className="flex items-center justify-between text-xs text-neutral-600 mt-3">
           <div className="flex items-center gap-3">
-            <button onClick={() => params?.id && handleLikeVideo(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
+            <button onClick={() => params?.id && handleLikeVideo?.(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isLiked ? "bg-green-600 text-white" : "bg-green-100 text-green-800"} cursor-pointer`}>
               <ThumbsUp size={16} className="" />
               {videoLikeLoader ? <Loader size={16} className="animate-spin" /> : <span className="text-base">{playVideo.likeCount}</span>}
             </button>
@@ -389,7 +335,7 @@ const VideoPlayPage = () => {
             maxLength={500}
             placeholder="Leave a Comment."
             className=" resize-none w-full px-3 py-1 border text-base border-neutral-400 rounded-md outline-none" />
-          <button disabled={addComment.length < 1} onClick={() => params?.id && handleAddComment(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
+          <button disabled={addComment.length < 1} onClick={() => params?.id && handleAddComment?.(params?.id)} className="absolute bottom-1 right-1 px-2 py-1 flex items-center gap-1 rounded-sm bg-green-200 text-xs text-green-800 cursor-pointer">
             {commentAddLoader ? <Loader size={14} className="animate-spin" /> : "Comment"}
           </button>
         </div>
