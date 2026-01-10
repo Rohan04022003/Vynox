@@ -7,7 +7,7 @@ import { useUser } from "../context/userContext";
 import type { TweetCardProps } from "../types";
 import { formatShortTime } from "../utils/timeShortFormater";
 
-const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, handleSubscribe, subscribeLoader }) => {
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, handleSubscribe, subscribeLoaderId, subscribeDetails }) => {
     const owner = Array.isArray(tweet?.owner) ? tweet?.owner[0] : tweet?.owner;
     const [loading, setLoading] = useState<boolean>(false)
     const { user } = useUser();
@@ -32,6 +32,13 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
         }
     }
 
+    const channelId = tweet?.owner?._id;
+    let isSubscribed = false
+    if (channelId) {
+        isSubscribed =
+            subscribeDetails[channelId]?.isSubscribed ?? tweet?.isSubscribed;
+    }
+
     return (
         <div className='border border-neutral-300 shadow-lg w-full p-2 rounded-lg'>
             <div className='flex items-center justify-between gap-2 mb-2'>
@@ -43,8 +50,20 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
                 </div>
                 <div className="flex items-center gap-1">
                     <button
-                        onClick={() => owner?._id && handleSubscribe(owner?._id)}
-                        className={`px-3 py-1 rounded-full text-xs font-semibold text-red-700 bg-red-50 cursor-pointer ${user?._id === owner?._id ? "hidden" : "flex"}`}>{subscribeLoader === owner?._id ? <Loader size={16} className="animate-spin" /> : tweet?.isSubscribed ? <BellRing size={16} /> : "Subscribe"}</button>
+                        disabled={subscribeLoaderId === channelId}
+                        onClick={() => tweet.owner?._id && handleSubscribe(tweet.owner?._id)}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold text-red-700 bg-red-50 cursor-pointer 
+  ${user?._id === tweet?.owner?._id ? "hidden" : "flex"}`}
+                    >
+                        {subscribeLoaderId === tweet?.owner?._id ? (
+                            <Loader size={16} className="animate-spin" />
+                        ) : isSubscribed ? (
+                            <BellRing size={16} />
+                        ) : (
+                            "Subscribe"
+                        )}
+                    </button>
+
                     <MoreVertical size={18} className="text-neutral-600" />
                 </div>
             </div>
@@ -57,6 +76,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
 
             <div className="flex items-center justify-between mt-3 w-full">
                 <button
+                    disabled={loading}
                     onClick={() => { if (tweet?._id) handleLike(tweet?._id) }}
                     className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
                     <Heart size={14} />

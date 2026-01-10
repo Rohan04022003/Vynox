@@ -11,6 +11,7 @@ import { useUser } from "../context/userContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { formatShortTime } from "../utils/timeShortFormater";
+import { useSubscription } from "../context/SubscriptionContext";
 
 const VideoPlayPage = () => {
 
@@ -43,6 +44,8 @@ const VideoPlayPage = () => {
     commentAddLoader
   } = useVideosContext();
 
+  const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoader } = useSubscription();
+
   const params = useParams();
   const [limit, setLimit] = useState<number>(10);
   const [editComment, setEditComment] = useState<{
@@ -52,7 +55,25 @@ const VideoPlayPage = () => {
   const [commentUpdateLoader, setCommentUpdateLoader] = useState<boolean>(false)
   const [CommentLikeLoader, setCommentLikeLoader] = useState<string>("")
   const [commentDeleteLoader, setCommentDeleteLoader] = useState<string>("")
-  const [subscribeLoader, setSubscribeLoader] = useState<boolean>(false)
+
+  // yeh isSubscribe and totalSubs. ke initial value set krega.
+  useEffect(() => {
+    if (!playVideo?.owner?.[0]?._id) return;
+
+    setSubscribeDetails((prev: { [x: string]: any; }) => {
+      const channelId = playVideo.owner[0]._id;
+      if (prev[channelId]) return prev; // already updated click pe
+
+      return {
+        ...prev,
+        [channelId]: {
+          isSubscribed: playVideo.isSubscribed,
+          totalSubscribers: playVideo.totalSubscribers
+        }
+      };
+    });
+
+  }, [playVideo]);
 
   // currenct playing video load
   useEffect(() => {
@@ -228,44 +249,6 @@ const VideoPlayPage = () => {
 
   // ____________________________________________________________
 
-  // channel subscription function 
-  const handleSubscribe = async (channelId: string) => {
-    try {
-      setSubscribeLoader(true)
-      let isSubscribed = true
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/subscriptions/c/${channelId}`, {}, { withCredentials: true })
-
-      if (response.status === 200) {
-        setPlayVideo((prev: any) => {
-
-          if (!prev) return;
-
-          isSubscribed = prev.isSubscribed;
-
-          return {
-            ...prev,
-            totalSubscribers: isSubscribed ? prev.totalSubscribers - 1 : prev.totalSubscribers + 1, // agar isSubscribed true hai toh 1 kam nahi to 1 jyada.
-            isSubscribed: !isSubscribed,
-
-          };
-        })
-
-        if (!isSubscribed) {
-          toast.success("Subscribed")
-        } else {
-          toast.success("Unsubscribed")
-        }
-
-      }
-
-    } catch (error) {
-      toast.error("Subscribe toggle failed")
-      console.log("Subscribe toggle failed:", error);
-    } finally {
-      setSubscribeLoader(false)
-    }
-  }
-
   return (
     <div className="flex items-start gap-4 w-full p-4 bg-white">
 
@@ -311,15 +294,16 @@ const VideoPlayPage = () => {
                 {playVideo?.owner?.[0]?.username}
               </p>
               <p className="text-neutral-500 text-xs font-medium">
-                {playVideo?.totalSubscribers} subscribers
+                {subscribeDetails?.[playVideo?.owner?.[0]?._id]?.totalSubscribers} subscribers
               </p>
             </div>
           </div>
 
           <button
+            disabled={subscribeLoader}
             onClick={() => handleSubscribe(playVideo?.owner?.[0]?._id)}
             className={`bg-red-900 hover:bg-red-800 duration-300 text-red-100 text-xs px-3 py-2 rounded-md font-semibold cursor-pointer ${playVideo?.owner?.[0]?._id === user._id ? "hidden" : "flex"}`}>
-            {subscribeLoader ? <Loader size={18} className="animate-spin" /> : playVideo?.isSubscribed ? <BellRing size={18} /> : "Subscribe"}
+            {subscribeLoader ? <Loader size={18} className="animate-spin" /> : subscribeDetails?.[playVideo?.owner?.[0]?._id]?.isSubscribed ? <BellRing size={18} /> : "Subscribe"}
           </button>
         </div>
 

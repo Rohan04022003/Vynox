@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart, Loader } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useUser } from "../context/userContext";
+import { useUser } from "../context/UserContext";
 import axios from "axios";
 import { useState } from "react";
 

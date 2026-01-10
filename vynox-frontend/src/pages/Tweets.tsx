@@ -8,8 +8,7 @@ import TweetCard from "../components/TweetCard";
 import FilterBar from "../components/FilterBar";
 import { useTweetsContext } from "../context/TweetsContext";
 import { ArrowDown } from "lucide-react";
-import axios from "axios";
-import toast from "react-hot-toast";
+import { useSubscription } from "../context/SubscriptionContext";
 
 const Tweets = ({ search, tagSearch }: tweetsProps) => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
@@ -17,13 +16,34 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
     const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(10);
-    const [subscribeLoader, setSubscribeLoader] = useState<string>("")
-
+    const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoaderId } = useSubscription();
 
     const openTweet = (tweet: Tweet) => {
         setSelectedTweet(tweet);
         setIsOpen(true);
     };
+
+    // yeh isSubscribe and totalSubs. ke initial value set krega.
+    useEffect(() => {
+
+        tweets.map((t) => {
+
+            setSubscribeDetails((prev: { [x: string]: any; }) => {
+                if (!t?.owner?._id) return prev;
+                const channelId = t.owner._id;
+                if (prev[channelId]) return prev; // already updated click pe
+
+                return {
+                    ...prev,
+                    [channelId]: {
+                        isSubscribed: t.isSubscribed,
+                        totalSubscribers: 0
+                    }
+                };
+            });
+        })
+
+    }, [tweets]);
 
 
     // it is for frequently like update on frontent only.
@@ -45,43 +65,6 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
     useEffect(() => {
         fetchTweets("", "desc", 10, 1);
     }, []);
-
-    // channel subscription function 
-    const handleSubscribe = async (channelId: string) => {
-        try {
-            setSubscribeLoader(channelId)
-            let isSubscribed = true
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/subscriptions/c/${channelId}`, {}, { withCredentials: true })
-
-            if (response.status === 200) {
-                setTweets((prev: Tweet[]) => {
-
-                    if (!Array.isArray(prev)) return prev;
-
-                    return prev.map((t: any) => {
-                        if (t.owner._id !== channelId) return t;
-                        isSubscribed = t.isSubscribed;
-                        return {
-                            ...t,
-                            isSubscribed: !isSubscribed,
-                        };
-                    })
-                })
-                if (!isSubscribed) {
-                    toast.success("Subscribed")
-                } else {
-                    toast.success("Unsubscribed")
-
-                }
-            }
-
-        } catch (error) {
-            toast.error("Subscribe toggle failed")
-            console.log("Subscribe toggle failed:", error);
-        } finally {
-            setSubscribeLoader("")
-        }
-    }
 
     return (
         <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
@@ -119,7 +102,8 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
                         onOpen={openTweet}
                         handleLikeUpdate={handleLikeUpdate}
                         handleSubscribe={handleSubscribe}
-                        subscribeLoader={subscribeLoader}
+                        subscribeLoaderId ={subscribeLoaderId }
+                        subscribeDetails={subscribeDetails}
                     />
                 ))}
 

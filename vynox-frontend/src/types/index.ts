@@ -77,7 +77,7 @@ export interface TweetOwner {
 export interface Tweet {
   createdAt: string | number | Date;
   _id: string;
-  owner?: TweetOwner[];
+  owner?: TweetOwner;
   content: string;
   tweetImage?: { url?: string };
   isEdited?: boolean;
@@ -104,8 +104,8 @@ export interface TweetCardProps {
   onOpen: (tweet: Tweet) => void;
   handleLikeUpdate: (id: string) => void;
   handleSubscribe: (id: string) => void;
-  subscribeLoader: string
-  
+  subscribeLoaderId : string
+  subscribeDetails: SubscribeDetailsMap
 }
 
 export interface TweetDetailProps {
@@ -148,4 +148,24 @@ export type FilterBarProps = {
     heading: string;
     subHeading?: string;
   };
+};
+
+
+// subs types
+
+type SubscribeDetails = {
+  isSubscribed: boolean;
+  totalSubscribers: number;
+};
+
+export type SubscribeDetailsMap = {
+  [channelId: string]: SubscribeDetails;
+};
+
+export type SubscriptionContextType = {
+  handleSubscribe: (channelId: string) => Promise<void>;
+  subscribeDetails: SubscribeDetailsMap;
+  subscribeLoader: boolean;
+  subscribeLoaderId: string
+  setSubscribeDetails: React.Dispatch<React.SetStateAction<SubscribeDetailsMap>>;
 };
