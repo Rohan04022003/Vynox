@@ -9,11 +9,15 @@ import {
 import axios from "axios";
 import type { Video, VideosContextType } from "../types";
 import toast from "react-hot-toast";
+import { useUser } from "./userContext";
 
 
 const VideosContext = createContext<VideosContextType | undefined>(undefined);
 
 export const VideosProvider = ({ children }: { children: ReactNode }) => {
+
+  const { user } = useUser(); // getting user data.
+
   const [playVideo, setPlayVideo] = useState({})
   const [playVideoLoading, setPlayVideoLoading] = useState(false)
   const [videos, setVideos] = useState<Video[]>([]); // yeh useState vidoes ko hold karega.
@@ -34,6 +38,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     id: string;
     content: string;
   }>({ id: "", content: "" });
+  const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
 
 
 
@@ -305,6 +310,45 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      setCommentLikeLoaderId(commentId);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/likes/toggle/c/${commentId}`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        setComments((prev: any[]) => {
+          if (!Array.isArray(prev)) return prev;
+
+          return prev.map((comment) => { // because yeh array hai.
+            if (comment._id !== commentId) return comment;
+
+            const isLiked = comment.isLikedByCurrentUser;
+
+            return {
+              ...comment,
+              totalLikes: isLiked
+                ? comment.totalLikes - 1
+                : comment.totalLikes + 1,
+              isLikedByCurrentUser: !isLiked,
+              likedUsers: isLiked ? comment.likedUsers.filter((u: any) => u._id !== user._id)
+                : [...comment.likedUsers, { _id: user._id, avatar: { url: user.avatar.url, public_id: user.avatar.public_id } }]
+            };
+          });
+        });
+
+      }
+    } catch (error) {
+      console.log("Comment like failed:", error);
+    } finally {
+      setCommentLikeLoaderId("");
+    }
+  };
+
   return (
     <VideosContext.Provider
       value={{
@@ -338,7 +382,9 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         handleCommentUpdate,
         commentUpdateLoader,
         setEditComment,
-        editComment
+        editComment,
+        handleLikeComment,
+        CommentLikeLoaderId
       }}
     >
       {children}

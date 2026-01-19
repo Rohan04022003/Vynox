@@ -75,6 +75,8 @@ export interface VideosContextType {
     id: string;
     content: string;
   };
+  handleLikeComment?: (videoId: string) => Promise<void>;
+  CommentLikeLoaderId: string;
 }
 
 // tweetTypes

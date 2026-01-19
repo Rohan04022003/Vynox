@@ -45,14 +45,15 @@ const VideoPlayPage = () => {
     handleCommentUpdate,
     commentUpdateLoader,
     setEditComment,
-    editComment
+    editComment,
+    handleLikeComment,
+    CommentLikeLoaderId
   } = useVideosContext();
 
   const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoader } = useSubscription();
 
   const params = useParams();
   const [limit, setLimit] = useState<number>(10);
-  const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
   const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
 
   // yeh isSubscribe and totalSubs. ke initial value set krega.
@@ -135,45 +136,6 @@ const VideoPlayPage = () => {
   }, [params?.id])
 
   // yaha se comments ki logic start hota hai like CRUD.
-
-  const handleLikeComment = async (commentId: string) => {
-    try {
-      setCommentLikeLoaderId(commentId);
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/likes/toggle/c/${commentId}`,
-        {},
-        { withCredentials: true }
-      );
-
-      if (response.status === 200) {
-        setComments((prev: any[]) => {
-          if (!Array.isArray(prev)) return prev;
-
-          return prev.map((comment) => { // because yeh array hai.
-            if (comment._id !== commentId) return comment;
-
-            const isLiked = comment.isLikedByCurrentUser;
-
-            return {
-              ...comment,
-              totalLikes: isLiked
-                ? comment.totalLikes - 1
-                : comment.totalLikes + 1,
-              isLikedByCurrentUser: !isLiked,
-              likedUsers: isLiked ? comment.likedUsers.filter((u: any) => u._id !== user._id)
-                : [...comment.likedUsers, { _id: user._id, avatar: { url: user.avatar.url, public_id: user.avatar.public_id } }]
-            };
-          });
-        });
-
-      }
-    } catch (error) {
-      console.log("Comment like failed:", error);
-    } finally {
-      setCommentLikeLoaderId("");
-    }
-  };
 
   const handleDeleteComment = async (commentId: string) => {
     try {
@@ -353,7 +315,7 @@ const VideoPlayPage = () => {
                   {/* video Like Button */}
                   <button
                     disabled={CommentLikeLoaderId === c._id}
-                    onClick={() => handleLikeComment(c._id)}
+                    onClick={() => handleLikeComment?.(c._id)}
                     className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${c.isLikedByCurrentUser
                       ? "bg-green-600 text-white"
                       : "bg-green-200 text-green-800"
