@@ -9,7 +9,6 @@ import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
 import CommentsSkeleton from "../components/skeleton/CommentsSkeleton";
 import { useUser } from "../context/userContext";
 import axios from "axios";
-import toast from "react-hot-toast";
 import { formatShortTime } from "../utils/timeShortFormater";
 import { useSubscription } from "../context/SubscriptionContext";
 
@@ -29,7 +28,6 @@ const VideoPlayPage = () => {
     hasMoreVideos,
     hasMoreComments,
     comments,
-    setComments,
     commentLoading,
     fetchCurrentPlayingVideoComments,
     commentPage,
@@ -47,14 +45,15 @@ const VideoPlayPage = () => {
     setEditComment,
     editComment,
     handleLikeComment,
-    CommentLikeLoaderId
+    CommentLikeLoaderId,
+    handleDeleteComment,
+    commentDeleteLoaderId
   } = useVideosContext();
 
   const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoader } = useSubscription();
 
   const params = useParams();
   const [limit, setLimit] = useState<number>(10);
-  const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
 
   // yeh isSubscribe and totalSubs. ke initial value set krega.
   useEffect(() => {
@@ -136,30 +135,6 @@ const VideoPlayPage = () => {
   }, [params?.id])
 
   // yaha se comments ki logic start hota hai like CRUD.
-
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      setCommentDeleteLoaderId(commentId);
-
-      const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`, { withCredentials: true })
-
-      if (response.status === 200) {
-        setComments((prev: any[]) =>
-          Array.isArray(prev)
-            ? prev.filter((c) => c._id !== commentId)
-            : prev
-        );
-
-        toast.success("Comment was Deleted.")
-      }
-
-    } catch (error) {
-      console.log("Comment deletion Failed: ", error)
-      toast.error("Comment delete unsuccessfull.")
-    } finally {
-      setCommentDeleteLoaderId("")
-    }
-  }
 
   const handleEditCommentClick = (commentId: string, content: string) => {
     setEditComment({ id: commentId, content });
@@ -327,7 +302,7 @@ const VideoPlayPage = () => {
                   <button onClick={() => handleEditCommentClick(c._id, c.content)} className={`text-orange-700 text-xs items-center gap-1 px-2 py-1 bg-orange-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id && !(editComment.id === c._id) ? "flex" : "hidden"}`}><Edit size={14} /></button>
                   <button
                     disabled={commentDeleteLoaderId === c._id}
-                    onClick={() => handleDeleteComment(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoaderId === c._id ? <Loader size={14} className="animate-spin" /> : <Trash size={14} />}</button>
+                    onClick={() => handleDeleteComment?.(c._id)} className={`text-red-700 text-xs items-center gap-1 px-2 py-1 bg-red-200 rounded-full cursor-pointer ${user?._id === c?.owner?._id ? "flex" : "hidden"}`}>{commentDeleteLoaderId === c._id ? <Loader size={14} className="animate-spin" /> : <Trash size={14} />}</button>
                 </div>
               </div>
 

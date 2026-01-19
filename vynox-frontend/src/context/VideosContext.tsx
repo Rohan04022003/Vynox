@@ -39,6 +39,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     content: string;
   }>({ id: "", content: "" });
   const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
+  const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
 
 
 
@@ -349,6 +350,30 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      setCommentDeleteLoaderId(commentId);
+
+      const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`, { withCredentials: true })
+
+      if (response.status === 200) {
+        setComments((prev: any[]) =>
+          Array.isArray(prev)
+            ? prev.filter((c) => c._id !== commentId)
+            : prev
+        );
+
+        toast.success("Comment was Deleted.")
+      }
+
+    } catch (error) {
+      console.log("Comment deletion Failed: ", error)
+      toast.error("Comment delete unsuccessfull.")
+    } finally {
+      setCommentDeleteLoaderId("")
+    }
+  }
+
   return (
     <VideosContext.Provider
       value={{
@@ -384,7 +409,9 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         setEditComment,
         editComment,
         handleLikeComment,
-        CommentLikeLoaderId
+        CommentLikeLoaderId,
+        handleDeleteComment,
+        commentDeleteLoaderId
       }}
     >
       {children}

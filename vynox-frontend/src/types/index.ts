@@ -65,7 +65,7 @@ export interface VideosContextType {
   commentAddLoader: boolean
   addComment: string;
   setAddComment: React.Dispatch<React.SetStateAction<string>>;
-  handleCommentUpdate?: (videoId: string) => Promise<void>;
+  handleCommentUpdate?: (commentId: string) => Promise<void>;
   commentUpdateLoader: boolean;
   setEditComment: React.Dispatch<React.SetStateAction<{
     id: string;
@@ -75,8 +75,10 @@ export interface VideosContextType {
     id: string;
     content: string;
   };
-  handleLikeComment?: (videoId: string) => Promise<void>;
+  handleLikeComment?: (commentId: string) => Promise<void>;
   CommentLikeLoaderId: string;
+  handleDeleteComment?: (commentId: string) => Promise<void>;
+  commentDeleteLoaderId: string;
 }
 
 // tweetTypes
