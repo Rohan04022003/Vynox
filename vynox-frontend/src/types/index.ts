@@ -65,6 +65,16 @@ export interface VideosContextType {
   commentAddLoader: boolean
   addComment: string;
   setAddComment: React.Dispatch<React.SetStateAction<string>>;
+  handleCommentUpdate?: (videoId: string) => Promise<void>;
+  commentUpdateLoader: boolean;
+  setEditComment: React.Dispatch<React.SetStateAction<{
+    id: string;
+    content: string;
+  }>>;
+  editComment: {
+    id: string;
+    content: string;
+  };
 }
 
 // tweetTypes
@@ -104,7 +114,7 @@ export interface TweetCardProps {
   onOpen: (tweet: Tweet) => void;
   handleLikeUpdate: (id: string) => void;
   handleSubscribe: (id: string) => void;
-  subscribeLoaderId : string
+  subscribeLoaderId: string
   subscribeDetails: SubscribeDetailsMap
 }
 

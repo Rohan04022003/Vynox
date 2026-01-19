@@ -29,6 +29,12 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   // comments part starts here.
   const [commentAddLoader, setCommentAddLoader] = useState<boolean>(false)
   const [addComment, setAddComment] = useState<string>("");
+  const [commentUpdateLoader, setCommentUpdateLoader] = useState<boolean>(false);
+  const [editComment, setEditComment] = useState<{
+    id: string;
+    content: string;
+  }>({ id: "", content: "" });
+
 
 
   const fetchVideos = async ( // videos ko fetch karega yeh method.
@@ -259,6 +265,46 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const handleCommentUpdate = async (commentId: string) => {
+    try {
+      setCommentUpdateLoader(true);
+
+      const response = await axios.patch(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`,
+        {
+          content: editComment.content
+        },
+        {
+          withCredentials: true
+        }
+      )
+
+      if (response.status === 200) {
+        // yeh frequent update ke liye hai on frontend.
+        setComments((prev: any[]) => prev.map(c =>
+          c._id === commentId ?
+            {
+              ...c,
+              content: editComment.content,
+              isEdited: true
+            } : c
+        )
+        )
+        setEditComment({ id: "", content: "" });
+        toast.success("Comment was Updated.")
+
+      } else {
+        setEditComment({ id: "", content: "" });
+      }
+
+    } catch (error) {
+      toast.error("Comment Updation Failed.")
+      console.log("Comment Update Failed: ", error)
+      setEditComment({ id: "", content: "" });
+    } finally {
+      setCommentUpdateLoader(false)
+    }
+  }
+
   return (
     <VideosContext.Provider
       value={{
@@ -288,7 +334,11 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         handleAddComment,
         addComment,
         setAddComment,
-        commentAddLoader
+        commentAddLoader,
+        handleCommentUpdate,
+        commentUpdateLoader,
+        setEditComment,
+        editComment
       }}
     >
       {children}

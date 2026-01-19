@@ -37,7 +37,7 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
                     ...prev,
                     [channelId]: {
                         isSubscribed: t.isSubscribed,
-                        totalSubscribers: 0
+                        totalSubscribers: 0 // yeh frontend pe show nahi hoga.
                     }
                 };
             });

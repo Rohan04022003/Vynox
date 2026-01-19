@@ -41,18 +41,17 @@ const VideoPlayPage = () => {
     handleAddComment,
     addComment,
     setAddComment,
-    commentAddLoader
+    commentAddLoader,
+    handleCommentUpdate,
+    commentUpdateLoader,
+    setEditComment,
+    editComment
   } = useVideosContext();
 
   const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoader } = useSubscription();
 
   const params = useParams();
   const [limit, setLimit] = useState<number>(10);
-  const [editComment, setEditComment] = useState<{
-    id: string;
-    content: string;
-  }>({ id: "", content: "" });
-  const [commentUpdateLoader, setCommentUpdateLoader] = useState<boolean>(false)
   const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
   const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
 
@@ -136,45 +135,6 @@ const VideoPlayPage = () => {
   }, [params?.id])
 
   // yaha se comments ki logic start hota hai like CRUD.
-  const handleCommentUpdate = async (commentId: string) => {
-    try {
-      setCommentUpdateLoader(true);
-
-      const response = await axios.patch(`${import.meta.env.VITE_BASE_URL}/comments/c/${commentId}`,
-        {
-          content: editComment.content
-        },
-        {
-          withCredentials: true
-        }
-      )
-
-      if (response.status === 200) {
-        // yeh frequent update ke liye hai on frontend.
-        setComments((prev: any[]) => prev.map(c =>
-          c._id === commentId ?
-            {
-              ...c,
-              content: editComment.content,
-              isEdited: true
-            } : c
-        )
-        )
-        setEditComment({ id: "", content: "" });
-        toast.success("Comment was Updated.")
-
-      } else {
-        setEditComment({ id: "", content: "" });
-      }
-
-    } catch (error) {
-      toast.error("Comment Updation Failed.")
-      console.log("Comment Update Failed: ", error)
-      setEditComment({ id: "", content: "" });
-    } finally {
-      setCommentUpdateLoader(false)
-    }
-  }
 
   const handleLikeComment = async (commentId: string) => {
     try {
@@ -426,7 +386,7 @@ const VideoPlayPage = () => {
 
                 <div className="flex gap-2 justify-end">
                   <button
-                    onClick={() => handleCommentUpdate(c?._id)}
+                    onClick={() => handleCommentUpdate?.(c?._id)}
                     disabled={editComment.content === c.content || commentUpdateLoader ? true : false}
                     className={`px-4 py-1.5 text-sm font-medium text-green-800 bg-green-200 rounded-md transition ${editComment.id === c._id ? "flex" : "hidden"} ${editComment.id === c.content ? "cursor-not-allowed" : "cursor-pointer hover:bg-green-700 hover:text-white"}`}>
                     {
