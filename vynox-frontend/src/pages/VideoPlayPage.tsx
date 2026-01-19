@@ -134,7 +134,7 @@ const VideoPlayPage = () => {
 
   }, [params?.id])
 
-  // yaha se comments ki logic start hota hai like CRUD.
+  // yeh dono function comment update logic ke liye hai.
 
   const handleEditCommentClick = (commentId: string, content: string) => {
     setEditComment({ id: commentId, content });
