@@ -145,7 +145,10 @@ const getAllTweets = asyncHandler(async (req, res) => {
           {
             $addFields: {
               isSubscribed: {
-                $in: [ new mongoose.Types.ObjectId(userId), "$subscribers.subscriber"]
+                $in: [
+                  new mongoose.Types.ObjectId(userId),
+                  "$subscribers.subscriber",
+                ],
               },
             },
           },
@@ -159,11 +162,33 @@ const getAllTweets = asyncHandler(async (req, res) => {
               as: "likes",
             },
           },
+          {
+            $lookup: {
+              from: "savetweets",
+              let: { tweetId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ["$tweet", "$$tweetId"] },
+                        { $eq: ["$user", userId] },
+                      ],
+                    },
+                  },
+                },
+              ],
+              as: "savedByUser",
+            },
+          },
 
           // Likes count + isLiked
           {
             $addFields: {
               totalLikes: { $size: "$likes" },
+              tweetSaved: {
+                $gt: [{ $size: "$savedByUser" }, 0],
+              },
 
               isLiked: {
                 $gt: [
@@ -189,6 +214,7 @@ const getAllTweets = asyncHandler(async (req, res) => {
             $project: {
               subscribers: 0,
               likes: 0,
+              savedByUser: 0,
             },
           },
         ],
@@ -198,9 +224,6 @@ const getAllTweets = asyncHandler(async (req, res) => {
 
   const tweetsList = result[0]?.tweets || [];
   const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
-
-  console.log(tweetsList);
-  console.log(totalTweets);
 
   return res.status(200).json({
     status: 200,

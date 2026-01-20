@@ -1,20 +1,29 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
-    createTweet,
-    deleteTweet,
-    getAllTweets,
-    getUserTweets,
-    updateTweet,
-} from "../controllers/tweet.controller.js"
-import {verifyJWT} from "../middlewares/auth.middleware.js"
-import { upload } from '../middlewares/multer.middleware.js';
+  createTweet,
+  deleteTweet,
+  getAllTweets,
+  getUserTweets,
+  updateTweet,
+} from "../controllers/tweet.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
+import {
+  getSavedTweet,
+  saveTweet,
+  unsaveTweet,
+} from "../controllers/saveTweet.controller.js";
 
 const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/").get(getAllTweets)
-router.route("/").post(upload.single("tweetImage"),createTweet);
+router.route("/").get(getAllTweets);
+router.route("/").post(upload.single("tweetImage"), createTweet);
 router.route("/user/:userId").get(getUserTweets);
 router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
 
-export default router
+// save tweets.
+router.route("/saved").get(getSavedTweet);
+router.route("/save/:tweetId").post(saveTweet);
+router.route("/unsave/:tweetId").delete(unsaveTweet);
+export default router;

@@ -18,7 +18,7 @@ const saveTweetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-//  Unique constraint ke liye: 1 user + 1 video
+//  Unique constraint ke liye: 1 user + 1 tweet
 saveTweetSchema.index({ tweet: 1, user: 1 }, { unique: true });
 
-export const saveTweet = mongoose.model("saveTweet", saveTweetSchema);
+export const SaveTweet = mongoose.model("saveTweet", saveTweetSchema);
