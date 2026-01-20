@@ -34,4 +34,24 @@ const saveTweet = asyncHandler(async (req, res) => {
   }
 });
 
+const unsaveTweet = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { tweetId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(tweetId)) {
+    throw new ApiError(400, "Invalid tweet ID");
+  }
+
+  const deleted = await SaveTweet.findOneAndDelete({
+    tweet: tweetId,
+    user: userId,
+  });
+
+  if (!deleted) {
+    throw new ApiError(404, "Saved tweet not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200, {}, "Tweet was unsaved"));
+});
+
 export { saveTweet, unsaveTweet, getSavedTweet };
