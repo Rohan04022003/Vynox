@@ -3,17 +3,17 @@
 import { useEffect, useState } from "react";
 import TweetCardSkeleton from "../components/skeleton/TweetCardSkeleton";
 import TweetDetail from "../components/TweetDetails";
-import type { Tweet, tweetsProps } from "../types";
+import type { Tweet } from "../types";
 import TweetCard from "../components/TweetCard";
 import FilterBar from "../components/FilterBar";
 import { useTweetsContext } from "../context/TweetsContext";
 import { ArrowDown } from "lucide-react";
 import { useSubscription } from "../context/SubscriptionContext";
 
-const Tweets = ({ search, tagSearch }: tweetsProps) => {
+const SavedTweets = () => {
     const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const { tweets, setTweets, loading, fetchTweets, hasMoreTweets } = useTweetsContext();
+    const { tweets, setTweets, loading, fetchSavedTweets, hasMoreTweets } = useTweetsContext();
     const [sortType, setSortType] = useState<string>("desc");
     const [limit, setLimit] = useState<number>(10);
     const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoaderId } = useSubscription();
@@ -48,7 +48,7 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
     // initial load
     useEffect(() => {
         setTweets([])
-        fetchTweets("", "desc", 10, 1);
+        fetchSavedTweets("desc", 10, 1);
     }, []);
 
     return (
@@ -60,9 +60,13 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
                 setSortType={setSortType}
                 limit={limit}
                 setLimit={setLimit}
-                showTags
-                onFilterChange={({ tag, sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like tag, sortType, limit
-                    fetchTweets(tag || "", sortType, limit, 1);
+                showTags={false}
+                title={{
+                    heading: "Saved Tweets",
+                    subHeading: "Tweets you’ve Saved, all in one place"
+                }}
+                onFilterChange={({ sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like tag, sortType, limit 
+                    fetchSavedTweets(sortType, limit, 1);
                 }}
             />
 
@@ -101,7 +105,7 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
             {/* for No tweets found */}
             {!loading && tweets.length === 0 && (
                 <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
-                    <span>No tweets found.</span> <span>Try changing the filter or search keyword.</span>
+                    <span>No saved tweets found.</span> <span>Try changing the filter or search keyword.</span>
                 </div>
             )}
 
@@ -110,7 +114,7 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
                 <div className="flex justify-center mt-5 mb-10">
                     <button
                         className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
-                        onClick={() => fetchTweets(search || tagSearch || "", sortType, limit)}
+                        onClick={() => fetchSavedTweets(sortType, limit)}
                     >
                         Load More Tweets <ArrowDown size={15} className="mt-1" />
                     </button>
@@ -125,4 +129,4 @@ const Tweets = ({ search, tagSearch }: tweetsProps) => {
     );
 };
 
-export default Tweets;
+export default SavedTweets;

@@ -15,6 +15,7 @@ import VideoPlayPage from "./pages/VideoPlayPage";
 import WatchHistory from "./pages/WatchHistory";
 import LikedVideos from "./pages/LikedVideos";
 import CommentedVideos from "./pages/CommentedVideos";
+import SavedTweets from "./pages/SavedTweets";
 
 const App = () => {
 
@@ -87,6 +88,23 @@ const App = () => {
                   tagSearch={tagSearch}
                   setTagSearch={setTagSearch}
                 />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved-tweets"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav}
+                isOpen={isOpenSideNav}
+                search={search}
+                setSearch={setSearch}
+                setTagSearch={setTagSearch}
+              />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <SavedTweets />
               </div>
             </ProtectedRoute>
           }

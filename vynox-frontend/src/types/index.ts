@@ -111,8 +111,13 @@ export interface TweetsContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchSavedTweets: (
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   hasMoreTweets: boolean;
-  handleTweetLike: (id: string) => Promise<void>;
+  handleTweetLike: (id: string) => Promise<void>
   likeLoadingId: string;
   handleSaveTweet: (id: string) => Promise<void>;
   saveTweetLoadingId: string;
@@ -121,7 +126,6 @@ export interface TweetsContextType {
 export interface TweetCardProps {
   tweet: Tweet;
   onOpen: (tweet: Tweet) => void;
-  handleLikeUpdate: (id: string) => void;
   handleSubscribe: (id: string) => void;
   subscribeLoaderId: string
   subscribeDetails: SubscribeDetailsMap

@@ -5,6 +5,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import axios from "axios";
 import type { Tweet, TweetsContextType } from "../types";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 const TweetsContext = createContext<TweetsContextType | undefined>(undefined);
 
@@ -15,6 +16,8 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
   const [hasMoreTweets, setHasMoreTweets] = useState(true);
   const [likeLoadingId, setLikeLoadingId] = useState<string>("")
   const [saveTweetLoadingId, setSaveTweetLoadingId] = useState<string>("")
+
+  const location = useLocation();
 
   const fetchTweets = async (
     str = "",
@@ -32,6 +35,38 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
 
       const fetchedTweets: Tweet[] = res.data?.data?.tweets || [];
 
+      if (newPage) {
+        // filter changed → replace
+        setTweets(fetchedTweets);
+        setPage(2);
+        setHasMoreTweets(fetchedTweets.length === limit);
+      } else {
+        // load more → append
+        setTweets(prev => [...prev, ...fetchedTweets]);
+        setPage(pageToFetch + 1);
+        setHasMoreTweets(fetchedTweets.length === limit);
+      }
+    } catch (err) {
+      console.error("Error fetching tweets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSavedTweets = async (
+    sortType = "desc",
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage || page;
+    try {
+      setLoading(true);
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/tweets/saved`, {
+        params: { sortType, limit, page: pageToFetch },
+        withCredentials: true,
+      });
+
+      const fetchedTweets: Tweet[] = res.data?.data?.savedTweet || [];
       if (newPage) {
         // filter changed → replace
         setTweets(fetchedTweets);
@@ -99,7 +134,11 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
           )
         );
 
-      response?.data?.data.saved ? toast.success("Saved") : toast.success("Unsaved")
+        if (location.pathname === "/saved-Tweets") {
+          setTweets(prev => prev.filter(t => t._id !== id));
+        }
+
+        response?.data?.data.saved ? toast.success("Saved") : toast.success("Unsaved")
 
       } else {
         toast.error("please try to save tweet after sometime.");
@@ -113,7 +152,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <TweetsContext.Provider
-      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId }}
+      value={{ tweets, setTweets, fetchSavedTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId }}
     >
       {children}
     </TweetsContext.Provider>
