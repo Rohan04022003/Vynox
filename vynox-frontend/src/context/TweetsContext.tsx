@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from "react";
 import axios from "axios";
 import type { Tweet, TweetsContextType } from "../types";
+import toast from "react-hot-toast";
 
 const TweetsContext = createContext<TweetsContextType | undefined>(undefined);
 
@@ -10,6 +12,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [hasMoreTweets, setHasMoreTweets] = useState(true);
+  const [likeLoadingId, setLikeLoadingId] = useState<string>("")
 
   const fetchTweets = async (
     str = "",
@@ -45,9 +48,39 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleTweetLike = async (id: string) => {
+    try {
+      setLikeLoadingId(id);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/likes/toggle/t/${id}`, {},
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        setTweets(prev =>
+          prev.map(t =>
+            t._id === id
+              ? {
+                ...t,
+                isLiked: !t.isLiked,
+                totalLikes: t.isLiked ? t.totalLikes! - 1 : t.totalLikes! + 1,
+              }
+              : t
+          )
+        );
+      } else {
+        toast.error("please try to like after sometime.");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.data);
+    } finally {
+      setLikeLoadingId("");
+    }
+  }
+
   return (
     <TweetsContext.Provider
-      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets }}
+      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId }}
     >
       {children}
     </TweetsContext.Provider>

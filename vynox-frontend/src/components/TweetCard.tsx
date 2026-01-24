@@ -1,37 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
 import { BellRing, Edit2, Heart, Loader, MoreVertical } from "lucide-react";
-import { useState } from "react";
-import toast from "react-hot-toast";
 import { useUser } from "../context/userContext";
 import type { TweetCardProps } from "../types";
 import { formatShortTime } from "../utils/timeShortFormater";
+import { useTweetsContext } from "../context/TweetsContext";
 
-const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, handleSubscribe, subscribeLoaderId, subscribeDetails }) => {
+const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleSubscribe, subscribeLoaderId, subscribeDetails }) => {
     const owner = Array.isArray(tweet?.owner) ? tweet?.owner[0] : tweet?.owner;
-    const [loading, setLoading] = useState<boolean>(false)
     const { user } = useUser();
+    const { handleTweetLike, likeLoadingId } = useTweetsContext();
 
-    const handleLike = async (id: string) => {
-        try {
-            setLoading(true);
-            const response = await axios.post(
-                `${import.meta.env.VITE_BASE_URL}/likes/toggle/t/${id}`, {},
-                { withCredentials: true }
-            );
-
-            if (response.status === 200) {
-                handleLikeUpdate(id)
-            } else {
-                toast.error("please try to like after sometime.");
-            }
-        } catch (error: any) {
-            toast.error(error?.response?.data?.data);
-        } finally {
-            setLoading(false);
-        }
-    }
-
+    // subscribe logic for frontend
     const channelId = tweet?.owner?._id;
     let isSubscribed = false
     if (channelId) {
@@ -75,14 +54,16 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleLikeUpdate, 
             </div>
 
             <div className="flex items-center justify-between mt-3 w-full">
-                <button
-                    disabled={loading}
-                    onClick={() => { if (tweet?._id) handleLike(tweet?._id) }}
-                    className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
-                    <Heart size={14} />
-                    <span className="ml-1 font-medium text-xs flex items-center justify-center">
-                        {loading ? <Loader size={16} className="animate-spin" /> : tweet?.totalLikes}</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        disabled={likeLoadingId.length > 0}
+                        onClick={() => { if (tweet?._id) handleTweetLike(tweet?._id) }}
+                        className={`px-2 py-1 rounded-full cursor-pointer flex items-center ${tweet?.isLiked ? "text-white bg-green-700" : "text-green-900 bg-green-100"} `}>
+                        <Heart size={14} />
+                        <span className="ml-1 font-medium text-xs flex items-center justify-center">
+                            {likeLoadingId === tweet?._id ? <Loader size={16} className="animate-spin" /> : tweet?.totalLikes}</span>
+                    </button>
+                </div>
                 <span className="bg-neutral-100 text-neutral-700 px-2 py-1 text-[11px] rounded-full">{tweet && formatShortTime(tweet?.createdAt)} ago</span>
             </div>
         </div>

@@ -98,6 +98,7 @@ export interface Tweet {
   isLiked?: boolean;
   totalLikes?: number;
   isSubscribed?: boolean;
+  tweetSaved?: boolean;
 }
 
 export interface TweetsContextType {
@@ -111,6 +112,8 @@ export interface TweetsContextType {
     newPage?: number
   ) => Promise<void>;
   hasMoreTweets: boolean;
+  handleTweetLike: (id: string) => Promise<void>;
+  likeLoadingId: string;
 }
 
 export interface TweetCardProps {
