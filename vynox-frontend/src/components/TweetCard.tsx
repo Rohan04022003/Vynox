@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BellRing, Bookmark, Edit2, Heart, Loader, MoreVertical } from "lucide-react";
 import { useUser } from "../context/userContext";
 import type { TweetCardProps } from "../types";
@@ -67,7 +66,7 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleSubscribe, s
                         disabled={saveTweetLoadingId.length > 0}
                         onClick={() => { if (tweet?._id) handleSaveTweet(tweet?._id) }}
                         className={`px-3 py-[5px] rounded-full cursor-pointer flex items-center ${tweet?.tweetSaved ? "text-white bg-pink-700" : "text-pink-900 bg-pink-100"} `}>
-                        { saveTweetLoadingId === tweet?._id ? <Loader size={16} className="animate-spin" /> : <Bookmark size={14} />}
+                        {saveTweetLoadingId === tweet?._id ? <Loader size={14} className="animate-spin" /> : <Bookmark size={14} />}
                     </button>
                 </div>
                 <span className="bg-neutral-100 text-neutral-700 px-2 py-1 text-[11px] rounded-full">{tweet && formatShortTime(tweet?.createdAt)} ago</span>

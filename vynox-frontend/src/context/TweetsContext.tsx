@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from "react";
@@ -97,6 +98,9 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
               : t
           )
         );
+
+      response?.data?.data.saved ? toast.success("Saved") : toast.success("Unsaved")
+
       } else {
         toast.error("please try to save tweet after sometime.");
       }

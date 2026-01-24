@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart, Loader } from "lucide-react";
+import { Home, Clock, ThumbsUp, Settings, LogOut, Image, MessageSquareIcon, Heart, Loader, Bookmark } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../context/userContext";
 import axios from "axios";
@@ -53,6 +53,7 @@ const Sidebar = ({ isOpen }: { isOpen: boolean }) => {
                 <MenuItem to="/video/watched/history" icon={Clock} label={`${isOpen ? "Watched History" : ""}`} />
                 <MenuItem to="/videos/liked-by-you" icon={ThumbsUp} label={`${isOpen ? "Liked Videos" : ""}`} />
                 <MenuItem to="/liked-Tweets" icon={Heart} label={`${isOpen ? "Liked Tweets" : ""}`} />
+                <MenuItem to="/saved-Tweets" icon={Bookmark} label={`${isOpen ? "Saved Tweets" : ""}`} />
                 <MenuItem to="/videos/commented-by-you" icon={MessageSquareIcon} label={`${isOpen ? "Commented Videos" : ""}`} />
             </div>
 
