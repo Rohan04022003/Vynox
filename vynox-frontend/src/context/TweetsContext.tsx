@@ -13,6 +13,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
   const [page, setPage] = useState<number>(1);
   const [hasMoreTweets, setHasMoreTweets] = useState(true);
   const [likeLoadingId, setLikeLoadingId] = useState<string>("")
+  const [saveTweetLoadingId, setSaveTweetLoadingId] = useState<string>("")
 
   const fetchTweets = async (
     str = "",
@@ -77,10 +78,38 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
       setLikeLoadingId("");
     }
   }
+  const handleSaveTweet = async (id: string) => {
+    try {
+      setSaveTweetLoadingId(id);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/tweets/save/${id}`, {},
+        { withCredentials: true }
+      );
+
+      if (response.status === 200) {
+        setTweets(prev =>
+          prev.map(t =>
+            t._id === id
+              ? {
+                ...t,
+                tweetSaved: !t.tweetSaved,
+              }
+              : t
+          )
+        );
+      } else {
+        toast.error("please try to save tweet after sometime.");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.data);
+    } finally {
+      setSaveTweetLoadingId("");
+    }
+  }
 
   return (
     <TweetsContext.Provider
-      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId }}
+      value={{ tweets, setTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId }}
     >
       {children}
     </TweetsContext.Provider>

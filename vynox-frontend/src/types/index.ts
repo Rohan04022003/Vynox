@@ -114,6 +114,8 @@ export interface TweetsContextType {
   hasMoreTweets: boolean;
   handleTweetLike: (id: string) => Promise<void>;
   likeLoadingId: string;
+  handleSaveTweet: (id: string) => Promise<void>;
+  saveTweetLoadingId: string;
 }
 
 export interface TweetCardProps {

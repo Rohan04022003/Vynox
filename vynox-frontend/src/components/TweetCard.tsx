@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BellRing, Edit2, Heart, Loader, MoreVertical } from "lucide-react";
+import { BellRing, Bookmark, Edit2, Heart, Loader, MoreVertical } from "lucide-react";
 import { useUser } from "../context/userContext";
 import type { TweetCardProps } from "../types";
 import { formatShortTime } from "../utils/timeShortFormater";
@@ -8,7 +8,7 @@ import { useTweetsContext } from "../context/TweetsContext";
 const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleSubscribe, subscribeLoaderId, subscribeDetails }) => {
     const owner = Array.isArray(tweet?.owner) ? tweet?.owner[0] : tweet?.owner;
     const { user } = useUser();
-    const { handleTweetLike, likeLoadingId } = useTweetsContext();
+    const { handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId } = useTweetsContext();
 
     // subscribe logic for frontend
     const channelId = tweet?.owner?._id;
@@ -62,6 +62,12 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet, onOpen, handleSubscribe, s
                         <Heart size={14} />
                         <span className="ml-1 font-medium text-xs flex items-center justify-center">
                             {likeLoadingId === tweet?._id ? <Loader size={16} className="animate-spin" /> : tweet?.totalLikes}</span>
+                    </button>
+                    <button
+                        disabled={saveTweetLoadingId.length > 0}
+                        onClick={() => { if (tweet?._id) handleSaveTweet(tweet?._id) }}
+                        className={`px-3 py-[5px] rounded-full cursor-pointer flex items-center ${tweet?.tweetSaved ? "text-white bg-pink-700" : "text-pink-900 bg-pink-100"} `}>
+                        { saveTweetLoadingId === tweet?._id ? <Loader size={16} className="animate-spin" /> : <Bookmark size={14} />}
                     </button>
                 </div>
                 <span className="bg-neutral-100 text-neutral-700 px-2 py-1 text-[11px] rounded-full">{tweet && formatShortTime(tweet?.createdAt)} ago</span>

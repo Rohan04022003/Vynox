@@ -5,7 +5,7 @@ import { Tweet } from "../models/tweet.model.js";
 import { SaveTweet } from "../models/saveTweets.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const saveTweet = asyncHandler(async (req, res) => {
+const toggleSaveTweet = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { tweetId } = req.params;
 
@@ -18,40 +18,41 @@ const saveTweet = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Tweet not found");
   }
 
-  try {
-    await SaveTweet.create({
-      user: userId,
-      tweet: tweetId,
-    });
-
-    return res.status(201).json(new ApiResponse(201, {}, "Tweet was saved"));
-  } catch (error) {
-    throw new ApiError(
-      500,
-      "Internal server error while saving tweet: ",
-      error
-    );
-  }
-});
-
-const unsaveTweet = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
-  const { tweetId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(tweetId)) {
-    throw new ApiError(400, "Invalid tweet ID");
-  }
-
-  const deleted = await SaveTweet.findOneAndDelete({
-    tweet: tweetId,
+  const alreadySaved = await SaveTweet.findOne({
     user: userId,
+    tweet: tweetId,
   });
 
-  if (!deleted) {
-    throw new ApiError(404, "Saved tweet not found");
+  // TOGGLE LOGIC
+  if (alreadySaved) {
+    await SaveTweet.deleteOne({ _id: alreadySaved._id });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          saved: false,
+        },
+        "Tweet unsaved"
+      )
+    );
   }
 
-  return res.status(200).json(new ApiResponse(200, {}, "Tweet was unsaved"));
+  // SAVE
+  await SaveTweet.create({
+    user: userId,
+    tweet: tweetId,
+  });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        saved: true,
+      },
+      "Tweet saved"
+    )
+  );
 });
 
 const getSavedTweet = asyncHandler(async (req, res) => {
@@ -171,4 +172,4 @@ const getSavedTweet = asyncHandler(async (req, res) => {
   });
 });
 
-export { saveTweet, unsaveTweet, getSavedTweet };
+export { toggleSaveTweet, getSavedTweet };
