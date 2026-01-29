@@ -381,4 +381,143 @@ const deleteTweet = asyncHandler(async (req, res) => {
   }
 });
 
-export { createTweet, getUserTweets, getAllTweets, updateTweet, deleteTweet };
+const getAllLikedTweets = asyncHandler(async (req, res) => {
+  const { sortType = "desc", limit = 20, page = 1 } = req.query;
+
+  const limitNum = Number(limit);
+  const pageNum = Number(page);
+  const skip = (pageNum - 1) * limitNum;
+
+  const userId = new mongoose.Types.ObjectId(req.user._id);
+
+  const result = await Like.aggregate([
+    // Sirf current user ke liked tweets
+    {
+      $match: {
+        likedBy: userId,
+        tweet: { $exists: true, $ne: null },
+      },
+    },
+
+    {
+      $facet: {
+        totalCount: [{ $count: "totalTweets" }],
+
+        tweets: [
+          { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+          { $skip: skip },
+          { $limit: limitNum },
+
+          // Tweet lookup
+          {
+            $lookup: {
+              from: "tweets",
+              localField: "tweet",
+              foreignField: "_id",
+              as: "tweet",
+            },
+          },
+          { $unwind: "$tweet" },
+
+          // Owner lookup
+          {
+            $lookup: {
+              from: "users",
+              localField: "tweet.owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    fullName: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          { $unwind: "$owner" },
+
+          // Subscribers lookup
+          {
+            $lookup: {
+              from: "subscriptions",
+              localField: "owner._id",
+              foreignField: "channel",
+              as: "subscribers",
+              pipeline: [{ $project: { subscriber: 1 } }],
+            },
+          },
+
+          // Likes lookup (tweet ke total likes + isLiked)
+          {
+            $lookup: {
+              from: "likes",
+              localField: "tweet._id",
+              foreignField: "tweet",
+              as: "likes",
+              pipeline: [{ $project: { likedBy: 1 } }],
+            },
+          },
+
+          // Saved Tweets lookup
+          {
+            $lookup: {
+              from: "saveTweets",
+              localField: "tweet._id",
+              foreignField: "tweet",
+              as: "savedTweet",
+              pipeline: [{ $project: { user: 1 } }],
+            },
+          },
+
+          // Computed fields
+          {
+            $addFields: {
+              "tweet.owner": "$owner",
+
+              "tweet.totalLikes": { $size: "$likes" },
+
+              "tweet.isLiked": {
+                $in: [userId, "$likes.likedBy"],
+              },
+
+              "tweet.isSubscribed": {
+                $in: [userId, "$subscribers.subscriber"],
+              },
+
+              "tweet.tweetSaved": {
+                $in: [userId, "$savedTweet.user"],
+              },
+            },
+          },
+
+          // Final tweet ko root banaya hai.
+          {
+            $replaceRoot: {
+              newRoot: "$tweet",
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  const tweets = result[0]?.tweets || [];
+  const totalTweets = result[0]?.totalCount[0]?.totalTweets || 0;
+
+  return res.status(200).json({
+    status: 200,
+    data: {
+      likedTweets: tweets,
+      totalTweets,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(totalTweets / limitNum),
+    },
+    message: "Liked Tweets fetched successfully.",
+  });
+});
+
+export { createTweet, getUserTweets, getAllTweets, updateTweet, deleteTweet, getAllLikedTweets };

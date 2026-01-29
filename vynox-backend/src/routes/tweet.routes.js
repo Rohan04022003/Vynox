@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createTweet,
   deleteTweet,
+  getAllLikedTweets,
   getAllTweets,
   getUserTweets,
   updateTweet,
@@ -24,4 +25,8 @@ router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
 // save tweets.
 router.route("/saved").get(getSavedTweet);
 router.route("/save/:tweetId").post(toggleSaveTweet);
+
+// liked tweets.
+router.route("/liked").get(getAllLikedTweets);
+
 export default router;
