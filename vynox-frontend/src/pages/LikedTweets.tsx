@@ -1,0 +1,132 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from "react";
+import TweetCardSkeleton from "../components/skeleton/TweetCardSkeleton";
+import TweetDetail from "../components/TweetDetails";
+import type { Tweet } from "../types";
+import TweetCard from "../components/TweetCard";
+import FilterBar from "../components/FilterBar";
+import { useTweetsContext } from "../context/TweetsContext";
+import { ArrowDown } from "lucide-react";
+import { useSubscription } from "../context/SubscriptionContext";
+
+const LikedTweets = () => {
+    const [selectedTweet, setSelectedTweet] = useState<Tweet | null>(null);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const { tweets, setTweets, loading, hasMoreTweets, fetchAllLikedTweets } = useTweetsContext();
+    const [sortType, setSortType] = useState<string>("desc");
+    const [limit, setLimit] = useState<number>(10);
+    const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoaderId } = useSubscription();
+
+    const openTweet = (tweet: Tweet) => {
+        setSelectedTweet(tweet);
+        setIsOpen(true);
+    };
+
+    // yeh isSubscribe and totalSubs. ke initial value set krega.
+    useEffect(() => {
+
+        tweets.map((t) => {
+
+            setSubscribeDetails((prev: { [x: string]: any; }) => {
+                if (!t?.owner?._id) return prev;
+                const channelId = t.owner._id;
+                if (prev[channelId]) return prev; // already updated click pe
+
+                return {
+                    ...prev,
+                    [channelId]: {
+                        isSubscribed: t.isSubscribed,
+                        totalSubscribers: 0 // yeh frontend pe show nahi hoga.
+                    }
+                };
+            });
+        })
+
+    }, [tweets]);
+
+    // initial load
+    useEffect(() => {
+        setTweets([])
+        fetchAllLikedTweets("desc", 10, 1);
+    }, []);
+
+    return (
+        <div className="w-full bg-gray-50 p-4 overflow-x-hidden">
+
+            {/* FilterBar */}
+            <FilterBar
+                sortType={sortType}
+                setSortType={setSortType}
+                limit={limit}
+                setLimit={setLimit}
+                showTags={false}
+                title={{
+                    heading: "Liked Tweets",
+                    subHeading: "Tweets you’ve Liked, all in one place"
+                }}
+                onFilterChange={({ sortType, limit }) => { // jb bhi filter change hoga yeh function run ho. like tag, sortType, limit 
+                    fetchAllLikedTweets(sortType, limit, 1);
+                }}
+            />
+
+
+            {/* Tweets Grid */}
+            <div
+                className="
+                grid 
+                gap-2 
+                xl:grid-cols-5 
+                lg:grid-cols-4 
+                md:grid-cols-3 
+                sm:grid-cols-2 
+                grid-cols-1 
+                justify-items-center
+            "
+            >
+                {tweets.map((tweet: Tweet) => (
+                    <TweetCard
+                        key={tweet._id}
+                        tweet={tweet}
+                        onOpen={openTweet}
+                        handleSubscribe={handleSubscribe}
+                        subscribeLoaderId={subscribeLoaderId}
+                        subscribeDetails={subscribeDetails}
+                    />
+                ))}
+
+                {/* Skeleton loader */}
+                {loading &&
+                    Array.from({ length: limit }).map((_, index) => (
+                        <TweetCardSkeleton key={index} />
+                    ))}
+            </div>
+
+            {/* for No tweets found */}
+            {!loading && tweets.length === 0 && (
+                <div className="lg:h-[60vh] h-[78vh] flex flex-col items-center justify-center text-gray-500">
+                    <span>No Liked tweets found.</span> <span>Try changing the filter or search keyword.</span>
+                </div>
+            )}
+
+            {/* Load More Button */}
+            {hasMoreTweets && !loading && tweets.length !== 0 && (
+                <div className="flex justify-center mt-5 mb-10">
+                    <button
+                        className="flex items-center gap-1 bg-neutral-100 w-fit px-3 py-1 m-auto rounded-lg text-neutral-700 cursor-pointer"
+                        onClick={() => fetchAllLikedTweets(sortType, limit)}
+                    >
+                        Load More Tweets <ArrowDown size={15} className="mt-1" />
+                    </button>
+                </div>
+            )}
+
+            {/* Tweet Detail Drawer */}
+            {isOpen && (
+                <TweetDetail tweet={selectedTweet} onClose={() => setIsOpen(false)} />
+            )}
+        </div>
+    );
+};
+
+export default LikedTweets;

@@ -116,6 +116,11 @@ export interface TweetsContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchAllLikedTweets: (
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   hasMoreTweets: boolean;
   handleTweetLike: (id: string) => Promise<void>
   likeLoadingId: string;

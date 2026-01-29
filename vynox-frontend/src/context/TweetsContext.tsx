@@ -85,6 +85,39 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchAllLikedTweets = async (
+    sortType = "desc",
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage || page;
+    try {
+      setLoading(true);
+      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/tweets/liked`, {
+        params: { sortType, limit, page: pageToFetch },
+        withCredentials: true,
+      });
+
+      const fetchedTweets: Tweet[] = res.data?.data?.likedTweets || [];
+
+      if (newPage) {
+        // filter changed → replace
+        setTweets(fetchedTweets);
+        setPage(2);
+        setHasMoreTweets(fetchedTweets.length === limit);
+      } else {
+        // load more → append
+        setTweets(prev => [...prev, ...fetchedTweets]);
+        setPage(pageToFetch + 1);
+        setHasMoreTweets(fetchedTweets.length === limit);
+      }
+    } catch (err) {
+      console.error("Error fetching liked tweets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTweetLike = async (id: string) => {
     try {
       setLikeLoadingId(id);
@@ -105,6 +138,9 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
               : t
           )
         );
+        if (location.pathname === "/liked-Tweets") {
+          setTweets(prev => prev.filter(t => t._id !== id));
+        }
       } else {
         toast.error("please try to like after sometime.");
       }
@@ -152,7 +188,7 @@ export const TweetsProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <TweetsContext.Provider
-      value={{ tweets, setTweets, fetchSavedTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId }}
+      value={{ tweets, setTweets, fetchSavedTweets, loading, fetchTweets, hasMoreTweets, handleTweetLike, likeLoadingId, handleSaveTweet, saveTweetLoadingId, fetchAllLikedTweets }}
     >
       {children}
     </TweetsContext.Provider>

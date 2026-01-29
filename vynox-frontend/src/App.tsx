@@ -16,6 +16,7 @@ import WatchHistory from "./pages/WatchHistory";
 import LikedVideos from "./pages/LikedVideos";
 import CommentedVideos from "./pages/CommentedVideos";
 import SavedTweets from "./pages/SavedTweets";
+import LikedTweets from "./pages/LikedTweets";
 
 const App = () => {
 
@@ -105,6 +106,23 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <SavedTweets />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/liked-Tweets"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav}
+                isOpen={isOpenSideNav}
+                search={search}
+                setSearch={setSearch}
+                setTagSearch={setTagSearch}
+              />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <LikedTweets />
               </div>
             </ProtectedRoute>
           }
