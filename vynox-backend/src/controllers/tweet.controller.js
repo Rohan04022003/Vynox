@@ -464,7 +464,7 @@ const getAllLikedTweets = asyncHandler(async (req, res) => {
           // Saved Tweets lookup
           {
             $lookup: {
-              from: "saveTweets",
+              from: "savetweets",
               localField: "tweet._id",
               foreignField: "tweet",
               as: "savedTweet",
@@ -520,4 +520,11 @@ const getAllLikedTweets = asyncHandler(async (req, res) => {
   });
 });
 
-export { createTweet, getUserTweets, getAllTweets, updateTweet, deleteTweet, getAllLikedTweets };
+export {
+  createTweet,
+  getUserTweets,
+  getAllTweets,
+  updateTweet,
+  deleteTweet,
+  getAllLikedTweets,
+};
