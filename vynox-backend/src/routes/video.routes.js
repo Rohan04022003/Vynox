@@ -18,6 +18,7 @@ import {
   deleteHistory,
   getHistory,
 } from "../controllers/watchHistroy.controller.js";
+import { getFavouriteVideos, toggleFavouriteVideo } from "../controllers/favouriteVideo.controller.js";
 
 const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
@@ -61,5 +62,9 @@ router.route("/:videoId/history").post(createHistory);
 router.route("/delete-history/:watchedHistoryId").delete(deleteHistory);
 router.route("/watched/clear-history").delete(clearHistory);
 router.route("/watched/history").get(getHistory);
+
+// favourite video route
+router.route("/:videoId/favourite").post(toggleFavouriteVideo);
+router.route("/favourite/lists").get(getFavouriteVideos);
 
 export default router;

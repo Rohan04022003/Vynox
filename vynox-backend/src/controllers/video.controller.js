@@ -14,8 +14,10 @@ import { Like } from "../models/like.model.js";
 import { VideoView } from "../models/videoView.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortType, userId } = req.query;
+  const { page = 1, limit = 10, query, sortType } = req.query;
   //TODO: get all videos based on query, sort, pagination
+
+  const userId = req.user._id;
 
   if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
     throw new ApiError(400, "Invalid user ID.");
@@ -26,10 +28,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     if (query) {
       filter.title = { $regex: query, $options: "i" };
-    }
-
-    if (userId) {
-      filter.owner = userId;
     }
 
     let skip = (Number(page) - 1) * Number(limit);
@@ -68,6 +66,29 @@ const getAllVideos = asyncHandler(async (req, res) => {
             },
             {
               $unwind: "$owner",
+            },
+            {
+              $lookup: {
+                from: "favouritevideos",
+                localField: "_id",
+                foreignField: "video",
+                as: "favouriteVideo",
+              },
+            },
+            {
+              $addFields: {
+                isFavouriteVideo: {
+                  $in: [
+                    new mongoose.Types.ObjectId(userId),
+                    "$favouriteVideo.user",
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                favouriteVideo: 0,
+              },
             },
           ],
         },
