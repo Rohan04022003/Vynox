@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import {
@@ -135,10 +136,16 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
             isFavouriteVideo: !isFavouriteVideo,
           };
         })
+
+        if (location.pathname === "/video/favourite/lists") {
+          setVideos(prev => prev.filter(v => v._id !== videoId));
+        }
+        response?.data?.data.favourite ? toast.success("Marked Favourite") : toast.success("Unmarked Favourite")
+
+      } else {
+        toast.error("please try to mark favourite after sometime.");
       }
-      if (location.pathname === "/video/favourite/lists") {
-        setVideos(prev => prev.filter(v => v._id !== videoId));
-      }
+
 
     } catch (error) {
       console.log("favourite Video toggle Failed: ", error)

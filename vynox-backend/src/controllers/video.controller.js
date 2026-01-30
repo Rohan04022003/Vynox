@@ -473,6 +473,14 @@ const getVideoById = asyncHandler(async (req, res) => {
           as: "likes",
         },
       },
+      {
+        $lookup: {
+          from: "favouritevideos",
+          localField: "_id",
+          foreignField: "video",
+          as: "favouriteVideo",
+        },
+      },
 
       {
         $addFields: {
@@ -487,13 +495,19 @@ const getVideoById = asyncHandler(async (req, res) => {
           isLiked: {
             $in: [new mongoose.Types.ObjectId(req.user._id), "$likes.likedBy"],
           },
+          isFavouriteVideo: {
+            $in: [
+              new mongoose.Types.ObjectId(req.user._id),
+              "$favouriteVideo.user",
+            ],
+          },
         },
       },
-
       {
         $project: {
           subscribers: 0, // remove subs object actual json response se.
           likes: 0, // remove likes obj.
+          favouriteVideo: 0,
         },
       },
     ]);
