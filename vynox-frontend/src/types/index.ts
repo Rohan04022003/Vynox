@@ -55,6 +55,11 @@ export interface VideosContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchFavouriteVideos: (
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   fetchLikedVideos: (
     sortType?: string,
     limit?: number,
@@ -93,6 +98,8 @@ export interface VideosContextType {
   CommentLikeLoaderId: string;
   handleDeleteComment?: (commentId: string) => Promise<void>;
   commentDeleteLoaderId: string;
+  favouriteVideoLoaderId: string;
+  handleFavouriteToggleVideos?: (videoId: string) => Promise<void>;
 }
 
 // tweetTypes

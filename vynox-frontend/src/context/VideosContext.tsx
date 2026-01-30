@@ -40,6 +40,7 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
   }>({ id: "", content: "" });
   const [CommentLikeLoaderId, setCommentLikeLoaderId] = useState<string>("")
   const [commentDeleteLoaderId, setCommentDeleteLoaderId] = useState<string>("")
+  const [favouriteVideoLoaderId, setFavouriteVideoLoaderId] = useState<string>("")
 
 
 
@@ -79,6 +80,72 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
+
+  const fetchFavouriteVideos = async ( // favourite videos ko fetch karega yeh method.
+    sortType = "desc",
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage ?? page; // yeh hamare current page number ko set krega.
+
+    try {
+      setLoading(true);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/videos/favourite/lists`, // yeh favourite videos ka acutal url hai.
+        {
+          params: { sortType, limit, page: pageToFetch }, // query hai videos ko fetch krne ke liye.
+          withCredentials: true,
+        }
+      );
+
+      const fetchedVideos: Video[] = res.data?.data?.videos ?? []; // yaha pe fetchedVideos me woh filterd aur fetched videos aayenge.
+
+      if (newPage) {
+        setVideos(fetchedVideos); // videos ko setVideos me set kiya hai.
+        setPage(2);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      } else {
+        setVideos(prev => [...prev, ...fetchedVideos]); // next page ke content ko aad kiya hai.
+        setPage(pageToFetch + 1);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      }
+    } catch (error) {
+      console.error("Error fetching favourite videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFavouriteToggleVideos = async (videoId: string) => {
+    try {
+      setFavouriteVideoLoaderId(videoId)
+
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/videos/${videoId}/favourite`, {}, { withCredentials: true })
+
+      if (response.status === 200) {
+        setPlayVideo((prev: any) => {
+
+          if (!prev) return;
+
+          const isFavouriteVideo = prev.isFavouriteVideo;
+
+          return {
+            ...prev,
+            isFavouriteVideo: !isFavouriteVideo,
+          };
+        })
+      }
+      if (location.pathname === "/video/favourite/lists") {
+        setVideos(prev => prev.filter(v => v._id !== videoId));
+      }
+
+    } catch (error) {
+      console.log("favourite Video toggle Failed: ", error)
+    } finally {
+      setFavouriteVideoLoaderId("")
+    }
+  }
 
   const fetchLikedVideos = async ( // liked videos ko fetch karega yeh method.
     sortType = "desc",
@@ -411,7 +478,10 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         handleLikeComment,
         CommentLikeLoaderId,
         handleDeleteComment,
-        commentDeleteLoaderId
+        commentDeleteLoaderId,
+        fetchFavouriteVideos,
+        favouriteVideoLoaderId,
+        handleFavouriteToggleVideos
       }}
     >
       {children}

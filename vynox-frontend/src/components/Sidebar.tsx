@@ -104,7 +104,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
           label={isOpen ? "Watched History" : ""}
         />
         <MenuItem
-          to="/video/favourite"
+          to="/video/favourite/lists"
           icon={Target}
           label={isOpen ? "Favourite Videos" : ""}
         />

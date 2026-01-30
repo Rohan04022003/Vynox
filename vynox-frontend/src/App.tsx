@@ -17,6 +17,7 @@ import LikedVideos from "./pages/LikedVideos";
 import CommentedVideos from "./pages/CommentedVideos";
 import SavedTweets from "./pages/SavedTweets";
 import LikedTweets from "./pages/LikedTweets";
+import FavouriteVideos from "./pages/FavouriteVideos";
 
 const App = () => {
 
@@ -160,6 +161,19 @@ const App = () => {
               <div className="flex">
                 <Sidebar isOpen={isOpenSideNav} />
                 <VideoPlayPage />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/video/favourite/lists"
+          element={
+            <ProtectedRoute>
+              <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}
+                setSearch={setSearch} />
+              <div className="flex">
+                <Sidebar isOpen={isOpenSideNav} />
+                <FavouriteVideos />
               </div>
             </ProtectedRoute>
           }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useVideosContext } from "../context/VideosContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowDown, ThumbsUp, BellRing, Dot, Edit, Eye, MessageSquare, Trash, Loader } from "lucide-react";
+import { ArrowDown, ThumbsUp, BellRing, Dot, Edit, Eye, MessageSquare, Trash, Loader, Target } from "lucide-react";
 import PlayVideoSkeleton from "../components/skeleton/PlayVideoSkeleton";
 import RecommendedSkeleton from "../components/skeleton/RecommendedSkeleton";
 import CommentsSkeleton from "../components/skeleton/CommentsSkeleton";
@@ -47,7 +47,9 @@ const VideoPlayPage = () => {
     handleLikeComment,
     CommentLikeLoaderId,
     handleDeleteComment,
-    commentDeleteLoaderId
+    commentDeleteLoaderId, 
+    favouriteVideoLoaderId,
+    handleFavouriteToggleVideos
   } = useVideosContext();
 
   const { handleSubscribe, setSubscribeDetails, subscribeDetails, subscribeLoader } = useSubscription();
@@ -176,6 +178,12 @@ const VideoPlayPage = () => {
             </button>
             <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><Eye size={16} className="" /> {playVideo.views}</span>
             <span className="flex items-center justify-center gap-2 px-3 h-7 rounded-full bg-neutral-100 text-base"><MessageSquare size={16} className="" />{totalComments}</span>
+            <button
+              disabled={favouriteVideoLoaderId === params?.id}
+              onClick={() => params?.id && handleFavouriteToggleVideos?.(params?.id)} className={`flex items-center justify-center gap-2 px-3 h-7 rounded-full ${playVideo?.isFavouriteVideo ? "bg-neutral-600 text-white" : "bg-neutral-100 text-neutral-800"} cursor-pointer`}>
+              <Target size={16} className="" />
+              {favouriteVideoLoaderId === params?.id ? <Loader size={16} className="animate-spin" /> : <span className="text-[12px]">{playVideo.isFavouriteVideo ? "Marked Favourite" : "Mark as Favourite"}</span>}
+            </button>
           </div>
           <span className="bg-neutral-100 px-3 py-2 rounded-full font-semibold">{playVideo?.createdAt &&
             formatShortTime(playVideo.createdAt)} ago</span>
