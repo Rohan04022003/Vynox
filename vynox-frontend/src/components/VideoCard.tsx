@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Clock, Eye, Loader, MessageSquareIcon, ThumbsUp, Trash2 } from "lucide-react";
+import { Clock, Eye, Loader, MessageSquareIcon, Target, ThumbsUp, Trash2 } from "lucide-react";
 import { formatDuration } from "../utils/videoDuration";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { formatShortTime } from "../utils/timeShortFormater";
+import { useVideosContext } from "../context/VideosContext";
 
 type VideoCardProps = {
     video: any;
@@ -13,6 +14,8 @@ type VideoCardProps = {
 const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoadingId }: VideoCardProps) => {
     const owner = video.owner;
     const navigate = useNavigate();
+    const location = useLocation();
+    const { favouriteVideoLoaderId, handleFavouriteToggleVideos } = useVideosContext();
 
 
     return (
@@ -57,7 +60,7 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoadingId }: 
                         <span className="text-xs text-neutral-600">{owner?.username}</span>
                     </div>
                     <button
-                    disabled={videoHistoryDeleteLoadingId === video?.watchHistoryId}
+                        disabled={videoHistoryDeleteLoadingId === video?.watchHistoryId}
                         onClick={(e) => {
                             e.stopPropagation(); // parent onClick tak nahi jayega
                             handleDeleteHistory(video?.watchHistoryId); // delete logic
@@ -81,6 +84,15 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoadingId }: 
                             {formatShortTime(video?.lastWatchedAt) + " ago"}
 
                         </span>}
+                        <button
+                            disabled={favouriteVideoLoaderId === video._id}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleFavouriteToggleVideos?.(video._id)
+                            }} className={`flex items-center justify-center gap-1 px-2 h-5 rounded-full ${video?.isFavouriteVideo ? "bg-neutral-600 text-white" : "bg-neutral-100 text-neutral-800"} ${location.pathname === "/" ? "hidden" : ""} cursor-pointer`}>
+                            <Target size={12} className="" />
+                            {favouriteVideoLoaderId === video._id ? <Loader size={12} className="animate-spin" /> : <span className="text-[12px]">Favourite</span>}
+                        </button>
                     </div>
                     <span className="bg-neutral-50 px-2 py-[.2rem] text-[11px] rounded-full">{formatShortTime(video.createdAt)} ago</span>
                 </div>
