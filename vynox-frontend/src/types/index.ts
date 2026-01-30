@@ -1,5 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { LucideIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+
+
+//sidebar types
+export type SidebarProps = {
+  isOpen: boolean;
+};
+
+export type MenuItemProps = {
+  to: string;
+  label: string;
+  icon?: LucideIcon;
+  img?: string;
+};
 
 // videosTypes
 
