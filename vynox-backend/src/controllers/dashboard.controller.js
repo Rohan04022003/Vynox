@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
+import { Tweet } from "../models/tweet.model.js";
 
 const getChannelStats = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
@@ -148,36 +149,69 @@ const getChannelStats = asyncHandler(async (req, res) => {
 const getChannelVideos = asyncHandler(async (req, res) => {
   // TODO: Get all the videos uploaded by the channel
 
+  const { channelId } = req.params;
+  const { page = 1, limit = 10, sortType } = req.query;
+  let skip = (Number(page) - 1) * Number(limit);
+
   try {
     const videos = await Video.aggregate([
       {
-        $sort: { createdAt: -1 },
+        $match: { owner: new mongoose.Types.ObjectId(channelId) },
+      },
+      { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+      {
+        $skip: skip,
       },
       {
-        $lookup: {
-          from: "users",
-          localField: "owner",
-          foreignField: "_id",
-          as: "owner",
-          pipeline: [
-            {
-              $project: {
-                username: 1,
-                fullName: 1,
-                avatar: 1,
-              },
-            },
-          ],
-        },
+        $limit: Number(limit),
       },
     ]);
 
     return res
       .status(200)
-      .json(new ApiResponse(200, videos, "All videos fetched successfully."));
+      .json(
+        new ApiResponse(200, videos, "All videos of user fetched successfully.")
+      );
   } catch (error) {
-    throw new ApiError(500, "Something was wrong while fetching all videos.");
+    throw new ApiError(
+      500,
+      "Something was wrong while fetching all videos of user."
+    );
   }
 });
 
-export { getChannelStats, getChannelVideos };
+const getChannelTweets = asyncHandler(async (req, res) => {
+  // TODO: Get all the videos uploaded by the channel
+
+  const { channelId } = req.params;
+  const { page = 1, limit = 10, sortType } = req.query;
+  let skip = (Number(page) - 1) * Number(limit);
+
+  try {
+    const videos = await Tweet.aggregate([
+      {
+        $match: { owner: new mongoose.Types.ObjectId(channelId) },
+      },
+      { $sort: { createdAt: sortType === "desc" ? -1 : 1 } },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: Number(limit),
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, videos, "All Tweets of user fetched successfully.")
+      );
+  } catch (error) {
+    throw new ApiError(
+      500,
+      "Something was wrong while fetching all Tweets of user."
+    );
+  }
+});
+
+export { getChannelStats, getChannelVideos, getChannelTweets };
