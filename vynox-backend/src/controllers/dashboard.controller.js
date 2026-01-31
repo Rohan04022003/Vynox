@@ -39,8 +39,29 @@ const getChannelStats = asyncHandler(async (req, res) => {
       {
         $addFields: {
           totalVideos: { $size: "$videos" },
-          totalviews: { $sum: "$videos.views" },
-          totalLikes: { $sum: "$videos.likeCount" },
+          totalVideoViews: { $sum: "$videos.views" },
+          totalVideoLikes: { $sum: "$videos.likeCount" },
+        },
+      },
+      {
+        $lookup: {
+          from: "tweets",
+          localField: "_id",
+          foreignField: "owner",
+          as: "tweets",
+          pipeline: [
+            {
+              $project: {
+                tweets: 0,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          totalTweets: { $size: "$tweets" },
+          totalTweetLikes: { $sum: "$tweets.likeCount" },
         },
       },
 
@@ -74,8 +95,10 @@ const getChannelStats = asyncHandler(async (req, res) => {
           email: 1,
           avatar: 1,
           totalVideos: 1,
-          totalViews: 1,
-          totalLikes: 1,
+          totalVideoViews: 1,
+          totalVideoLikes: 1,
+          totalTweets: 1,
+          totalTweetLikes: 1,
           totalSubscribers: 1,
           isSubscribed: 1,
         },
