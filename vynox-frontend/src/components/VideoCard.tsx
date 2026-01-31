@@ -89,7 +89,7 @@ const VideoCard = ({ video, handleDeleteHistory, videoHistoryDeleteLoadingId }: 
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleFavouriteToggleVideos?.(video._id)
-                            }} className={`flex items-center justify-center gap-1 px-2 h-5 rounded-full ${video?.isFavouriteVideo ? "bg-neutral-600 text-white" : "bg-neutral-100 text-neutral-800"} ${location.pathname === "/" ? "hidden" : ""} cursor-pointer`}>
+                            }} className={`flex items-center justify-center gap-1 px-2 h-5 rounded-full ${video?.isFavouriteVideo ? "bg-neutral-600 text-white" : "bg-neutral-100 text-neutral-800"} ${location.pathname === "/video/favourite/lists" ? "" : "hidden"} cursor-pointer`}>
                             <Target size={12} className="" />
                             {favouriteVideoLoaderId === video._id ? <Loader size={12} className="animate-spin" /> : <span className="text-[12px]">Favourite</span>}
                         </button>

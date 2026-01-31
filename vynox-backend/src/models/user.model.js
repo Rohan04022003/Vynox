@@ -46,12 +46,6 @@ const userSchema = new Schema(
       instagram: { type: String, default: "" },
       twitter: { type: String, default: "" },
     },
-    watchHistory: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Video",
-      },
-    ],
     password: {
       type: String,
       required: [true, "Password is required"],
