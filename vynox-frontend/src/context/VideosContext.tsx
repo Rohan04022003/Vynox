@@ -82,6 +82,44 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchChannelVideos = async ( // videos ko fetch karega yeh method.
+    channelId: any,
+    sortType = "desc",
+    limit = 10,
+    newPage?: number
+  ) => {
+    const pageToFetch = newPage ?? page; // yeh hamare current page number ko set krega.
+
+    try {
+      setLoading(true);
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/dashboard/${channelId}/videos`, // yeh videos ka acutal url hai.
+        {
+          params: { sortType, limit, page: pageToFetch }, // query hai videos ko fetch krne ke liye.
+          withCredentials: true,
+        }
+      );
+
+      const fetchedVideos: Video[] = res.data?.data; // yaha pe fetchedVideos me woh filterd aur fetched videos aayenge.
+
+      if (newPage) {
+        setVideos(fetchedVideos); // videos ko setVideos me set kiya hai.
+        setPage(2);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      } else {
+        setVideos(prev => [...prev, ...fetchedVideos]); // next page ke content ko aad kiya hai.
+        setPage(pageToFetch + 1);
+        setHasMoreVideos(fetchedVideos.length === limit); // yeh check krega ki aur content hai ya nahi means next page.
+      }
+    } catch (error) {
+      console.error("Error fetching channel videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const fetchFavouriteVideos = async ( // favourite videos ko fetch karega yeh method.
     sortType = "desc",
     limit = 10,
@@ -488,7 +526,8 @@ export const VideosProvider = ({ children }: { children: ReactNode }) => {
         commentDeleteLoaderId,
         fetchFavouriteVideos,
         favouriteVideoLoaderId,
-        handleFavouriteToggleVideos
+        handleFavouriteToggleVideos,
+        fetchChannelVideos
       }}
     >
       {children}

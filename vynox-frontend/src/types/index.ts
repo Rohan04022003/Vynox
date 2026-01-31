@@ -54,6 +54,12 @@ export interface VideosContextType {
     limit?: number,
     newPage?: number
   ) => Promise<void>;
+  fetchChannelVideos: (
+    channelId: string,
+    sortType?: string,
+    limit?: number,
+    newPage?: number
+  ) => Promise<void>;
   fetchFavouriteVideos: (
     sortType?: string,
     limit?: number,
