@@ -219,7 +219,7 @@ const App = () => {
           }
         />
         <Route
-          path="profile/user"
+          path="profile/user/:channelId"
           element={
             <ProtectedRoute>
               <Navbar setIsOpenNav={setIsOpenSideNav} isOpen={isOpenSideNav} search={search}

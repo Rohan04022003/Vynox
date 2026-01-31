@@ -20,28 +20,42 @@ import { memo, useState } from "react";
 import type { MenuItemProps, SidebarProps } from "../types";
 
 
-const MenuItem = memo(({ to, icon: Icon, label }: MenuItemProps) => {
-    return (
-        <NavLink
-            to={to}
-            className={({ isActive }) =>
-                `flex items-center gap-3 px-5 py-2 cursor-pointer text-xs font-medium
-        ${isActive
-                    ? "bg-neutral-200 text-sky-700 font-semibold"
-                    : "text-neutral-600 hover:bg-neutral-100"
-                }`
-            }
-        >
-            {Icon && <Icon size={18} />}
-            <span>{label}</span>
-        </NavLink>
-    );
-});
+const MenuItem = memo(
+    ({ to, icon: Icon, label, onClick }: MenuItemProps) => {
+        const baseClasses =
+            "flex items-center gap-3 px-5 py-2 cursor-pointer text-xs font-medium text-neutral-600 hover:bg-neutral-100";
+
+        if (onClick) {
+            return (
+                <button onClick={onClick} className={baseClasses}>
+                    {Icon && <Icon size={18} />}
+                    <span>{label}</span>
+                </button>
+            );
+        }
+
+        return (
+            <NavLink
+                to={to!}
+                className={({ isActive }) =>
+                    `${baseClasses} ${isActive
+                        ? "bg-neutral-200 text-sky-700 font-semibold"
+                        : ""
+                    }`
+                }
+            >
+                {Icon && <Icon size={18} />}
+                <span>{label}</span>
+            </NavLink>
+        );
+    }
+);
+
 
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
     const navigate = useNavigate();
-    const { setUser } = useUser();
+    const { setUser, user } = useUser();
     const [loading, setLoading] = useState(false);
 
 
@@ -109,7 +123,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             </div>
             <div className="flex flex-col border-t border-neutral-200 pt-3">
                 <MenuItem
-                    to="/profile/user"
+                    onClick={() => navigate(`/profile/user/${user?._id}`)}
                     icon={User}
                     label={isOpen ? "Profile" : ""}
                 />

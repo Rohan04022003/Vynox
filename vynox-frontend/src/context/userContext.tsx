@@ -12,6 +12,8 @@ const UserContext = createContext<any>(null);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<any>({});
     const navigate = useNavigate();
+    const [loadingStats, setLoadingStats] = useState<boolean>(false)
+    const [channelStats, setChannelStats] = useState<any>({});
 
     useEffect(() => {
         if (user?.email) {
@@ -76,11 +78,31 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     }, []);
 
-    
+    // getting channel stats
+
+    const getChannelStats = async (channelId: string) => {
+        setLoadingStats(true);
+
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_BASE_URL}/dashboard/stats/${channelId}`,
+                { withCredentials: true }
+            );
+
+            if (response.status === 200) {
+                setChannelStats(response.data.data);
+            }
+        } catch (error) {
+            console.log("Fetching stats failed: ", error);
+        } finally {
+            setLoadingStats(false);
+        }
+    };
+
 
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, getChannelStats, loadingStats, channelStats }}>
             {children}
         </UserContext.Provider>
     );
